@@ -1,0 +1,70 @@
+<%- include('partials/header', { title: article.title }) %>
+
+<main class="article-page">
+  <article>
+    <header class="article-header">
+      <% if (article.category_name) { %>
+        <a href="/category/<%= article.category_slug %>" class="article-card-category" style="margin-bottom: 1rem; display: inline-block;">
+          <%= article.category_name %>
+        </a>
+      <% } %>
+
+      <h1><%= article.title %></h1>
+
+      <div class="article-meta">
+        <span><strong>Source:</strong> <%= article.source %></span>
+        <% if (article.author) { %>
+          <span><strong>By:</strong> <%= article.author %></span>
+        <% } %>
+        <span><strong>Published:</strong> <%= article.published_date ? new Date(article.published_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Recent' %></span>
+        <% if (article.difficulty_level) { %>
+          <span class="difficulty-badge <%= article.difficulty_level %>">
+            <%= article.difficulty_level %>
+          </span>
+        <% } %>
+      </div>
+
+      <% if (article.tags && article.tags.length > 0) { %>
+        <div class="tags">
+          <% article.tags.forEach(tag => { %>
+            <a href="/search?q=<%= encodeURIComponent(tag.name) %>" class="tag"><%= tag.name %></a>
+          <% }) %>
+        </div>
+      <% } %>
+    </header>
+
+    <% if (article.summary && article.summary !== article.content) { %>
+      <div style="background: var(--background); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 2rem; border-left: 4px solid var(--accent);">
+        <strong style="display: block; margin-bottom: 0.5rem; color: var(--accent);">Summary</strong>
+        <p style="margin: 0; font-size: 1.05rem;"><%= article.summary %></p>
+      </div>
+    <% } %>
+
+    <div class="article-content">
+      <% if (article.content) { %>
+        <%- article.content.replace(/\n/g, '</p><p>') %>
+      <% } else { %>
+        <p>Full content not available. Click below to read the original article.</p>
+      <% } %>
+    </div>
+
+    <a href="<%= article.url %>" target="_blank" rel="noopener noreferrer" class="read-original">
+      Read Original Article &rarr;
+    </a>
+  </article>
+
+  <% if (relatedArticles && relatedArticles.length > 0) { %>
+    <section class="section" style="margin-top: 4rem;">
+      <div class="section-header">
+        <h2>Related Articles</h2>
+      </div>
+      <div class="articles-grid">
+        <% relatedArticles.forEach(article => { %>
+          <%- include('partials/article-card', { article }) %>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,76 @@
+const express = require('express');
+const router = express.Router();
+const scraper = require('../services/scraper');
+const processor = require('../services/processor');
+
+let scrapeStatus = {
+  running: false,
+  lastRun: null,
+  lastResult: null
+};
+
+let processStatus = {
+  running: false,
+  lastRun: null,
+  lastResult: null
+};
+
+// POST /api/scrape/run - Manually trigger scraping
+router.post('/run', async (req, res) => {
+  if (scrapeStatus.running) {
+    return res.status(409).json({
+      error: 'Scrape already in progress',
+      status: scrapeStatus
+    });
+  }
+
+  scrapeStatus.running = true;
+  res.json({ message: 'Scrape started', status: scrapeStatus });
+
+  try {
+    const result = await scraper.runScrape();
+    scrapeStatus.lastResult = result;
+    scrapeStatus.lastRun = new Date().toISOString();
+  } catch (err) {
+    scrapeStatus.lastResult = { error: err.message };
+  } finally {
+    scrapeStatus.running = false;
+  }
+});
+
+// GET /api/scrape/status - Get scraping status
+router.get('/status', (req, res) => {
+  res.json({ status: scrapeStatus });
+});
+
+// POST /api/process/run - Process pending articles through AI
+router.post('/process', async (req, res) => {
+  if (processStatus.running) {
+    return res.status(409).json({
+      error: 'Processing already in progress',
+      status: processStatus
+    });
+  }
+
+  const limit = parseInt(req.query.limit) || 10;
+
+  processStatus.running = true;
+  res.json({ message: 'AI processing started', limit, status: processStatus });
+
+  try {
+    const result = await processor.processPendingArticles({ limit });
+    processStatus.lastResult = result;
+    processStatus.lastRun = new Date().toISOString();
+  } catch (err) {
+    processStatus.lastResult = { error: err.message };
+  } finally {
+    processStatus.running = false;
+  }
+});
+
+// GET /api/process/status - Get processing status
+router.get('/process/status', (req, res) => {
+  res.json({ status: processStatus });
+});
+
+module.exports = router;

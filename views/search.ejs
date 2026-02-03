@@ -1,0 +1,26 @@
+<%- include('partials/header', { title: 'Search: ' + query, query: query }) %>
+
+<section class="search-header">
+  <div class="container">
+    <h1>Search results for "<span class="query"><%= query %></span>"</h1>
+    <p style="color: var(--text-light);"><%= articles.length %> result<%= articles.length !== 1 ? 's' : '' %> found</p>
+  </div>
+</section>
+
+<main class="container">
+  <% if (articles && articles.length > 0) { %>
+    <div class="articles-grid">
+      <% articles.forEach(article => { %>
+        <%- include('partials/article-card', { article }) %>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <div class="empty-state-icon">🔍</div>
+      <h3>No results found</h3>
+      <p>Try different keywords or browse our <a href="/categories">categories</a>.</p>
+    </div>
+  <% } %>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,32 @@
+<article class="article-card">
+  <div class="article-card-image">
+    <span class="article-card-icon">📰</span>
+  </div>
+  <div class="article-card-content">
+    <div class="article-card-meta">
+      <% if (article.category_name) { %>
+        <a href="/category/<%= article.category_slug %>" class="article-card-category">
+          <%= article.category_name %>
+        </a>
+      <% } %>
+      <span><%= article.published_date ? new Date(article.published_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent' %></span>
+    </div>
+
+    <h3>
+      <a href="/article/<%= article.id %>"><%= article.title %></a>
+    </h3>
+
+    <p class="article-card-summary">
+      <%= article.summary || (article.content ? article.content.substring(0, 200) + '...' : 'No summary available.') %>
+    </p>
+
+    <div class="article-card-footer">
+      <span class="article-card-source"><%= article.source %></span>
+      <% if (article.difficulty_level) { %>
+        <span class="difficulty-badge <%= article.difficulty_level %>">
+          <%= article.difficulty_level %>
+        </span>
+      <% } %>
+    </div>
+  </div>
+</article>

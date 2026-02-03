@@ -1,0 +1,64 @@
+<%- include('partials/header', { page: 'home' }) %>
+
+<section class="hero">
+  <div class="container">
+    <h1>AI in Credit & Banking</h1>
+    <p>Curated news on artificial intelligence applications in credit scoring, lending, fraud detection, and financial services.</p>
+  </div>
+</section>
+
+<main class="container">
+  <!-- Latest Articles -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Latest Articles</h2>
+    </div>
+
+    <% if (articles && articles.length > 0) { %>
+      <div class="articles-grid">
+        <% articles.forEach(article => { %>
+          <%- include('partials/article-card', { article }) %>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h3>No articles yet</h3>
+        <p>Check back soon for the latest AI in credit & banking news.</p>
+      </div>
+    <% } %>
+  </section>
+
+  <!-- Categories -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Browse by Category</h2>
+      <a href="/categories">View all &rarr;</a>
+    </div>
+
+    <div class="categories-grid">
+      <% const icons = {
+        'ai-credit-scoring': '💳',
+        'banking-automation': '🤖',
+        'fraud-detection': '🛡️',
+        'regulatory-compliance': '⚖️',
+        'risk-management': '📊',
+        'customer-experience': '👥',
+        'research-innovation': '💡',
+        'case-studies': '📚',
+        'industry-news': '📰',
+        'ethics-bias': '⚡'
+      }; %>
+
+      <% categories.forEach(category => { %>
+        <a href="/category/<%= category.slug %>" class="category-card">
+          <div class="category-card-icon"><%= icons[category.slug] || '📁' %></div>
+          <h4><%= category.name %></h4>
+          <span class="category-card-count"><%= category.article_count %> article<%= category.article_count !== 1 ? 's' : '' %></span>
+        </a>
+      <% }) %>
+    </div>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

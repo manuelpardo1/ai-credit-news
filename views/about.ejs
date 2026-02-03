@@ -1,0 +1,83 @@
+<%- include('partials/header', { title: 'About', page: 'about' }) %>
+
+<main class="article-page">
+  <article>
+    <header class="article-header">
+      <h1>About AI Credit News</h1>
+    </header>
+
+    <div class="article-content">
+      <p>
+        <strong>AI Credit News</strong> is an automated news aggregation platform focused on the intersection
+        of artificial intelligence and the financial services industry—specifically credit scoring, banking,
+        lending, and related technologies.
+      </p>
+
+      <h2>Our Mission</h2>
+      <p>
+        The world of AI in finance is evolving rapidly. New machine learning models are transforming how
+        creditworthiness is assessed, how fraud is detected, and how banks serve their customers. Our mission
+        is to make this complex landscape accessible to everyone—from industry professionals to curious learners.
+      </p>
+
+      <h2>How It Works</h2>
+      <p>
+        We use a multi-stage process to curate relevant content:
+      </p>
+      <ol style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+        <li style="margin-bottom: 0.5rem;"><strong>Automated Collection:</strong> Our system monitors RSS feeds from leading technology, finance, and banking publications.</li>
+        <li style="margin-bottom: 0.5rem;"><strong>AI Filtering:</strong> Claude AI analyzes each article to determine its relevance to AI applications in credit and banking.</li>
+        <li style="margin-bottom: 0.5rem;"><strong>Categorization:</strong> Relevant articles are automatically categorized and tagged for easy discovery.</li>
+        <li style="margin-bottom: 0.5rem;"><strong>Summarization:</strong> AI-generated summaries make it easy to quickly understand each article's key points.</li>
+      </ol>
+
+      <h2>Categories We Cover</h2>
+      <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+        <li style="margin-bottom: 0.5rem;"><strong>AI in Credit Scoring</strong> – Machine learning models for assessing creditworthiness</li>
+        <li style="margin-bottom: 0.5rem;"><strong>Banking Automation</strong> – AI-powered banking operations and processes</li>
+        <li style="margin-bottom: 0.5rem;"><strong>Fraud Detection</strong> – AI systems for detecting and preventing financial fraud</li>
+        <li style="margin-bottom: 0.5rem;"><strong>Regulatory & Compliance</strong> – AI governance, fairness requirements, and regulations</li>
+        <li style="margin-bottom: 0.5rem;"><strong>Risk Management</strong> – AI for financial risk assessment and mitigation</li>
+        <li style="margin-bottom: 0.5rem;"><strong>Customer Experience</strong> – Chatbots, personalization, and AI interfaces</li>
+        <li style="margin-bottom: 0.5rem;"><strong>Research & Innovation</strong> – Academic papers and new techniques</li>
+        <li style="margin-bottom: 0.5rem;"><strong>Ethics & Bias</strong> – Fair lending, algorithmic bias, and responsible AI</li>
+      </ul>
+
+      <h2>Difficulty Levels</h2>
+      <p>
+        Each article is assessed for technical difficulty:
+      </p>
+      <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+        <li style="margin-bottom: 0.5rem;"><span class="difficulty-badge beginner">Beginner</span> – General audience, minimal jargon</li>
+        <li style="margin-bottom: 0.5rem;"><span class="difficulty-badge intermediate">Intermediate</span> – Some technical knowledge helpful</li>
+        <li style="margin-bottom: 0.5rem;"><span class="difficulty-badge advanced">Advanced</span> – Deep technical or domain expertise required</li>
+      </ul>
+
+      <h2>Technology Stack</h2>
+      <p>
+        This platform is built with:
+      </p>
+      <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+        <li style="margin-bottom: 0.5rem;">Node.js + Express.js backend</li>
+        <li style="margin-bottom: 0.5rem;">SQLite database</li>
+        <li style="margin-bottom: 0.5rem;">Claude AI (Anthropic) for content analysis</li>
+        <li style="margin-bottom: 0.5rem;">RSS parsing for news collection</li>
+        <li style="margin-bottom: 0.5rem;">Vanilla HTML/CSS/JS frontend</li>
+      </ul>
+
+      <h2>Disclaimer</h2>
+      <p>
+        This is an automated news aggregation service. We do not create original content—we curate and
+        summarize articles from other sources. All articles link to their original sources. The AI-generated
+        summaries and categorizations are provided for convenience and may not be 100% accurate.
+      </p>
+
+      <p>
+        <em>This platform does not provide financial advice. Always consult qualified professionals for
+        financial decisions.</em>
+      </p>
+    </div>
+  </article>
+</main>
+
+<%- include('partials/footer') %>

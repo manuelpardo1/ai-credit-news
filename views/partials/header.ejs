@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title + ' | ' : '' %>AI Credit News</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">AI</span>
+        <span>Credit News</span>
+      </a>
+
+      <form action="/search" method="GET" class="search-form">
+        <input
+          type="text"
+          name="q"
+          placeholder="Search articles..."
+          class="search-input"
+          value="<%= typeof query !== 'undefined' ? query : '' %>"
+        >
+        <button type="submit" class="search-btn">Search</button>
+      </form>
+
+      <nav class="nav">
+        <a href="/" class="<%= typeof page !== 'undefined' && page === 'home' ? 'active' : '' %>">Home</a>
+        <a href="/categories" class="<%= typeof page !== 'undefined' && page === 'categories' ? 'active' : '' %>">Categories</a>
+        <a href="/about" class="<%= typeof page !== 'undefined' && page === 'about' ? 'active' : '' %>">About</a>
+      </nav>
+    </div>
+  </header>
