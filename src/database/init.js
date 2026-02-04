@@ -79,6 +79,45 @@ CREATE INDEX IF NOT EXISTS idx_articles_status ON articles(status);
 CREATE INDEX IF NOT EXISTS idx_articles_published_date ON articles(published_date);
 CREATE INDEX IF NOT EXISTS idx_articles_relevance ON articles(relevance_score);
 CREATE INDEX IF NOT EXISTS idx_sources_active ON sources(active);
+
+-- Editorials table (for weekly AI-generated editorials)
+CREATE TABLE IF NOT EXISTS editorials (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  week_start DATE NOT NULL,
+  week_end DATE NOT NULL,
+  status TEXT DEFAULT 'draft' CHECK(status IN ('draft', 'published')),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  published_at DATETIME,
+  ai_generated_at DATETIME
+);
+
+CREATE INDEX IF NOT EXISTS idx_editorials_status ON editorials(status);
+CREATE INDEX IF NOT EXISTS idx_editorials_week ON editorials(week_start);
+
+-- Subscribers table (for newsletter)
+CREATE TABLE IF NOT EXISTS subscribers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  subscribed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  active BOOLEAN DEFAULT 1,
+  unsubscribe_token TEXT UNIQUE NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_subscribers_active ON subscribers(active);
+CREATE INDEX IF NOT EXISTS idx_subscribers_token ON subscribers(unsubscribe_token);
+
+-- Newsletter logs (for tracking sent newsletters)
+CREATE TABLE IF NOT EXISTS newsletter_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  editorial_id INTEGER,
+  sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  recipient_count INTEGER,
+  type TEXT CHECK(type IN ('weekly', 'extraordinary')),
+  FOREIGN KEY (editorial_id) REFERENCES editorials(id)
+);
 `;
 
 db.serialize(() => {

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - AI Credit News</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    }
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-box h1 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+      color: var(--primary);
+    }
+    .login-box p {
+      color: var(--text-light);
+      margin: 0 0 30px 0;
+    }
+    .login-box input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+    .login-box input[type="password"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .login-box button {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .login-box button:hover {
+      background: var(--primary);
+    }
+    .error {
+      background: #fed7d7;
+      color: #c53030;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-light);
+      text-decoration: none;
+    }
+    .back-link:hover {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <h1>Admin Login</h1>
+      <p>AI Credit News Dashboard</p>
+
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+
+      <form method="POST" action="/admin/login">
+        <input
+          type="password"
+          name="password"
+          placeholder="Enter admin password"
+          required
+          autofocus
+        >
+        <button type="submit">Login</button>
+      </form>
+
+      <a href="/" class="back-link">← Back to site</a>
+    </div>
+  </div>
+</body>
+</html>

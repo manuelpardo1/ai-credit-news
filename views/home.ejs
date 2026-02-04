@@ -8,48 +8,84 @@
 </section>
 
 <main class="container">
-  <!-- Latest Articles -->
-  <section class="section">
-    <div class="section-header">
-      <h2>Latest Articles</h2>
+  <div class="home-layout">
+    <div class="main-content">
+      <!-- Weekly Editorial -->
+      <% if (editorial) { %>
+        <section class="editorial-featured">
+          <div class="editorial-label">Weekly Editorial</div>
+          <h2><%= editorial.title %></h2>
+          <div class="editorial-excerpt">
+            <%= editorial.content.substring(0, 400) %>...
+          </div>
+          <a href="/editorial/<%= editorial.id %>" class="editorial-link">Read Full Editorial &rarr;</a>
+        </section>
+      <% } %>
+
+      <!-- Latest Articles -->
+      <section class="section">
+        <div class="section-header">
+          <h2>Latest Articles</h2>
+        </div>
+
+        <% if (articles && articles.length > 0) { %>
+          <div class="articles-grid">
+            <% articles.forEach(article => { %>
+              <%- include('partials/article-card', { article }) %>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <h3>No articles yet</h3>
+            <p>Check back soon for the latest AI in credit & banking news.</p>
+          </div>
+        <% } %>
+      </section>
     </div>
 
-    <% if (articles && articles.length > 0) { %>
-      <div class="articles-grid">
-        <% articles.forEach(article => { %>
-          <%- include('partials/article-card', { article }) %>
-        <% }) %>
-      </div>
-    <% } else { %>
-      <div class="empty-state">
-        <div class="empty-state-icon">📭</div>
-        <h3>No articles yet</h3>
-        <p>Check back soon for the latest AI in credit & banking news.</p>
-      </div>
-    <% } %>
-  </section>
+    <aside class="sidebar">
+      <!-- Subscribe Widget -->
+      <%- include('partials/subscribe-sidebar') %>
 
-  <!-- Categories -->
-  <section class="section">
+      <!-- Categories -->
+      <div class="sidebar-section">
+        <h3>Categories</h3>
+        <% const icons = {
+          'ai-credit-scoring': '💳',
+          'banking-automation': '🤖',
+          'fraud-detection': '🛡️',
+          'regulatory-compliance': '⚖️',
+          'risk-management': '📊',
+          'customer-experience': '👥',
+          'research-innovation': '💡',
+          'case-studies': '📚',
+          'industry-news': '📰',
+          'ethics-bias': '⚡'
+        }; %>
+        <ul class="sidebar-categories">
+          <% categories.slice(0, 6).forEach(category => { %>
+            <li>
+              <a href="/category/<%= category.slug %>">
+                <span><%= icons[category.slug] || '📁' %> <%= category.name %></span>
+                <span class="count"><%= category.article_count %></span>
+              </a>
+            </li>
+          <% }) %>
+        </ul>
+        <a href="/categories" class="view-all-link">View all categories &rarr;</a>
+      </div>
+    </aside>
+  </div>
+
+  <!-- All Categories Grid -->
+  <section class="section categories-section">
     <div class="section-header">
       <h2>Browse by Category</h2>
       <a href="/categories">View all &rarr;</a>
     </div>
 
     <div class="categories-grid">
-      <% const icons = {
-        'ai-credit-scoring': '💳',
-        'banking-automation': '🤖',
-        'fraud-detection': '🛡️',
-        'regulatory-compliance': '⚖️',
-        'risk-management': '📊',
-        'customer-experience': '👥',
-        'research-innovation': '💡',
-        'case-studies': '📚',
-        'industry-news': '📰',
-        'ethics-bias': '⚡'
-      }; %>
-
       <% categories.forEach(category => { %>
         <a href="/category/<%= category.slug %>" class="category-card">
           <div class="category-card-icon"><%= icons[category.slug] || '📁' %></div>

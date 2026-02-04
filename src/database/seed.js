@@ -114,6 +114,55 @@ const sources = [
     url: 'https://thefinancialbrand.com/',
     rss_feed: 'https://thefinancialbrand.com/feed/',
     active: 1
+  },
+  // New sources added for broader coverage
+  {
+    name: 'Risk.net',
+    url: 'https://www.risk.net/',
+    rss_feed: 'https://www.risk.net/rss/risk-management',
+    active: 1
+  },
+  {
+    name: 'Finovate',
+    url: 'https://finovate.com/',
+    rss_feed: 'https://finovate.com/feed/',
+    active: 1
+  },
+  {
+    name: 'Bank Automation News',
+    url: 'https://bankautomationnews.com/',
+    rss_feed: 'https://bankautomationnews.com/feed/',
+    active: 1
+  },
+  {
+    name: 'PaymentsJournal',
+    url: 'https://paymentsjournal.com/',
+    rss_feed: 'https://paymentsjournal.com/feed/',
+    active: 1
+  },
+  {
+    name: 'The Fintech Times',
+    url: 'https://thefintechtimes.com/',
+    rss_feed: 'https://thefintechtimes.com/feed/',
+    active: 1
+  },
+  {
+    name: 'Experian Insights',
+    url: 'https://www.experian.com/blogs/insights/',
+    rss_feed: 'https://www.experian.com/blogs/insights/feed/',
+    active: 1
+  },
+  {
+    name: 'FICO Blog',
+    url: 'https://www.fico.com/blogs/',
+    rss_feed: 'https://www.fico.com/blogs/feed/',
+    active: 1
+  },
+  {
+    name: 'Accenture Banking Blog',
+    url: 'https://bankingblog.accenture.com/',
+    rss_feed: 'https://bankingblog.accenture.com/feed/',
+    active: 1
   }
 ];
 

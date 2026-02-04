@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const cookieParser = require('cookie-parser');
+const cron = require('node-cron');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,15 +11,24 @@ const PORT = process.env.PORT || 3000;
 // Models for frontend routes
 const Article = require('./models/Article');
 const Category = require('./models/Category');
+const Editorial = require('./models/Editorial');
+
+// Auth middleware
+const { addAuthStatus } = require('./middleware/auth');
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser(process.env.SESSION_SECRET || 'default-secret-key'));
 app.use(express.static(path.join(__dirname, '../public')));
 
 // View engine setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
+
+// Add auth status to all views
+app.use(addAuthStatus);
 
 // API Routes
 const articlesRouter = require('./routes/articles');
@@ -25,12 +36,17 @@ const categoriesRouter = require('./routes/categories');
 const tagsRouter = require('./routes/tags');
 const sourcesRouter = require('./routes/sources');
 const scrapeRouter = require('./routes/scrape');
+const adminRouter = require('./routes/admin');
+const subscribeRouter = require('./routes/subscribe');
 
 app.use('/api/articles', articlesRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/tags', tagsRouter);
 app.use('/api/sources', sourcesRouter);
 app.use('/api/scrape', scrapeRouter);
+app.use('/admin', adminRouter);
+app.use('/subscribe', subscribeRouter);
+app.use('/', subscribeRouter); // For /unsubscribe/:token
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -46,7 +62,8 @@ app.get('/', async (req, res) => {
   try {
     const articles = await Article.getLatest(12);
     const categories = await Category.getWithArticleCount();
-    res.render('home', { articles, categories });
+    const latestEditorial = await Editorial.findLatestPublished();
+    res.render('home', { articles, categories, editorial: latestEditorial });
   } catch (err) {
     console.error('Error loading homepage:', err);
     res.status(500).render('error', { message: 'Failed to load homepage' });
@@ -127,6 +144,20 @@ app.get('/article/:id', async (req, res) => {
   }
 });
 
+// Editorial page
+app.get('/editorial/:id', async (req, res) => {
+  try {
+    const editorial = await Editorial.findById(req.params.id);
+    if (!editorial || editorial.status !== 'published') {
+      return res.status(404).render('error', { message: 'Editorial not found' });
+    }
+    res.render('editorial', { editorial });
+  } catch (err) {
+    console.error('Error loading editorial:', err);
+    res.status(500).render('error', { message: 'Failed to load editorial' });
+  }
+});
+
 // Search page
 app.get('/search', async (req, res) => {
   try {
@@ -147,6 +178,36 @@ app.get('/search', async (req, res) => {
 // About page
 app.get('/about', (req, res) => {
   res.render('about');
+});
+
+// ============================================
+// Cron Jobs
+// ============================================
+
+// Import services for cron jobs
+const { generateWeeklyEditorial } = require('./services/editorial');
+const { sendWeeklyNewsletter } = require('./services/newsletter');
+
+// Generate editorial every Sunday at 6 PM
+cron.schedule('0 18 * * 0', async () => {
+  console.log('[CRON] Generating weekly editorial...');
+  try {
+    await generateWeeklyEditorial();
+    console.log('[CRON] Editorial generation complete');
+  } catch (err) {
+    console.error('[CRON] Editorial generation failed:', err.message);
+  }
+});
+
+// Send newsletter every Monday at 8 AM
+cron.schedule('0 8 * * 1', async () => {
+  console.log('[CRON] Sending weekly newsletter...');
+  try {
+    await sendWeeklyNewsletter();
+    console.log('[CRON] Newsletter send complete');
+  } catch (err) {
+    console.error('[CRON] Newsletter send failed:', err.message);
+  }
 });
 
 // ============================================

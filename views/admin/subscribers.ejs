@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscribers - AI Credit News Admin</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .admin-header {
+      background: var(--primary);
+      color: white;
+      padding: 20px 0;
+    }
+    .admin-header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .admin-nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      opacity: 0.8;
+    }
+    .admin-nav a:hover {
+      opacity: 1;
+    }
+    .admin-content {
+      padding: 40px 0;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .stat-badge {
+      background: var(--accent);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+    .subscribers-table {
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 16px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: var(--background);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .status-active {
+      color: #38a169;
+    }
+    .status-inactive {
+      color: #e53e3e;
+    }
+    .empty-state {
+      padding: 60px 40px;
+      text-align: center;
+      color: var(--text-light);
+    }
+  </style>
+</head>
+<body>
+  <header class="admin-header">
+    <div class="container">
+      <h1>AI Credit News Admin</h1>
+      <nav class="admin-nav">
+        <a href="/">View Site</a>
+        <a href="/admin/editorials">Dashboard</a>
+        <a href="/admin/logout">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="admin-content">
+    <div class="container">
+      <div class="section-header">
+        <h2>Subscribers</h2>
+        <span class="stat-badge"><%= activeCount %> active subscribers</span>
+      </div>
+
+      <div class="subscribers-table">
+        <% if (subscribers.length === 0) { %>
+          <div class="empty-state">
+            <p>No subscribers yet.</p>
+          </div>
+        <% } else { %>
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Subscribed</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% subscribers.forEach(sub => { %>
+                <tr>
+                  <td><%= sub.email %></td>
+                  <td><%= sub.name || '-' %></td>
+                  <td><%= new Date(sub.subscribed_at).toLocaleDateString() %></td>
+                  <td>
+                    <% if (sub.active) { %>
+                      <span class="status-active">Active</span>
+                    <% } else { %>
+                      <span class="status-inactive">Unsubscribed</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
