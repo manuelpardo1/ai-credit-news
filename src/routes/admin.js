@@ -52,6 +52,32 @@ router.get('/editorials', requireAuth, async (req, res) => {
   }
 });
 
+// POST /admin/editorial/generate - Generate new editorial (MUST be before :id route)
+router.post('/editorial/generate', requireAuth, async (req, res) => {
+  try {
+    const editorial = await generateWeeklyEditorial();
+    if (editorial) {
+      res.redirect(`/admin/editorial/${editorial.id}`);
+    } else {
+      res.redirect('/admin/editorials?message=Not enough articles to generate editorial');
+    }
+  } catch (err) {
+    console.error('Error generating editorial:', err);
+    res.redirect('/admin/editorials?message=Error generating editorial');
+  }
+});
+
+// POST /admin/editorial/welcome - Create welcome editorial (MUST be before :id route)
+router.post('/editorial/welcome', requireAuth, async (req, res) => {
+  try {
+    const editorial = await createWelcomeEditorial();
+    res.redirect(`/admin/editorial/${editorial.id}`);
+  } catch (err) {
+    console.error('Error creating welcome editorial:', err);
+    res.redirect('/admin/editorials?message=Error creating editorial');
+  }
+});
+
 // GET /admin/editorial/:id - Edit editorial
 router.get('/editorial/:id', requireAuth, async (req, res) => {
   try {
@@ -98,32 +124,6 @@ router.post('/editorial/:id/delete', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Error deleting editorial:', err);
     res.status(500).send('Error deleting editorial');
-  }
-});
-
-// POST /admin/editorial/generate - Generate new editorial
-router.post('/editorial/generate', requireAuth, async (req, res) => {
-  try {
-    const editorial = await generateWeeklyEditorial();
-    if (editorial) {
-      res.redirect(`/admin/editorial/${editorial.id}`);
-    } else {
-      res.redirect('/admin/editorials?message=Not enough articles to generate editorial');
-    }
-  } catch (err) {
-    console.error('Error generating editorial:', err);
-    res.redirect('/admin/editorials?message=Error generating editorial');
-  }
-});
-
-// POST /admin/editorial/welcome - Create welcome editorial
-router.post('/editorial/welcome', requireAuth, async (req, res) => {
-  try {
-    const editorial = await createWelcomeEditorial();
-    res.redirect(`/admin/editorial/${editorial.id}`);
-  } catch (err) {
-    console.error('Error creating welcome editorial:', err);
-    res.redirect('/admin/editorials?message=Error creating editorial');
   }
 });
 
