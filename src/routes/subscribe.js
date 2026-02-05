@@ -1,6 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const Subscriber = require('../models/Subscriber');
+const Editorial = require('../models/Editorial');
+const Article = require('../models/Article');
+const { sendWelcomeEmail } = require('../services/email');
+
+/**
+ * Helper: fetch content for welcome email (non-blocking)
+ */
+async function sendWelcomeInBackground(subscriber) {
+  try {
+    const editorial = await Editorial.findLatestPublished();
+    const allArticles = await Article.findAll({ status: 'approved', limit: 10, page: 1 });
+
+    // Filter to recent articles
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 14);
+    const articles = allArticles
+      .filter(a => {
+        const d = new Date(a.published_date || a.scraped_date);
+        return d >= weekAgo;
+      })
+      .sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0))
+      .slice(0, 5);
+
+    const result = await sendWelcomeEmail(subscriber, editorial, articles);
+    if (result.success) {
+      console.log(`Welcome email sent to ${subscriber.email}`);
+    } else {
+      console.error(`Failed to send welcome email to ${subscriber.email}: ${result.error}`);
+    }
+  } catch (err) {
+    console.error(`Error sending welcome email to ${subscriber.email}:`, err.message);
+  }
+}
 
 // POST /subscribe - New subscription
 router.post('/', async (req, res) => {
@@ -27,18 +60,24 @@ router.post('/', async (req, res) => {
     if (existing && !existing.active) {
       // Resubscribe
       await Subscriber.resubscribe(email);
+      const resubscribed = await Subscriber.findByEmail(email);
+      // Send welcome email in background (don't block the response)
+      sendWelcomeInBackground(resubscribed);
       return res.render('subscribe-result', {
         success: true,
-        message: 'Welcome back! Your subscription has been reactivated.'
+        message: 'Welcome back! Check your inbox for a welcome email.'
       });
     }
 
     // Create new subscriber
-    await Subscriber.create(email, name || null);
+    const subscriber = await Subscriber.create(email, name || null);
+
+    // Send welcome email in background (don't block the response)
+    sendWelcomeInBackground(subscriber);
 
     res.render('subscribe-result', {
       success: true,
-      message: 'Successfully subscribed! You\'ll receive our weekly newsletter every Monday.'
+      message: 'Successfully subscribed! Check your inbox for a welcome email.'
     });
 
   } catch (err) {
@@ -119,17 +158,20 @@ router.post('/api', async (req, res) => {
 
     if (existing && !existing.active) {
       await Subscriber.resubscribe(email);
+      const resubscribed = await Subscriber.findByEmail(email);
+      sendWelcomeInBackground(resubscribed);
       return res.json({
         success: true,
-        message: 'Welcome back! Your subscription has been reactivated.'
+        message: 'Welcome back! Check your inbox for a welcome email.'
       });
     }
 
-    await Subscriber.create(email, name || null);
+    const subscriber = await Subscriber.create(email, name || null);
+    sendWelcomeInBackground(subscriber);
 
     res.json({
       success: true,
-      message: 'Successfully subscribed!'
+      message: 'Successfully subscribed! Check your inbox for a welcome email.'
     });
 
   } catch (err) {
