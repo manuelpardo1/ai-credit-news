@@ -7,62 +7,38 @@ const categories = [
   {
     name: 'AI in Credit Scoring',
     slug: 'ai-credit-scoring',
-    description: 'Machine learning models for creditworthiness assessment',
+    description: 'Machine learning models for creditworthiness assessment and scoring',
     icon: 'credit-card'
   },
   {
-    name: 'Banking Automation',
-    slug: 'banking-automation',
-    description: 'AI-powered banking operations and processes',
-    icon: 'robot'
-  },
-  {
-    name: 'Fraud Detection',
-    slug: 'fraud-detection',
+    name: 'AI in Fraud Detection',
+    slug: 'ai-fraud-detection',
     description: 'AI systems for detecting and preventing financial fraud',
     icon: 'shield'
   },
   {
-    name: 'Regulatory & Compliance',
-    slug: 'regulatory-compliance',
-    description: 'AI governance, fairness requirements, and regulations',
-    icon: 'scale'
-  },
-  {
-    name: 'Risk Management',
-    slug: 'risk-management',
-    description: 'AI for financial risk assessment and mitigation',
+    name: 'AI in Credit Risk',
+    slug: 'ai-credit-risk',
+    description: 'AI for credit risk assessment, modeling, and management',
     icon: 'chart-line'
   },
   {
-    name: 'Customer Experience',
-    slug: 'customer-experience',
-    description: 'Chatbots, personalization, and AI-powered interfaces',
-    icon: 'users'
+    name: 'Income & Employment Verification',
+    slug: 'income-employment',
+    description: 'AI for income verification, employment data, and affordability analysis',
+    icon: 'briefcase'
   },
   {
-    name: 'Research & Innovation',
-    slug: 'research-innovation',
-    description: 'Academic papers and new techniques in AI finance',
-    icon: 'lightbulb'
+    name: 'Regulatory & Compliance',
+    slug: 'regulatory-compliance',
+    description: 'AI governance, fair lending requirements, and regulatory compliance',
+    icon: 'scale'
   },
   {
-    name: 'Case Studies',
-    slug: 'case-studies',
-    description: 'Real-world implementations and success stories',
-    icon: 'book'
-  },
-  {
-    name: 'Industry News',
-    slug: 'industry-news',
-    description: 'Company announcements, partnerships, and market updates',
-    icon: 'newspaper'
-  },
-  {
-    name: 'Ethics & Bias',
-    slug: 'ethics-bias',
-    description: 'Fair lending, algorithmic bias, and responsible AI',
-    icon: 'balance-scale'
+    name: 'Lending Automation',
+    slug: 'lending-automation',
+    description: 'AI-powered lending decisions, underwriting, and loan processing',
+    icon: 'robot'
   }
 ];
 
