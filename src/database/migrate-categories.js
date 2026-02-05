@@ -60,23 +60,35 @@ async function migrateCategories() {
   console.log('Migrating categories...');
 
   try {
+    // Check if migration already completed (new categories exist)
+    const existingCategories = await all('SELECT slug FROM categories');
+    const existingSlugs = existingCategories.map(c => c.slug);
+    const newSlugs = newCategories.map(c => c.slug);
+
+    // If all new categories already exist, skip migration
+    const allNewExist = newSlugs.every(slug => existingSlugs.includes(slug));
+    const hasOldCategories = existingSlugs.some(slug =>
+      ['customer-experience', 'research-innovation', 'case-studies', 'industry-news', 'ethics-bias', 'banking-automation', 'ai-credit-scoring'].includes(slug)
+    );
+
+    if (allNewExist && !hasOldCategories) {
+      console.log('Migration already completed. Skipping...');
+      return;
+    }
+
     // Get current categories
     const oldCategories = await all('SELECT * FROM categories');
     console.log('Current categories:', oldCategories.map(c => c.slug));
 
-    // Update articles with mapped categories
-    for (const [oldSlug, newSlug] of Object.entries(categoryMapping)) {
-      if (newSlug) {
-        // Get the new category ID (will be created shortly)
-        const oldCat = oldCategories.find(c => c.slug === oldSlug);
-        if (oldCat) {
-          console.log(`Will map articles from "${oldSlug}" to "${newSlug}"`);
-        }
-      }
-    }
+    // Disable foreign key checks temporarily
+    await run('PRAGMA foreign_keys = OFF');
+
+    // Delete all articles (we'll re-scrape them with correct categories)
+    console.log('\nDeleting all articles to allow category cleanup...');
+    await run('DELETE FROM articles');
 
     // Delete all old categories
-    console.log('\nDeleting old categories...');
+    console.log('Deleting old categories...');
     await run('DELETE FROM categories');
 
     // Insert new categories
@@ -93,34 +105,11 @@ async function migrateCategories() {
     const updatedCategories = await all('SELECT * FROM categories');
     console.log('\nNew categories:', updatedCategories.map(c => `${c.name} (${c.id})`));
 
-    // Update article categories based on mapping
-    for (const [oldSlug, newSlug] of Object.entries(categoryMapping)) {
-      if (newSlug) {
-        const newCat = updatedCategories.find(c => c.slug === newSlug);
-        const oldCat = oldCategories.find(c => c.slug === oldSlug);
-        if (newCat && oldCat) {
-          const result = await run(
-            'UPDATE articles SET category_id = ? WHERE category_id = ?',
-            [newCat.id, oldCat.id]
-          );
-          console.log(`Remapped ${result.changes} articles from "${oldSlug}" to "${newSlug}"`);
-        }
-      }
-    }
-
-    // Set articles with deleted categories to the first category (Credit Scoring)
-    const defaultCat = updatedCategories.find(c => c.slug === 'credit-scoring');
-    if (defaultCat) {
-      const result = await run(
-        'UPDATE articles SET category_id = ? WHERE category_id NOT IN (SELECT id FROM categories)',
-        [defaultCat.id]
-      );
-      if (result.changes > 0) {
-        console.log(`Reassigned ${result.changes} orphaned articles to "AI in Credit Scoring"`);
-      }
-    }
+    // Re-enable foreign key checks
+    await run('PRAGMA foreign_keys = ON');
 
     console.log('\nCategory migration complete!');
+    console.log('Note: All articles were deleted. Run scraper to re-populate.');
 
   } catch (err) {
     console.error('Migration error:', err);
