@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 48" fill="none">
+  <!-- AI Badge -->
+  <rect x="0" y="4" width="40" height="40" rx="8" fill="#1e3a8a"/>
+  <text x="20" y="30" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="18" font-weight="700" fill="white" text-anchor="middle">AI</text>
+
+  <!-- Brand Name -->
+  <text x="52" y="22" font-family="Merriweather, Georgia, serif" font-size="22" font-weight="700" fill="#1e3a8a">Credit</text>
+  <text x="52" y="42" font-family="Merriweather, Georgia, serif" font-size="22" font-weight="700" fill="#1e3a8a">News</text>
+
+  <!-- Accent bar -->
+  <rect x="132" y="12" width="3" height="28" rx="1.5" fill="#0d9488"/>
+
+  <!-- Tagline area (optional use) -->
+</svg>

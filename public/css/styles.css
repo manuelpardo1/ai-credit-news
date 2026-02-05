@@ -105,6 +105,22 @@ h4 { font-size: 1.25rem; }
   color: var(--primary);
 }
 
+.logo-svg {
+  height: 40px;
+  width: auto;
+}
+
+/* Hide text fallback when SVG logo is present */
+.logo-svg + .logo-fallback {
+  display: none;
+}
+
+.logo-fallback {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .logo-icon {
   width: 40px;
   height: 40px;
@@ -115,6 +131,7 @@ h4 { font-size: 1.25rem; }
   justify-content: center;
   color: white;
   font-size: 1.25rem;
+  font-family: 'Inter', sans-serif;
 }
 
 .nav {

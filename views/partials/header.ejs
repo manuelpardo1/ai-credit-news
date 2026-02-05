@@ -4,6 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= typeof title !== 'undefined' ? title + ' | ' : '' %>AI Credit News</title>
+  <meta name="description" content="AI-powered insights for credit & financial services. Curated news on AI in credit scoring, lending, fraud detection, and banking.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#1e3a8a">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="<%= typeof title !== 'undefined' ? title + ' | ' : '' %>AI Credit News">
+  <meta property="og:description" content="AI-powered insights for credit & financial services">
+  <meta property="og:image" content="/images/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
@@ -13,8 +31,11 @@
   <header class="header">
     <div class="container header-inner">
       <a href="/" class="logo">
-        <span class="logo-icon">AI</span>
-        <span>Credit News</span>
+        <img src="/images/logo.svg" alt="AI Credit News" class="logo-svg" height="40">
+        <span class="logo-fallback">
+          <span class="logo-icon">AI</span>
+          <span>Credit News</span>
+        </span>
       </a>
 
       <form action="/search" method="GET" class="search-form">
