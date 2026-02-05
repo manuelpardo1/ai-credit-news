@@ -5,25 +5,25 @@ const { run, all, close } = require('./db');
 
 const categories = [
   {
-    name: 'AI in Credit Scoring',
-    slug: 'ai-credit-scoring',
+    name: 'Credit Scoring',
+    slug: 'credit-scoring',
     description: 'Machine learning models for creditworthiness assessment and scoring',
     icon: 'credit-card'
   },
   {
-    name: 'AI in Fraud Detection',
-    slug: 'ai-fraud-detection',
+    name: 'Fraud Detection',
+    slug: 'fraud-detection',
     description: 'AI systems for detecting and preventing financial fraud',
     icon: 'shield'
   },
   {
-    name: 'AI in Credit Risk',
-    slug: 'ai-credit-risk',
+    name: 'Credit Risk',
+    slug: 'credit-risk',
     description: 'AI for credit risk assessment, modeling, and management',
     icon: 'chart-line'
   },
   {
-    name: 'Income & Employment Verification',
+    name: 'Income & Employment',
     slug: 'income-employment',
     description: 'AI for income verification, employment data, and affordability analysis',
     icon: 'briefcase'

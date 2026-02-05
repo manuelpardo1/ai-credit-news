@@ -5,25 +5,25 @@ const { run, all, close } = require('./db');
 
 const newCategories = [
   {
-    name: 'AI in Credit Scoring',
-    slug: 'ai-credit-scoring',
+    name: 'Credit Scoring',
+    slug: 'credit-scoring',
     description: 'Machine learning models for creditworthiness assessment and scoring',
     icon: 'credit-card'
   },
   {
-    name: 'AI in Fraud Detection',
-    slug: 'ai-fraud-detection',
+    name: 'Fraud Detection',
+    slug: 'fraud-detection',
     description: 'AI systems for detecting and preventing financial fraud',
     icon: 'shield'
   },
   {
-    name: 'AI in Credit Risk',
-    slug: 'ai-credit-risk',
+    name: 'Credit Risk',
+    slug: 'credit-risk',
     description: 'AI for credit risk assessment, modeling, and management',
     icon: 'chart-line'
   },
   {
-    name: 'Income & Employment Verification',
+    name: 'Income & Employment',
     slug: 'income-employment',
     description: 'AI for income verification, employment data, and affordability analysis',
     icon: 'briefcase'
@@ -44,8 +44,9 @@ const newCategories = [
 
 // Map old category slugs to new ones
 const categoryMapping = {
-  'fraud-detection': 'ai-fraud-detection',
-  'risk-management': 'ai-credit-risk',
+  'ai-credit-scoring': 'credit-scoring',
+  'fraud-detection': 'fraud-detection',
+  'risk-management': 'credit-risk',
   'banking-automation': 'lending-automation',
   // These will be deleted (articles reassigned or removed)
   'customer-experience': null,
@@ -107,8 +108,8 @@ async function migrateCategories() {
       }
     }
 
-    // Set articles with deleted categories to the first category (AI in Credit Scoring)
-    const defaultCat = updatedCategories.find(c => c.slug === 'ai-credit-scoring');
+    // Set articles with deleted categories to the first category (Credit Scoring)
+    const defaultCat = updatedCategories.find(c => c.slug === 'credit-scoring');
     if (defaultCat) {
       const result = await run(
         'UPDATE articles SET category_id = ? WHERE category_id NOT IN (SELECT id FROM categories)',
