@@ -12,6 +12,7 @@
     "build": "npm run db:init && npm run db:seed",
     "db:init": "node src/database/init.js",
     "db:seed": "node src/database/seed.js",
+    "db:migrate-categories": "node src/database/migrate-categories.js",
     "scrape": "node src/services/scraper.js",
     "process": "node src/services/processor.js",
     "process:dry": "node src/services/processor.js --dry-run",
@@ -36,6 +37,7 @@
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "node-cron": "^3.0.3",
+    "pdfkit": "^0.17.2",
     "resend": "^6.9.1",
     "rss-parser": "^3.13.0",
     "sqlite3": "^5.1.6"
