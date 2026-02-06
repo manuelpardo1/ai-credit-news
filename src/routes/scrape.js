@@ -75,6 +75,7 @@ router.get('/process/status', (req, res) => {
 
 // GET /api/scrape/test-ai - Test AI API connection
 router.get('/test-ai', async (req, res) => {
+  const model = req.query.model || 'claude-3-haiku-20240307';
   try {
     const Anthropic = require('@anthropic-ai/sdk');
     const anthropic = new Anthropic({
@@ -82,7 +83,7 @@ router.get('/test-ai', async (req, res) => {
     });
 
     const response = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307',
+      model: model,
       max_tokens: 50,
       messages: [{ role: 'user', content: 'Say "API working" and nothing else.' }]
     });
@@ -90,13 +91,14 @@ router.get('/test-ai', async (req, res) => {
     res.json({
       success: true,
       response: response.content[0].text,
-      model: 'claude-3-haiku-20240307'
+      model: model
     });
   } catch (err) {
     res.json({
       success: false,
       error: err.message,
       errorType: err.constructor.name,
+      model: model,
       fullError: JSON.stringify(err, Object.getOwnPropertyNames(err), 2)
     });
   }
