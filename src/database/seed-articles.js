@@ -188,84 +188,12 @@ const sampleArticles = [
 ];
 
 async function seedArticles() {
-  console.log('Seeding sample articles...');
-
-  try {
-    // Check if we already have approved articles
-    const existingCount = await get('SELECT COUNT(*) as count FROM articles WHERE status = ?', ['approved']);
-
-    if (existingCount && existingCount.count >= 12) {
-      console.log(`Already have ${existingCount.count} approved articles, skipping seed.`);
-      return;
-    }
-
-    // Get category IDs
-    const categories = await all('SELECT id, slug FROM categories');
-    const categoryMap = {};
-    categories.forEach(c => categoryMap[c.slug] = c.id);
-
-    console.log('Category map:', categoryMap);
-
-    // Insert articles
-    for (const article of sampleArticles) {
-      // Use the actual category ID from the database
-      const categorySlug = Object.keys(categoryMap).find(slug => {
-        if (article.category_id === 11) return slug === 'credit-scoring';
-        if (article.category_id === 12) return slug === 'fraud-detection';
-        if (article.category_id === 13) return slug === 'credit-risk';
-        if (article.category_id === 14) return slug === 'income-employment';
-        if (article.category_id === 15) return slug === 'regulatory-compliance';
-        if (article.category_id === 16) return slug === 'lending-automation';
-        return false;
-      });
-
-      const actualCategoryId = categoryMap[categorySlug] || article.category_id;
-
-      try {
-        await run(
-          `INSERT OR IGNORE INTO articles
-           (title, url, source, author, published_date, content, summary, relevance_score, difficulty_level, category_id, status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            article.title,
-            article.url,
-            article.source,
-            article.author,
-            article.published_date,
-            article.content,
-            article.summary,
-            article.relevance_score,
-            article.difficulty_level,
-            actualCategoryId,
-            article.status
-          ]
-        );
-        console.log(`Added: ${article.title.substring(0, 50)}...`);
-      } catch (err) {
-        console.log(`Article exists or error: ${err.message}`);
-      }
-    }
-
-    // Verify
-    const finalCount = await get('SELECT COUNT(*) as count FROM articles WHERE status = ?', ['approved']);
-    console.log(`\nSeed complete! Total approved articles: ${finalCount.count}`);
-
-    // Show per-category counts
-    const categoryStats = await all(`
-      SELECT c.name, COUNT(a.id) as count
-      FROM categories c
-      LEFT JOIN articles a ON c.id = a.category_id AND a.status = 'approved'
-      GROUP BY c.id
-      ORDER BY c.name
-    `);
-    console.log('\nArticles per category:');
-    categoryStats.forEach(stat => {
-      console.log(`  ${stat.name}: ${stat.count}`);
-    });
-
-  } catch (err) {
-    console.error('Error seeding articles:', err);
-  }
+  // DISABLED: Do not seed sample/fake articles
+  // The site should only show real scraped articles
+  // If you need content, run: npm run scrape && npm run process
+  console.log('Sample article seeding is disabled. Only real scraped articles will be shown.');
+  console.log('To populate articles, run: npm run scrape && npm run process');
+  return;
 }
 
 // First editorial content
