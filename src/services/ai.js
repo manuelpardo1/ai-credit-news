@@ -9,31 +9,23 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-// Category mapping for AI responses
+// Category mapping for AI responses (matches database IDs)
 const CATEGORIES = {
-  'ai-credit-scoring': 1,
-  'banking-automation': 2,
-  'fraud-detection': 3,
-  'regulatory-compliance': 4,
-  'risk-management': 5,
-  'customer-experience': 6,
-  'research-innovation': 7,
-  'case-studies': 8,
-  'industry-news': 9,
-  'ethics-bias': 10
+  'credit-scoring': 11,
+  'fraud-detection': 12,
+  'credit-risk': 13,
+  'income-employment': 14,
+  'regulatory-compliance': 15,
+  'lending-automation': 16
 };
 
 const CATEGORY_LIST = `
-1. ai-credit-scoring - Machine learning models for creditworthiness
-2. banking-automation - AI-powered banking operations
-3. fraud-detection - AI for detecting financial fraud
-4. regulatory-compliance - AI governance, fairness, regulations
-5. risk-management - AI for financial risk assessment
-6. customer-experience - Chatbots, personalization, AI interfaces
-7. research-innovation - Academic papers, new techniques
-8. case-studies - Real-world implementations
-9. industry-news - Company announcements, partnerships
-10. ethics-bias - Fair lending, algorithmic bias, responsible AI
+1. credit-scoring - ML models for credit scores and creditworthiness assessment
+2. fraud-detection - AI for detecting financial fraud and anomalies
+3. credit-risk - AI for credit risk assessment and management
+4. income-employment - AI for income verification and employment analysis
+5. regulatory-compliance - AI governance, fair lending regulations, compliance
+6. lending-automation - AI-powered lending decisions and loan processing
 `;
 
 /**
@@ -119,7 +111,7 @@ If not relevant, set summary and difficulty_level to null.`;
       relevance_score: Math.min(10, Math.max(0, result.relevance_score)),
       is_relevant: result.is_relevant && result.relevance_score >= 6,
       category_slug: result.primary_category,
-      category_id: CATEGORIES[result.primary_category] || 9,
+      category_id: CATEGORIES[result.primary_category] || 11, // default to credit-scoring
       tags: result.suggested_tags || [],
       reasoning: result.reasoning,
       summary: result.summary,
@@ -147,7 +139,7 @@ async function processArticle(article) {
     console.log('    ✗ Filtered out by title - not relevant');
     return {
       relevance_score: 2,
-      category_id: 9, // industry-news
+      category_id: 11, // default to credit-scoring
       tags: [],
       summary: article.summary,
       difficulty_level: null,
