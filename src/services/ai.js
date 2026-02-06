@@ -41,7 +41,7 @@ Answer only YES or NO.`;
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 10,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -99,7 +99,7 @@ If not relevant, set summary and difficulty_level to null.`;
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 800,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -200,7 +200,7 @@ FORMAT: Return a JSON object:
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 1500,
       messages: [{ role: 'user', content: prompt }]
     });
