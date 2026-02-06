@@ -161,4 +161,9 @@ router.get('/subscribers', requireAuth, async (req, res) => {
   }
 });
 
+// GET /admin/brand-guide - Brand guide page
+router.get('/brand-guide', requireAuth, (req, res) => {
+  res.render('admin/brand-guide');
+});
+
 module.exports = router;
