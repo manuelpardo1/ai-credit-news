@@ -7,19 +7,20 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "start": "node src/database/migrate-categories.js && node src/database/migrate-analytics.js && node src/database/migrate-community.js && node src/database/migrate-categories-consolidate.js && node src/server.js",
+    "start": "node src/database/migrate-categories.js && node src/database/migrate-analytics.js && node src/database/migrate-community.js && node src/database/migrate-categories-consolidate.js && node src/database/migrate-ai-articles.js && node src/server.js",
     "dev": "nodemon src/server.js",
     "build": "npm run db:init && npm run db:seed && npm run db:migrate",
     "db:init": "node src/database/init.js",
     "db:seed": "node src/database/seed.js",
-    "db:migrate": "node src/database/migrate-categories.js && node src/database/migrate-analytics.js && node src/database/migrate-community.js && node src/database/migrate-categories-consolidate.js",
+    "db:migrate": "node src/database/migrate-categories.js && node src/database/migrate-analytics.js && node src/database/migrate-community.js && node src/database/migrate-categories-consolidate.js && node src/database/migrate-ai-articles.js",
     "db:migrate-categories": "node src/database/migrate-categories.js",
     "db:migrate-analytics": "node src/database/migrate-analytics.js",
     "db:migrate-community": "node src/database/migrate-community.js",
     "scrape": "node src/services/scraper.js",
     "process": "node src/services/processor.js",
     "process:dry": "node src/services/processor.js --dry-run",
-    "process:all": "node src/services/processor.js --limit=100"
+    "process:all": "node src/services/processor.js --limit=100",
+    "generate-articles": "node -e \"require('./src/services/articleGenerator').generateArticlesForAllCategories(1).then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); })\""
   },
   "keywords": [
     "ai",

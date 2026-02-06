@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const Editorial = require('../models/Editorial');
+const Article = require('../models/Article');
 const Subscriber = require('../models/Subscriber');
 const NewsletterLog = require('../models/NewsletterLog');
 const Analytics = require('../models/Analytics');
 const { requireAuth, validatePassword, setAuthCookie, clearAuthCookie } = require('../middleware/auth');
 const { generateWeeklyEditorial, createWelcomeEditorial } = require('../services/editorial');
 const { sendWeeklyNewsletter, sendExtraordinaryNewsletter } = require('../services/newsletter');
+const { generateArticleForCategory, generateArticlesForAllCategories, getArticlesPendingReview, CATEGORY_RESEARCH_FOCUS } = require('../services/articleGenerator');
 
 // GET /admin - Redirect to analytics dashboard
 router.get('/', requireAuth, (req, res) => {
@@ -192,6 +194,129 @@ router.get('/subscribers', requireAuth, async (req, res) => {
 // GET /admin/brand-guide - Brand guide page
 router.get('/brand-guide', requireAuth, (req, res) => {
   res.render('admin/brand-guide');
+});
+
+// ============================================
+// AI-Generated Articles Management
+// ============================================
+
+// GET /admin/articles - List articles pending review
+router.get('/articles', requireAuth, async (req, res) => {
+  try {
+    const pendingReview = await getArticlesPendingReview();
+    const categories = Object.entries(CATEGORY_RESEARCH_FOCUS).map(([slug, data]) => ({
+      slug,
+      name: data.name
+    }));
+    res.render('admin/articles', {
+      pendingReview,
+      categories,
+      message: req.query.message || null
+    });
+  } catch (err) {
+    console.error('Error loading articles:', err);
+    res.status(500).send('Error loading articles');
+  }
+});
+
+// POST /admin/article/generate - Generate a single AI article
+router.post('/article/generate', requireAuth, async (req, res) => {
+  try {
+    const { category } = req.body;
+    if (!category || !CATEGORY_RESEARCH_FOCUS[category]) {
+      return res.redirect('/admin/articles?message=Invalid category');
+    }
+
+    const article = await generateArticleForCategory(category);
+    res.redirect(`/admin/article/${article.id}?message=Article generated successfully`);
+  } catch (err) {
+    console.error('Error generating article:', err);
+    res.redirect('/admin/articles?message=Error generating article: ' + err.message);
+  }
+});
+
+// POST /admin/article/generate-all - Generate articles for all categories
+router.post('/article/generate-all', requireAuth, async (req, res) => {
+  try {
+    const results = await generateArticlesForAllCategories(1);
+    res.redirect(`/admin/articles?message=Generated ${results.generated.length} articles`);
+  } catch (err) {
+    console.error('Error generating articles:', err);
+    res.redirect('/admin/articles?message=Error generating articles');
+  }
+});
+
+// GET /admin/article/:id - Edit AI-generated article
+router.get('/article/:id', requireAuth, async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).send('Article not found');
+    }
+    const categories = Object.entries(CATEGORY_RESEARCH_FOCUS).map(([slug, data]) => ({
+      slug,
+      name: data.name
+    }));
+    res.render('admin/article', {
+      article,
+      categories,
+      message: req.query.message || null
+    });
+  } catch (err) {
+    console.error('Error loading article:', err);
+    res.status(500).send('Error loading article');
+  }
+});
+
+// POST /admin/article/:id - Save article changes
+router.post('/article/:id', requireAuth, async (req, res) => {
+  try {
+    const { title, summary, content, category_id, difficulty_level } = req.body;
+    await Article.update(req.params.id, {
+      title,
+      summary,
+      content,
+      category_id: parseInt(category_id),
+      difficulty_level
+    });
+    res.redirect(`/admin/article/${req.params.id}?message=Article saved successfully`);
+  } catch (err) {
+    console.error('Error saving article:', err);
+    res.redirect(`/admin/article/${req.params.id}?message=Error saving article`);
+  }
+});
+
+// POST /admin/article/:id/approve - Approve and publish article
+router.post('/article/:id/approve', requireAuth, async (req, res) => {
+  try {
+    await Article.update(req.params.id, { status: 'approved' });
+    res.redirect('/admin/articles?message=Article approved and published');
+  } catch (err) {
+    console.error('Error approving article:', err);
+    res.redirect('/admin/articles?message=Error approving article');
+  }
+});
+
+// POST /admin/article/:id/reject - Reject article
+router.post('/article/:id/reject', requireAuth, async (req, res) => {
+  try {
+    await Article.update(req.params.id, { status: 'rejected' });
+    res.redirect('/admin/articles?message=Article rejected');
+  } catch (err) {
+    console.error('Error rejecting article:', err);
+    res.redirect('/admin/articles?message=Error rejecting article');
+  }
+});
+
+// POST /admin/article/:id/delete - Delete article
+router.post('/article/:id/delete', requireAuth, async (req, res) => {
+  try {
+    await Article.delete(req.params.id);
+    res.redirect('/admin/articles?message=Article deleted');
+  } catch (err) {
+    console.error('Error deleting article:', err);
+    res.redirect('/admin/articles?message=Error deleting article');
+  }
 });
 
 module.exports = router;

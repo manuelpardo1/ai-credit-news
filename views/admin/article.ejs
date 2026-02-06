@@ -1,0 +1,233 @@
+<%- include('./partials/header', { title: 'Edit Article - Admin' }) %>
+
+<div class="admin-content">
+  <div class="admin-header">
+    <h1>Edit Article</h1>
+    <div class="header-actions">
+      <a href="/admin/articles" class="btn btn-secondary">Back to Articles</a>
+      <% if (article.status === 'review') { %>
+      <form action="/admin/article/<%= article.id %>/approve" method="POST" style="display:inline">
+        <button type="submit" class="btn btn-success">Approve & Publish</button>
+      </form>
+      <form action="/admin/article/<%= article.id %>/reject" method="POST" style="display:inline">
+        <button type="submit" class="btn btn-danger">Reject</button>
+      </form>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (message) { %>
+  <div class="admin-message"><%= message %></div>
+  <% } %>
+
+  <div class="article-meta">
+    <span class="status status-<%= article.status %>"><%= article.status %></span>
+    <% if (article.is_ai_generated) { %>
+    <span class="badge badge-ai">AI Generated</span>
+    <% } %>
+    <span>Source: <%= article.source %></span>
+    <span>Created: <%= new Date(article.scraped_date).toLocaleDateString() %></span>
+  </div>
+
+  <form action="/admin/article/<%= article.id %>" method="POST" class="article-form">
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" value="<%= article.title %>" required>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="category_id">Category</label>
+        <select name="category_id" id="category_id" required>
+          <% categories.forEach(cat => { %>
+          <option value="<%= cat.slug === article.category_slug ? article.category_id : '' %>"
+                  <%= cat.slug === article.category_slug ? 'selected' : '' %>>
+            <%= cat.name %>
+          </option>
+          <% }); %>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="difficulty_level">Difficulty</label>
+        <select name="difficulty_level" id="difficulty_level">
+          <option value="beginner" <%= article.difficulty_level === 'beginner' ? 'selected' : '' %>>Beginner</option>
+          <option value="intermediate" <%= article.difficulty_level === 'intermediate' ? 'selected' : '' %>>Intermediate</option>
+          <option value="advanced" <%= article.difficulty_level === 'advanced' ? 'selected' : '' %>>Advanced</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="summary">Summary</label>
+      <textarea id="summary" name="summary" rows="3" required><%= article.summary %></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="content">Content</label>
+      <textarea id="content" name="content" rows="25" required><%= article.content %></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+      <form action="/admin/article/<%= article.id %>/delete" method="POST" style="display:inline"
+            onsubmit="return confirm('Are you sure you want to delete this article?')">
+        <button type="submit" class="btn btn-danger">Delete Article</button>
+      </form>
+    </div>
+  </form>
+
+  <!-- Preview Section -->
+  <div class="preview-section">
+    <h2>Preview</h2>
+    <div class="article-preview">
+      <h1 class="preview-title"><%= article.title %></h1>
+      <div class="preview-meta">
+        <span><%= article.category_name || 'Uncategorized' %></span>
+        <span><%= article.difficulty_level || 'Intermediate' %></span>
+        <% if (article.is_ai_generated) { %>
+        <span class="ai-credit">By AI Credit News</span>
+        <% } %>
+      </div>
+      <div class="preview-summary"><%= article.summary %></div>
+      <div class="preview-content">
+        <%- article.content.split('\n\n').map(p => `<p>${p}</p>`).join('') %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.article-meta {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-review { background: #fef3c7; color: #92400e; }
+.status-approved { background: #d1fae5; color: #065f46; }
+.status-rejected { background: #fee2e2; color: #991b1b; }
+.status-pending { background: #e0e7ff; color: #3730a3; }
+
+.badge-ai {
+  background: #5b21b6;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+}
+
+.article-form {
+  margin-bottom: 3rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.btn-success { background: #059669; color: white; }
+.btn-danger { background: #dc2626; color: white; }
+
+.preview-section {
+  border-top: 2px solid #eee;
+  padding-top: 2rem;
+}
+
+.article-preview {
+  max-width: 700px;
+  padding: 2rem;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.preview-title {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.preview-meta {
+  display: flex;
+  gap: 1rem;
+  color: #666;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.ai-credit {
+  color: #5b21b6;
+  font-weight: 500;
+}
+
+.preview-summary {
+  font-size: 1.1rem;
+  color: #444;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.preview-content p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+</style>
+
+<%- include('./partials/footer') %>

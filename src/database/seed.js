@@ -282,6 +282,157 @@ const sources = [
     url: 'https://www.fnlondon.com/',
     rss_feed: 'https://www.fnlondon.com/rss',
     active: 1
+  },
+  // Premium Business & Finance Publications
+  {
+    name: 'Forbes - AI',
+    url: 'https://www.forbes.com/ai/',
+    rss_feed: 'https://www.forbes.com/ai/feed/',
+    active: 1
+  },
+  {
+    name: 'Forbes - Fintech',
+    url: 'https://www.forbes.com/fintech/',
+    rss_feed: 'https://www.forbes.com/fintech/feed/',
+    active: 1
+  },
+  {
+    name: 'Harvard Business Review',
+    url: 'https://hbr.org/topic/subject/technology',
+    rss_feed: 'https://hbr.org/topic/subject/technology.rss',
+    active: 1
+  },
+  {
+    name: 'Bloomberg Technology',
+    url: 'https://www.bloomberg.com/technology',
+    rss_feed: 'https://www.bloomberg.com/feeds/technology.rss',
+    active: 1
+  },
+  {
+    name: 'The Wall Street Journal - Tech',
+    url: 'https://www.wsj.com/news/technology',
+    rss_feed: 'https://feeds.a.dj.com/rss/RSSWSJD.xml',
+    active: 1
+  },
+  {
+    name: 'Reuters - Technology',
+    url: 'https://www.reuters.com/technology/',
+    rss_feed: 'https://www.reuters.com/technology/rss',
+    active: 1
+  },
+  {
+    name: 'Business Insider - Finance',
+    url: 'https://www.businessinsider.com/finance',
+    rss_feed: 'https://www.businessinsider.com/finance/feed',
+    active: 1
+  },
+  // Credit Bureau & Data Provider Blogs
+  {
+    name: 'TransUnion Blog',
+    url: 'https://www.transunion.com/blog',
+    rss_feed: 'https://www.transunion.com/blog/rss',
+    active: 1
+  },
+  {
+    name: 'Equifax Insights',
+    url: 'https://www.equifax.com/insights/',
+    rss_feed: 'https://www.equifax.com/insights/feed/',
+    active: 1
+  },
+  // Income & Employment Verification Focused
+  {
+    name: 'Plaid Blog',
+    url: 'https://plaid.com/blog/',
+    rss_feed: 'https://plaid.com/blog/feed/',
+    active: 1
+  },
+  {
+    name: 'Argyle Blog',
+    url: 'https://argyle.com/blog/',
+    rss_feed: 'https://argyle.com/blog/rss.xml',
+    active: 1
+  },
+  {
+    name: 'Pinwheel Blog',
+    url: 'https://www.pinwheelapi.com/blog',
+    rss_feed: 'https://www.pinwheelapi.com/blog/rss.xml',
+    active: 1
+  },
+  // Banking Industry Publications
+  {
+    name: 'ABA Banking Journal',
+    url: 'https://bankingjournal.aba.com/',
+    rss_feed: 'https://bankingjournal.aba.com/feed/',
+    active: 1
+  },
+  {
+    name: 'Credit Union Times',
+    url: 'https://www.cutimes.com/',
+    rss_feed: 'https://www.cutimes.com/feed/',
+    active: 1
+  },
+  {
+    name: 'BAI Banking Strategies',
+    url: 'https://www.bai.org/banking-strategies/',
+    rss_feed: 'https://www.bai.org/banking-strategies/feed/',
+    active: 1
+  },
+  // AI Research & Industry News
+  {
+    name: 'Google AI Blog',
+    url: 'https://ai.googleblog.com/',
+    rss_feed: 'https://ai.googleblog.com/feeds/posts/default',
+    active: 1
+  },
+  {
+    name: 'OpenAI Blog',
+    url: 'https://openai.com/blog/',
+    rss_feed: 'https://openai.com/blog/rss.xml',
+    active: 1
+  },
+  {
+    name: 'Anthropic Blog',
+    url: 'https://www.anthropic.com/news',
+    rss_feed: 'https://www.anthropic.com/rss.xml',
+    active: 1
+  },
+  // Lending & Credit Industry
+  {
+    name: 'National Mortgage News',
+    url: 'https://www.nationalmortgagenews.com/',
+    rss_feed: 'https://www.nationalmortgagenews.com/feed',
+    active: 1
+  },
+  {
+    name: 'Housing Wire',
+    url: 'https://www.housingwire.com/',
+    rss_feed: 'https://www.housingwire.com/feed/',
+    active: 1
+  },
+  {
+    name: 'Auto Finance News',
+    url: 'https://www.autofinancenews.net/',
+    rss_feed: 'https://www.autofinancenews.net/feed/',
+    active: 1
+  },
+  // European & Global Finance
+  {
+    name: 'The Banker',
+    url: 'https://www.thebanker.com/',
+    rss_feed: 'https://www.thebanker.com/rss',
+    active: 1
+  },
+  {
+    name: 'Euromoney',
+    url: 'https://www.euromoney.com/',
+    rss_feed: 'https://www.euromoney.com/rss',
+    active: 1
+  },
+  {
+    name: 'Global Finance Magazine',
+    url: 'https://www.gfmag.com/',
+    rss_feed: 'https://www.gfmag.com/feed/',
+    active: 1
   }
 ];
 

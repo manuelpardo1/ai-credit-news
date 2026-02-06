@@ -2,7 +2,7 @@
  * Initial Content Population Service
  *
  * Ensures each category has at least 5 articles:
- * - 2 from the last month (recent)
+ * - 2 from the past week (recent)
  * - 3 most relevant from the last 3 months
  */
 
@@ -11,8 +11,11 @@ const { runScrape } = require('./scraper');
 const { processPendingArticles } = require('./processor');
 
 const ARTICLES_PER_CATEGORY = 5;
-const RECENT_ARTICLES = 2;  // From last month
+const RECENT_ARTICLES = 2;  // From last week
 const RELEVANT_ARTICLES = 3; // Most relevant from last 3 months
+
+// Initial scrape settings: allow articles up to 3 months old
+const INITIAL_MAX_AGE_MONTHS = 3;
 
 /**
  * Check which categories need more articles
@@ -42,7 +45,7 @@ async function getCategoryDeficits() {
 
 /**
  * Process pending articles prioritizing by category needs
- * Prioritizes: recent articles (last month) first, then by relevance
+ * Prioritizes: recent articles (past week) first, then by relevance
  */
 async function processForCategories(deficits, maxTotal = 30) {
   // Get all pending articles
@@ -68,8 +71,8 @@ async function processForCategories(deficits, maxTotal = 30) {
 
   // Process up to maxTotal articles, prioritizing categories that need content
   let processed = 0;
-  const oneMonthAgo = new Date();
-  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
@@ -88,7 +91,7 @@ async function ensureMinimumContent() {
   console.log('Initial Content Population');
   console.log('========================================');
   console.log(`Target: ${ARTICLES_PER_CATEGORY} articles per category`);
-  console.log(`  - ${RECENT_ARTICLES} from last month`);
+  console.log(`  - ${RECENT_ARTICLES} from past week`);
   console.log(`  - ${RELEVANT_ARTICLES} most relevant from last 3 months\n`);
 
   // Check current state
@@ -108,9 +111,9 @@ async function ensureMinimumContent() {
   const totalNeeded = deficits.reduce((sum, d) => sum + d.needed, 0);
   console.log(`\n[INIT] Total articles needed: ${totalNeeded}`);
 
-  // Run scrape to get fresh content
-  console.log('\n[INIT] Running scrape to fetch articles...');
-  await runScrape();
+  // Run scrape to get content (allow up to 3 months old for initial population)
+  console.log('\n[INIT] Running scrape to fetch articles (max age: 3 months)...');
+  await runScrape({ maxAgeMonths: INITIAL_MAX_AGE_MONTHS });
 
   // Process articles (will be categorized by AI)
   console.log('\n[INIT] Processing articles through AI...');

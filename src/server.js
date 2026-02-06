@@ -324,11 +324,13 @@ const { processPendingArticles } = require('./services/processor');
 // 12 PM Colombia (UTC-5) = 5 PM UTC
 // Daily limit: 10 articles (5 per scrape)
 const ARTICLES_PER_SCRAPE = 5;
+// Max age for scheduled scrapes: 24 hours (only fresh news)
+const CRON_MAX_AGE_HOURS = 24;
 
 cron.schedule('0 5 * * *', async () => {
   console.log('[CRON] Starting scheduled scrape (12 AM Colombia)...');
   try {
-    await runScrape();
+    await runScrape({ maxAgeHours: CRON_MAX_AGE_HOURS });
     console.log('[CRON] Scrape complete, processing articles...');
     await processPendingArticles({ limit: ARTICLES_PER_SCRAPE });
     console.log('[CRON] Article processing complete');
@@ -340,7 +342,7 @@ cron.schedule('0 5 * * *', async () => {
 cron.schedule('0 17 * * *', async () => {
   console.log('[CRON] Starting scheduled scrape (12 PM Colombia)...');
   try {
-    await runScrape();
+    await runScrape({ maxAgeHours: CRON_MAX_AGE_HOURS });
     console.log('[CRON] Scrape complete, processing articles...');
     await processPendingArticles({ limit: ARTICLES_PER_SCRAPE });
     console.log('[CRON] Article processing complete');

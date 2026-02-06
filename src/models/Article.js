@@ -150,6 +150,13 @@ class Article {
       WHERE at.article_id = ?
     `, [articleId]);
   }
+
+  static async delete(id) {
+    // Delete associated tags first
+    await run('DELETE FROM article_tags WHERE article_id = ?', [id]);
+    // Delete the article
+    return run('DELETE FROM articles WHERE id = ?', [id]);
+  }
 }
 
 module.exports = Article;

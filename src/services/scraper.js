@@ -91,8 +91,14 @@ async function fetchArticleContent(url) {
 
 /**
  * Process a single RSS item and save if new
+ * @param {Object} item - RSS item
+ * @param {string} sourceName - Name of the source
+ * @param {string} sourceLanguage - Language code
+ * @param {Object} options - Processing options
+ * @param {number} options.maxAgeHours - Maximum age of articles in hours (null = no limit)
+ * @param {number} options.maxAgeMonths - Maximum age of articles in months (null = no limit)
  */
-async function processItem(item, sourceName, sourceLanguage = 'en') {
+async function processItem(item, sourceName, sourceLanguage = 'en', options = {}) {
   const url = item.link || item.guid;
   if (!url) return null;
 
@@ -105,12 +111,35 @@ async function processItem(item, sourceName, sourceLanguage = 'en') {
 
   // Parse published date
   let publishedDate = null;
+  let parsedDate = null;
   if (item.pubDate || item.isoDate) {
     try {
-      publishedDate = new Date(item.pubDate || item.isoDate).toISOString().split('T')[0];
+      parsedDate = new Date(item.pubDate || item.isoDate);
+      publishedDate = parsedDate.toISOString().split('T')[0];
     } catch (e) {
       // Use current date as fallback
       publishedDate = new Date().toISOString().split('T')[0];
+      parsedDate = new Date();
+    }
+  } else {
+    parsedDate = new Date();
+    publishedDate = parsedDate.toISOString().split('T')[0];
+  }
+
+  // Check age constraints
+  const now = new Date();
+  if (options.maxAgeHours && parsedDate) {
+    const hoursAgo = (now - parsedDate) / (1000 * 60 * 60);
+    if (hoursAgo > options.maxAgeHours) {
+      console.log(`  Skipping (too old - ${Math.round(hoursAgo)}h): ${item.title?.substring(0, 50)}...`);
+      return null;
+    }
+  }
+  if (options.maxAgeMonths && parsedDate) {
+    const monthsAgo = (now - parsedDate) / (1000 * 60 * 60 * 24 * 30);
+    if (monthsAgo > options.maxAgeMonths) {
+      console.log(`  Skipping (too old - ${Math.round(monthsAgo)}mo): ${item.title?.substring(0, 50)}...`);
+      return null;
     }
   }
 
@@ -157,8 +186,12 @@ async function processItem(item, sourceName, sourceLanguage = 'en') {
 
 /**
  * Scrape a single source
+ * @param {Object} source - Source object from database
+ * @param {Object} options - Scraping options
+ * @param {number} options.maxAgeHours - Maximum age of articles in hours
+ * @param {number} options.maxAgeMonths - Maximum age of articles in months
  */
-async function scrapeSource(source) {
+async function scrapeSource(source, options = {}) {
   console.log(`\n--- Scraping: ${source.name} ---`);
   const items = await fetchRssFeed(source);
   console.log(`Found ${items.length} items`);
@@ -167,7 +200,7 @@ async function scrapeSource(source) {
   let skipped = 0;
 
   for (const item of items.slice(0, 20)) { // Limit to 20 items per source
-    const result = await processItem(item, source.name, source.language || 'en');
+    const result = await processItem(item, source.name, source.language || 'en', options);
     if (result) {
       added++;
     } else {
@@ -183,10 +216,15 @@ async function scrapeSource(source) {
 
 /**
  * Run scrape on all active sources
+ * @param {Object} options - Scraping options
+ * @param {number} options.maxAgeHours - Maximum age of articles in hours (default: no limit)
+ * @param {number} options.maxAgeMonths - Maximum age of articles in months (default: no limit)
  */
-async function runScrape() {
+async function runScrape(options = {}) {
   console.log('\n========================================');
   console.log('Starting scrape at:', new Date().toISOString());
+  if (options.maxAgeHours) console.log(`Max article age: ${options.maxAgeHours} hours`);
+  if (options.maxAgeMonths) console.log(`Max article age: ${options.maxAgeMonths} months`);
   console.log('========================================\n');
 
   const sources = await Source.findActive();
@@ -201,7 +239,7 @@ async function runScrape() {
     }
 
     try {
-      const result = await scrapeSource(source);
+      const result = await scrapeSource(source, options);
       results.push(result);
     } catch (err) {
       console.error(`Error scraping ${source.name}:`, err.message);

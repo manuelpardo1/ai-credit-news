@@ -1,0 +1,142 @@
+<%- include('./partials/header', { title: 'AI Articles - Admin' }) %>
+
+<div class="admin-content">
+  <div class="admin-header">
+    <h1>AI-Generated Articles</h1>
+    <p>Generate and review original AI-written content</p>
+  </div>
+
+  <% if (message) { %>
+  <div class="admin-message"><%= message %></div>
+  <% } %>
+
+  <!-- Generate Section -->
+  <div class="admin-section">
+    <h2>Generate New Articles</h2>
+    <div class="generate-options">
+      <form action="/admin/article/generate" method="POST" class="generate-form">
+        <label for="category">Category:</label>
+        <select name="category" id="category" required>
+          <% categories.forEach(cat => { %>
+          <option value="<%= cat.slug %>"><%= cat.name %></option>
+          <% }); %>
+        </select>
+        <button type="submit" class="btn btn-primary">Generate Article</button>
+      </form>
+
+      <form action="/admin/article/generate-all" method="POST" class="generate-form">
+        <button type="submit" class="btn btn-secondary">Generate for All Categories</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pending Review Section -->
+  <div class="admin-section">
+    <h2>Articles Pending Review (<%= pendingReview.length %>)</h2>
+    <% if (pendingReview.length === 0) { %>
+    <p class="no-items">No articles pending review. Generate some above!</p>
+    <% } else { %>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Category</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% pendingReview.forEach(article => { %>
+        <tr>
+          <td>
+            <a href="/admin/article/<%= article.id %>"><%= article.title %></a>
+            <% if (article.is_ai_generated) { %>
+            <span class="badge badge-ai">AI Generated</span>
+            <% } %>
+          </td>
+          <td><%= article.category_name || 'Uncategorized' %></td>
+          <td><%= new Date(article.scraped_date).toLocaleDateString() %></td>
+          <td class="actions">
+            <a href="/admin/article/<%= article.id %>" class="btn btn-small">Edit</a>
+            <form action="/admin/article/<%= article.id %>/approve" method="POST" style="display:inline">
+              <button type="submit" class="btn btn-small btn-success">Approve</button>
+            </form>
+            <form action="/admin/article/<%= article.id %>/reject" method="POST" style="display:inline">
+              <button type="submit" class="btn btn-small btn-danger">Reject</button>
+            </form>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    <% } %>
+  </div>
+</div>
+
+<style>
+.generate-options {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.generate-form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.generate-form label {
+  font-weight: 500;
+}
+
+.generate-form select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 3px;
+  margin-left: 0.5rem;
+}
+
+.badge-ai {
+  background: #5b21b6;
+  color: white;
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+.btn-small {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.btn-success {
+  background: #059669;
+  color: white;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.no-items {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+</style>
+
+<%- include('./partials/footer') %>
