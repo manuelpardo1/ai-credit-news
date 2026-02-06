@@ -412,6 +412,85 @@
 .operation-form {
   margin: 0;
 }
+
+/* Loading state styles */
+.btn.loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.btn-secondary.loading::after {
+  border: 2px solid rgba(91,33,182,0.3);
+  border-top-color: #5b21b6;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.operation-status {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: #fef3c7;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #92400e;
+  display: none;
+}
+
+.operation-status.active {
+  display: block;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const operationForms = document.querySelectorAll('.operation-form');
+
+  operationForms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+      const btn = this.querySelector('button');
+      const card = this.querySelector('.operation-card');
+
+      // Add loading state to button
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      // Show status message
+      let status = card.querySelector('.operation-status');
+      if (!status) {
+        status = document.createElement('div');
+        status.className = 'operation-status';
+        card.appendChild(status);
+      }
+
+      const action = btn.textContent.trim();
+      status.textContent = 'Running... This may take a few minutes. Please wait.';
+      status.classList.add('active');
+
+      // Disable all operation buttons
+      document.querySelectorAll('.operation-form button').forEach(b => {
+        b.disabled = true;
+      });
+    });
+  });
+});
+</script>
 
 <%- include('./partials/footer') %>
