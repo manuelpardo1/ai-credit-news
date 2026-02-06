@@ -268,11 +268,57 @@ async function seedArticles() {
   }
 }
 
-module.exports = { seedArticles };
+// First editorial content
+const firstEditorial = {
+  title: "AI in Credit: The Week That Was",
+  content: `The convergence of artificial intelligence and credit decisioning reached a new inflection point this week. From breakthrough machine learning models to regulatory developments, the landscape continues to evolve at a pace that demands attention from every stakeholder in the financial services industry.
+
+Machine learning's impact on credit scoring continues to expand beyond traditional boundaries. This week's developments highlight how alternative data sources—from utility payments to rental history—are enabling lenders to reach previously underserved populations while maintaining, and often improving, risk prediction accuracy. The key insight: it's not just about having more data, but about having the right algorithms to extract meaningful signals.
+
+Fraud detection remains a critical battleground. As synthetic identity fraud costs the industry billions annually, AI-powered systems are proving essential for detecting these manufactured identities by finding patterns across data sources that human analysts would miss. The sophistication of fraud attempts continues to escalate, but so does our ability to counter them.
+
+On the regulatory front, model risk management requirements are becoming increasingly rigorous. The message from regulators is clear: explainability is not optional. Financial institutions must demonstrate they understand how their AI models make decisions and can articulate that to both regulators and consumers. The CFPB's focus on adverse action notices adds another layer of complexity that requires innovative XAI solutions.
+
+Perhaps most significantly, we're seeing the emergence of effective human-AI partnerships in lending operations. The most successful institutions aren't replacing human judgment with algorithms—they're augmenting it. AI handles routine decisions with speed and consistency while escalating complex cases to experienced underwriters who bring nuanced judgment to edge cases.
+
+Looking ahead, watch for continued developments in real-time income verification, where AI is replacing static documentation with dynamic transaction analysis. This shift has profound implications for how we assess affordability and creditworthiness in an economy increasingly defined by variable income streams.
+
+The week ahead promises more innovation, more regulatory scrutiny, and more opportunities for those who can navigate this rapidly evolving landscape. Stay informed, stay adaptive, and stay ahead.`,
+  week_start: "2026-01-30",
+  week_end: "2026-02-05"
+};
+
+async function seedEditorial() {
+  console.log('Seeding editorial...');
+
+  try {
+    // Check if we already have a published editorial
+    const existingEditorial = await get('SELECT COUNT(*) as count FROM editorials WHERE status = ?', ['published']);
+
+    if (existingEditorial && existingEditorial.count > 0) {
+      console.log('Already have a published editorial, skipping seed.');
+      return;
+    }
+
+    // Insert and publish the editorial
+    const result = await run(
+      `INSERT INTO editorials (title, content, week_start, week_end, status, published_at, ai_generated_at)
+       VALUES (?, ?, ?, ?, 'published', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      [firstEditorial.title, firstEditorial.content, firstEditorial.week_start, firstEditorial.week_end]
+    );
+
+    console.log(`Editorial created and published with ID: ${result.lastID}`);
+
+  } catch (err) {
+    console.error('Error seeding editorial:', err);
+  }
+}
+
+module.exports = { seedArticles, seedEditorial };
 
 // Run directly if called from command line
 if (require.main === module) {
-  seedArticles()
+  Promise.all([seedArticles(), seedEditorial()])
     .then(() => close())
     .then(() => process.exit(0))
     .catch((err) => {

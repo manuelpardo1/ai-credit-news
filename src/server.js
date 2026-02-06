@@ -268,8 +268,8 @@ app.use((req, res) => {
   }
 });
 
-// Seed sample articles on startup (for Railway ephemeral filesystem)
-const { seedArticles } = require('./database/seed-articles');
+// Seed sample data on startup (for Railway ephemeral filesystem)
+const { seedArticles, seedEditorial } = require('./database/seed-articles');
 
 // Start server
 app.listen(PORT, async () => {
@@ -280,11 +280,12 @@ app.listen(PORT, async () => {
 ╚════════════════════════════════════════════════════════════╝
   `);
 
-  // Seed sample articles if database is empty
+  // Seed sample data if database is empty
   try {
     await seedArticles();
+    await seedEditorial();
   } catch (err) {
-    console.error('Error seeding articles:', err.message);
+    console.error('Error seeding data:', err.message);
   }
 });
 
