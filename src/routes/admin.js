@@ -8,8 +8,10 @@ const Analytics = require('../models/Analytics');
 const { requireAuth, validatePassword, setAuthCookie, clearAuthCookie } = require('../middleware/auth');
 const { generateWeeklyEditorial, createWelcomeEditorial } = require('../services/editorial');
 const { sendWeeklyNewsletter, sendExtraordinaryNewsletter } = require('../services/newsletter');
-const { generateArticleForCategory, generateArticlesForAllCategories, getArticlesPendingReview, getTodaysArticleCounts, getCategoriesNeedingContent, CATEGORY_RESEARCH_FOCUS } = require('../services/articleGenerator');
+const { generateArticleForCategory, generateArticlesForAllCategories, getArticlesPendingReview, getTodaysArticleCounts, getCategoriesNeedingContent, supplementDailyContent, CATEGORY_RESEARCH_FOCUS } = require('../services/articleGenerator');
 const Settings = require('../models/Settings');
+const { runScrape } = require('../services/scraper');
+const { processPendingArticles } = require('../services/processor');
 
 // GET /admin - Redirect to analytics dashboard
 router.get('/', requireAuth, (req, res) => {
@@ -387,6 +389,70 @@ router.post('/settings', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Error saving settings:', err);
     res.redirect('/admin/settings?message=Error saving settings');
+  }
+});
+
+// ============================================
+// Manual Content Operations
+// ============================================
+
+// POST /admin/scrape - Manually trigger scraping
+router.post('/scrape', requireAuth, async (req, res) => {
+  try {
+    const settings = await Settings.getContentSettings();
+    console.log('[ADMIN] Manual scrape triggered...');
+
+    // Run scrape with 3-month lookback for initial population
+    await runScrape({ maxAgeMonths: 3 });
+    console.log('[ADMIN] Scrape complete, processing articles...');
+
+    // Process more articles for initial population
+    await processPendingArticles({ limit: 30 });
+    console.log('[ADMIN] Processing complete');
+
+    res.redirect('/admin/settings?message=Scrape completed successfully');
+  } catch (err) {
+    console.error('Error during manual scrape:', err);
+    res.redirect('/admin/settings?message=Error: ' + err.message);
+  }
+});
+
+// POST /admin/supplement - Manually trigger AI supplementation
+router.post('/supplement', requireAuth, async (req, res) => {
+  try {
+    console.log('[ADMIN] Manual AI supplement triggered...');
+    const result = await supplementDailyContent();
+    const count = result.generated?.length || 0;
+    res.redirect(`/admin/settings?message=AI supplement complete: ${count} articles generated`);
+  } catch (err) {
+    console.error('Error during AI supplement:', err);
+    res.redirect('/admin/settings?message=Error: ' + err.message);
+  }
+});
+
+// POST /admin/full-refresh - Run full content cycle
+router.post('/full-refresh', requireAuth, async (req, res) => {
+  try {
+    const settings = await Settings.getContentSettings();
+    console.log('[ADMIN] Full content refresh triggered...');
+
+    // Step 1: Scrape with extended lookback
+    console.log('[ADMIN] Step 1: Scraping...');
+    await runScrape({ maxAgeMonths: 3 });
+
+    // Step 2: Process articles
+    console.log('[ADMIN] Step 2: Processing...');
+    await processPendingArticles({ limit: 50 });
+
+    // Step 3: AI supplementation
+    console.log('[ADMIN] Step 3: AI Supplement...');
+    const result = await supplementDailyContent();
+
+    console.log('[ADMIN] Full refresh complete');
+    res.redirect(`/admin/settings?message=Full refresh complete. AI generated: ${result.generated?.length || 0}`);
+  } catch (err) {
+    console.error('Error during full refresh:', err);
+    res.redirect('/admin/settings?message=Error: ' + err.message);
   }
 });
 

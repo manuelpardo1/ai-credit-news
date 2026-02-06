@@ -154,6 +154,38 @@
       <a href="/admin" class="btn btn-secondary">Cancel</a>
     </div>
   </form>
+
+  <!-- Manual Operations -->
+  <div class="settings-section operations-section">
+    <h2>Manual Operations</h2>
+    <p class="section-desc">Trigger content operations manually (useful for initial population)</p>
+
+    <div class="operations-grid">
+      <form action="/admin/scrape" method="POST" class="operation-form">
+        <div class="operation-card">
+          <h3>Scrape RSS Feeds</h3>
+          <p>Fetch articles from all RSS sources (3 month lookback)</p>
+          <button type="submit" class="btn btn-secondary">Run Scrape</button>
+        </div>
+      </form>
+
+      <form action="/admin/supplement" method="POST" class="operation-form">
+        <div class="operation-card">
+          <h3>AI Supplement</h3>
+          <p>Generate AI articles to fill content gaps</p>
+          <button type="submit" class="btn btn-secondary">Run AI Supplement</button>
+        </div>
+      </form>
+
+      <form action="/admin/full-refresh" method="POST" class="operation-form">
+        <div class="operation-card highlight">
+          <h3>Full Content Refresh</h3>
+          <p>Scrape + Process + AI Supplement (takes a few minutes)</p>
+          <button type="submit" class="btn btn-primary">Run Full Refresh</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -340,6 +372,45 @@
   font-size: 1rem;
   color: #374151;
   margin: 0 0 1rem 0;
+}
+
+.operations-section {
+  margin-top: 2rem;
+  background: #fefce8;
+  border: 1px solid #fef08a;
+}
+
+.operations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.operation-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.operation-card.highlight {
+  border-color: #5b21b6;
+  background: #faf5ff;
+}
+
+.operation-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+}
+
+.operation-card p {
+  margin: 0 0 1rem 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.operation-form {
+  margin: 0;
 }
 </style>
 
