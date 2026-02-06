@@ -386,20 +386,21 @@ app.listen(PORT, async () => {
     console.error('Error seeding editorial:', err.message);
   }
 
-  // If no approved articles, run initial scrape (get 10 articles to start)
+  // Ensure minimum content per category (5 articles each)
+  // 2 from last month + 3 most relevant from last 3 months
   try {
-    const articleCount = await Article.count({ status: 'approved' });
-    if (articleCount === 0) {
-      console.log('[STARTUP] No articles found, running initial scrape...');
-      await runScrape();
-      console.log('[STARTUP] Scrape complete, processing articles...');
-      await processPendingArticles({ limit: 10 });
-      console.log('[STARTUP] Initial content population complete!');
+    const { ensureMinimumContent, getCategoryDeficits } = require('./services/initialContent');
+    const deficits = await getCategoryDeficits();
+
+    if (deficits.length > 0) {
+      console.log('[STARTUP] Some categories need content, running initial population...');
+      await ensureMinimumContent();
     } else {
-      console.log(`[STARTUP] Found ${articleCount} approved articles`);
+      const articleCount = await Article.count({ status: 'approved' });
+      console.log(`[STARTUP] All categories have content. Total: ${articleCount} approved articles`);
     }
   } catch (err) {
-    console.error('[STARTUP] Error with initial scrape:', err.message);
+    console.error('[STARTUP] Error with initial content:', err.message);
   }
 });
 
