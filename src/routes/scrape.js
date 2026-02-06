@@ -104,10 +104,11 @@ router.get('/test-ai', async (req, res) => {
   }
 });
 
-// GET /api/scrape/test-process - Test article processing
+// GET /api/scrape/test-process - Test article processing with full update
 router.get('/test-process', async (req, res) => {
   try {
     const Article = require('../models/Article');
+    const Tag = require('../models/Tag');
     const { processArticle } = require('../services/ai');
 
     // Get one pending article
@@ -119,10 +120,30 @@ router.get('/test-process', async (req, res) => {
     const article = articles[0];
     const result = await processArticle(article);
 
+    // Try the full update like the processor does
+    await Article.update(article.id, {
+      relevance_score: result.relevance_score,
+      category_id: result.category_id,
+      summary: result.summary,
+      difficulty_level: result.difficulty_level,
+      status: result.status
+    });
+
+    // Add tags if relevant
+    if (result.status === 'approved' && result.tags && result.tags.length > 0) {
+      const tagIds = [];
+      for (const tagName of result.tags) {
+        const tag = await Tag.findOrCreate(tagName.toLowerCase());
+        tagIds.push(tag.id);
+      }
+      await Article.addTags(article.id, tagIds);
+    }
+
     res.json({
       success: true,
       article: { id: article.id, title: article.title },
-      result: result
+      result: result,
+      updated: true
     });
   } catch (err) {
     res.json({
