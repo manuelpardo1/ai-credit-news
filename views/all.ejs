@@ -2,9 +2,9 @@
 
 <div class="container">
   <div class="all-header">
-    <h2>All Articles</h2>
+    <h2 data-i18n="allArticles">All Articles</h2>
     <form action="/search" method="GET" class="search-box">
-      <input type="text" name="q" placeholder="Search articles..." value="<%= typeof query !== 'undefined' ? query : '' %>">
+      <input type="text" name="q" placeholder="Search articles..." data-i18n-placeholder="searchPlaceholder" value="<%= typeof query !== 'undefined' ? query : '' %>">
     </form>
   </div>
 
@@ -32,7 +32,7 @@
             <article class="date-item">
               <span class="num"><%= String(index + 1).padStart(2, '0') %></span>
               <div>
-                <span class="cat"><%= article.category_name || 'News' %></span>
+                <span class="cat" data-category="<%= article.category_slug %>"><%= article.category_name || 'News' %></span>
                 <h4><a href="/article/<%= article.id %>"><%= article.title %></a></h4>
                 <p><%= article.summary ? article.summary.substring(0, 100) + '...' : '' %></p>
               </div>
@@ -45,9 +45,9 @@
     <% if (typeof pagination !== 'undefined' && pagination.totalPages > 1) { %>
     <div class="pagination">
       <% if (pagination.currentPage > 1) { %>
-        <a href="/all?page=<%= pagination.currentPage - 1 %>">← Previous</a>
+        <a href="/all?page=<%= pagination.currentPage - 1 %>"><span data-i18n="previous">Previous</span> ←</a>
       <% } else { %>
-        <a href="#" class="disabled">← Previous</a>
+        <a href="#" class="disabled"><span data-i18n="previous">Previous</span> ←</a>
       <% } %>
 
       <% for (let i = 1; i <= pagination.totalPages; i++) { %>
@@ -55,17 +55,17 @@
       <% } %>
 
       <% if (pagination.currentPage < pagination.totalPages) { %>
-        <a href="/all?page=<%= pagination.currentPage + 1 %>">Next →</a>
+        <a href="/all?page=<%= pagination.currentPage + 1 %>"><span data-i18n="next">Next</span> →</a>
       <% } else { %>
-        <a href="#" class="disabled">Next →</a>
+        <a href="#" class="disabled"><span data-i18n="next">Next</span> →</a>
       <% } %>
     </div>
     <% } %>
 
   <% } else { %>
     <div class="empty-state">
-      <h3>No articles found</h3>
-      <p>Check back soon for the latest AI in credit & banking news.</p>
+      <h3 data-i18n="noArticles">No articles found.</h3>
+      <p data-i18n="tryDifferent">Try different keywords or browse categories.</p>
     </div>
   <% } %>
 </div>

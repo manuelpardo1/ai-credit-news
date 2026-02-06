@@ -5,7 +5,7 @@
   <div class="article-card-content">
     <div class="article-card-meta">
       <% if (article.category_name) { %>
-        <a href="/category/<%= article.category_slug %>" class="article-card-category">
+        <a href="/category/<%= article.category_slug %>" class="article-card-category" data-category="<%= article.category_slug %>">
           <%= article.category_name %>
         </a>
       <% } %>
@@ -23,7 +23,7 @@
     <div class="article-card-footer">
       <span class="article-card-source"><%= article.source %></span>
       <% if (article.difficulty_level) { %>
-        <span class="difficulty-badge <%= article.difficulty_level %>">
+        <span class="difficulty-badge <%= article.difficulty_level %>" data-difficulty="<%= article.difficulty_level %>">
           <%= article.difficulty_level %>
         </span>
       <% } %>

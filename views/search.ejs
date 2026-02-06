@@ -2,8 +2,8 @@
 
 <section class="search-header">
   <div class="container">
-    <h1>Search results for "<span class="query"><%= query %></span>"</h1>
-    <p style="color: var(--text-light);"><%= articles.length %> result<%= articles.length !== 1 ? 's' : '' %> found</p>
+    <h1><span data-i18n="searchResults">Search Results</span>: "<span class="query"><%= query %></span>"</h1>
+    <p style="color: var(--text-light);"><%= articles.length %> <span data-i18n="resultsFor">results for</span> "<%= query %>"</p>
   </div>
 </section>
 
@@ -17,8 +17,8 @@
   <% } else { %>
     <div class="empty-state">
       <div class="empty-state-icon">🔍</div>
-      <h3>No results found</h3>
-      <p>Try different keywords or browse our <a href="/categories">categories</a>.</p>
+      <h3><span data-i18n="noResultsFor">No results found for</span> "<%= query %>"</h3>
+      <p data-i18n="tryDifferent">Try different keywords or browse categories.</p>
     </div>
   <% } %>
 </main>

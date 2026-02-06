@@ -1,47 +1,49 @@
 <%- include('partials/header', { title: category.name, page: 'category', activeCategory: category.slug, categories: categories }) %>
 
-<% const icons = {
-  'credit-scoring': '💳',
-  'fraud-detection': '🛡️',
-  'credit-risk': '📊',
-  'income-employment': '💼',
-  'regulatory-compliance': '⚖️',
-  'lending-automation': '🤖'
-}; %>
-
 <section class="category-header">
-  <div class="container">
-    <div style="font-size: 3rem; margin-bottom: 1rem;"><%= icons[category.slug] || '📁' %></div>
-    <h1><%= category.name %></h1>
+  <div class="category-header-content">
+    <h1 data-category="<%= category.slug %>"><%= category.name %></h1>
     <p><%= category.description %></p>
   </div>
 </section>
 
-<main class="container">
+<main class="category-main">
   <% if (articles && articles.length > 0) { %>
-    <div class="articles-grid">
-      <% articles.forEach(article => { %>
-        <%- include('partials/article-card', { article }) %>
+    <div class="category-articles">
+      <% articles.forEach((article, index) => { %>
+        <article class="category-article-item">
+          <span class="article-index"><%= String(index + 1).padStart(2, '0') %></span>
+          <div class="article-item-content">
+            <span class="article-date"><%= article.published_date ? new Date(article.published_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recent' %></span>
+            <h3><a href="/article/<%= article.id %>"><%= article.title %></a></h3>
+            <p><%= article.summary ? article.summary.substring(0, 120) + '...' : '' %></p>
+            <div class="article-meta-row">
+              <span class="article-source"><%= article.source %></span>
+              <% if (article.difficulty_level) { %>
+                <span class="difficulty-badge <%= article.difficulty_level %>" data-difficulty="<%= article.difficulty_level %>"><%= article.difficulty_level %></span>
+              <% } %>
+            </div>
+          </div>
+        </article>
       <% }) %>
     </div>
 
     <% if (pagination.pages > 1) { %>
-      <div style="text-align: center; margin-top: 2rem;">
+      <div class="category-pagination">
         <% if (pagination.page > 1) { %>
-          <a href="/category/<%= category.slug %>?page=<%= pagination.page - 1 %>" style="margin-right: 1rem;">&larr; Previous</a>
+          <a href="/category/<%= category.slug %>?page=<%= pagination.page - 1 %>" class="pagination-link">&larr; <span data-i18n="previous">Previous</span></a>
         <% } %>
-        <span>Page <%= pagination.page %> of <%= pagination.pages %></span>
+        <span class="pagination-info"><span data-i18n="page">Page</span> <%= pagination.page %> <span data-i18n="of">of</span> <%= pagination.pages %></span>
         <% if (pagination.page < pagination.pages) { %>
-          <a href="/category/<%= category.slug %>?page=<%= pagination.page + 1 %>" style="margin-left: 1rem;">Next &rarr;</a>
+          <a href="/category/<%= category.slug %>?page=<%= pagination.page + 1 %>" class="pagination-link"><span data-i18n="next">Next</span> &rarr;</a>
         <% } %>
       </div>
     <% } %>
   <% } else { %>
     <div class="empty-state">
-      <div class="empty-state-icon">📭</div>
-      <h3>No articles in this category</h3>
-      <p>We haven't found any relevant articles for this category yet.</p>
-      <a href="/" style="display: inline-block; margin-top: 1rem;">Back to Home</a>
+      <h3 data-i18n="noArticles">No articles found.</h3>
+      <p data-i18n="tryDifferent">Try different keywords or browse categories.</p>
+      <a href="/" class="back-home-link" data-i18n="backToHome">Back to Home</a>
     </div>
   <% } %>
 </main>
