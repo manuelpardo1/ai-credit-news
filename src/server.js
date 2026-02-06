@@ -268,14 +268,24 @@ app.use((req, res) => {
   }
 });
 
+// Seed sample articles on startup (for Railway ephemeral filesystem)
+const { seedArticles } = require('./database/seed-articles');
+
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║     AI Credit & Banking News Platform                      ║
 ║     Server running on http://localhost:${PORT}                ║
 ╚════════════════════════════════════════════════════════════╝
   `);
+
+  // Seed sample articles if database is empty
+  try {
+    await seedArticles();
+  } catch (err) {
+    console.error('Error seeding articles:', err.message);
+  }
 });
 
 module.exports = app;
