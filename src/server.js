@@ -289,8 +289,37 @@ app.get('/analytics', async (req, res) => {
 // Import services for cron jobs
 const { generateWeeklyEditorial } = require('./services/editorial');
 const { sendWeeklyNewsletter } = require('./services/newsletter');
+const { runScrape } = require('./services/scraper');
+const { processPendingArticles } = require('./services/processor');
 
-// Generate editorial every Sunday at 6 PM
+// Scrape and process articles twice daily
+// 12 AM Colombia (UTC-5) = 5 AM UTC
+// 12 PM Colombia (UTC-5) = 5 PM UTC
+cron.schedule('0 5 * * *', async () => {
+  console.log('[CRON] Starting scheduled scrape (12 AM Colombia)...');
+  try {
+    await runScrape();
+    console.log('[CRON] Scrape complete, processing articles...');
+    await processPendingArticles({ limit: 50 });
+    console.log('[CRON] Article processing complete');
+  } catch (err) {
+    console.error('[CRON] Scrape/process failed:', err.message);
+  }
+});
+
+cron.schedule('0 17 * * *', async () => {
+  console.log('[CRON] Starting scheduled scrape (12 PM Colombia)...');
+  try {
+    await runScrape();
+    console.log('[CRON] Scrape complete, processing articles...');
+    await processPendingArticles({ limit: 50 });
+    console.log('[CRON] Article processing complete');
+  } catch (err) {
+    console.error('[CRON] Scrape/process failed:', err.message);
+  }
+});
+
+// Generate editorial every Sunday at 6 PM UTC (1 PM Colombia)
 cron.schedule('0 18 * * 0', async () => {
   console.log('[CRON] Generating weekly editorial...');
   try {
@@ -301,8 +330,8 @@ cron.schedule('0 18 * * 0', async () => {
   }
 });
 
-// Send newsletter every Monday at 8 AM
-cron.schedule('0 8 * * 1', async () => {
+// Send newsletter every Monday at 1 PM UTC (8 AM Colombia)
+cron.schedule('0 13 * * 1', async () => {
   console.log('[CRON] Sending weekly newsletter...');
   try {
     await sendWeeklyNewsletter();
@@ -335,8 +364,8 @@ app.use((req, res) => {
   }
 });
 
-// Seed sample data on startup (for Railway ephemeral filesystem)
-const { seedArticles, seedEditorial } = require('./database/seed-articles');
+// Seed editorial on startup (for Railway ephemeral filesystem)
+const { seedEditorial } = require('./database/seed-articles');
 
 // Start server
 app.listen(PORT, async () => {
@@ -347,12 +376,27 @@ app.listen(PORT, async () => {
 ╚════════════════════════════════════════════════════════════╝
   `);
 
-  // Seed sample data if database is empty
+  // Seed editorial if none exists
   try {
-    await seedArticles();
     await seedEditorial();
   } catch (err) {
-    console.error('Error seeding data:', err.message);
+    console.error('Error seeding editorial:', err.message);
+  }
+
+  // If no approved articles, run initial scrape
+  try {
+    const articleCount = await Article.count({ status: 'approved' });
+    if (articleCount === 0) {
+      console.log('[STARTUP] No articles found, running initial scrape...');
+      await runScrape();
+      console.log('[STARTUP] Scrape complete, processing articles...');
+      await processPendingArticles({ limit: 50 });
+      console.log('[STARTUP] Initial content population complete!');
+    } else {
+      console.log(`[STARTUP] Found ${articleCount} approved articles`);
+    }
+  } catch (err) {
+    console.error('[STARTUP] Error with initial scrape:', err.message);
   }
 });
 
