@@ -1263,6 +1263,69 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1.5rem;
 }
 
+.editorial-footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.editorial-cta {
+  background: var(--accent-subtle);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.editorial-cta h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+.editorial-cta p {
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.editorial-cta .inline-subscribe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.editorial-cta .inline-subscribe input {
+  flex: 1;
+  min-width: 150px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.editorial-cta .inline-subscribe input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.editorial-cta .inline-subscribe button {
+  padding: 0.75rem 1.5rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.editorial-cta .inline-subscribe button:hover {
+  background: var(--accent-light);
+}
+
 /* ============================================
    Editorials List Page
    ============================================ */

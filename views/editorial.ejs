@@ -6,7 +6,7 @@
       <div class="editorial-label">Weekly Editorial</div>
       <h1><%= editorial.title %></h1>
       <div class="editorial-meta">
-        <span>Week of <%= editorial.week_start %></span>
+        <span>Week of <%= new Date(editorial.week_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %> - <%= new Date(editorial.week_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
         <% if (editorial.published_at) { %>
           <span>·</span>
           <span>Published <%= new Date(editorial.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) %></span>
@@ -15,7 +15,7 @@
     </header>
 
     <div class="editorial-content">
-      <%= editorial.content.split('\n\n').map(p => `<p>${p}</p>`).join('') %>
+      <%- editorial.content.split('\n\n').map(p => `<p>${p}</p>`).join('') %>
     </div>
 
     <footer class="editorial-footer">

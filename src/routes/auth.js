@@ -70,34 +70,41 @@ function requireUser(req, res, next) {
 // Traditional Auth Routes
 // ============================================
 
+const Category = require('../models/Category');
+
 // GET /auth/login - Login page
-router.get('/login', (req, res) => {
+router.get('/login', async (req, res) => {
   if (getCurrentUser(req)) {
     return res.redirect(req.query.redirect || '/');
   }
+  const categories = await Category.getWithArticleCount();
   res.render('auth/login', {
     error: null,
     redirect: req.query.redirect || '/',
     googleClientId: process.env.GOOGLE_CLIENT_ID,
-    appleClientId: process.env.APPLE_CLIENT_ID
+    appleClientId: process.env.APPLE_CLIENT_ID,
+    categories
   });
 });
 
 // GET /auth/register - Register page
-router.get('/register', (req, res) => {
+router.get('/register', async (req, res) => {
   if (getCurrentUser(req)) {
     return res.redirect('/');
   }
+  const categories = await Category.getWithArticleCount();
   res.render('auth/register', {
     error: null,
     googleClientId: process.env.GOOGLE_CLIENT_ID,
-    appleClientId: process.env.APPLE_CLIENT_ID
+    appleClientId: process.env.APPLE_CLIENT_ID,
+    categories
   });
 });
 
 // POST /auth/login - Process login
 router.post('/login', async (req, res) => {
   const { email, password, redirect } = req.body;
+  const categories = await Category.getWithArticleCount();
 
   try {
     const user = await User.authenticate(email, password);
@@ -109,7 +116,8 @@ router.post('/login', async (req, res) => {
       error: 'Invalid email or password',
       redirect: redirect || '/',
       googleClientId: process.env.GOOGLE_CLIENT_ID,
-      appleClientId: process.env.APPLE_CLIENT_ID
+      appleClientId: process.env.APPLE_CLIENT_ID,
+      categories
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -117,7 +125,8 @@ router.post('/login', async (req, res) => {
       error: 'An error occurred. Please try again.',
       redirect: redirect || '/',
       googleClientId: process.env.GOOGLE_CLIENT_ID,
-      appleClientId: process.env.APPLE_CLIENT_ID
+      appleClientId: process.env.APPLE_CLIENT_ID,
+      categories
     });
   }
 });
@@ -125,6 +134,7 @@ router.post('/login', async (req, res) => {
 // POST /auth/register - Process registration
 router.post('/register', async (req, res) => {
   const { email, password, name } = req.body;
+  const categories = await Category.getWithArticleCount();
 
   try {
     // Check if user exists
@@ -133,7 +143,8 @@ router.post('/register', async (req, res) => {
       return res.render('auth/register', {
         error: 'An account with this email already exists',
         googleClientId: process.env.GOOGLE_CLIENT_ID,
-        appleClientId: process.env.APPLE_CLIENT_ID
+        appleClientId: process.env.APPLE_CLIENT_ID,
+        categories
       });
     }
 
@@ -149,7 +160,8 @@ router.post('/register', async (req, res) => {
     res.render('auth/register', {
       error: 'An error occurred. Please try again.',
       googleClientId: process.env.GOOGLE_CLIENT_ID,
-      appleClientId: process.env.APPLE_CLIENT_ID
+      appleClientId: process.env.APPLE_CLIENT_ID,
+      categories
     });
   }
 });
