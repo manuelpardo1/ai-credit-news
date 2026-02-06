@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Credit News - Color Comparison</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #e8e8e8; color: #1a1a1a; line-height: 1.5; }
+
+    .mockup-nav { background: #000; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+    .mockup-nav h1 { font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; letter-spacing: 0.5px; }
+    .mockup-nav a { color: #888; margin-right: 1.5rem; text-decoration: none; font-size: 0.85rem; }
+    .mockup-nav a:hover { color: white; }
+
+    .mockup-section { padding: 3rem 2rem; }
+    .mockup-section h2 { color: #000; margin-bottom: 0.25rem; font-size: 1.25rem; font-weight: 600; }
+    .mockup-section .description { color: #666; margin-bottom: 2rem; font-size: 0.85rem; max-width: 600px; }
+    .mockup-label { background: #000; color: white; display: inline-block; padding: 0.25rem 0.5rem; font-size: 0.65rem; margin-bottom: 0.75rem; letter-spacing: 1px; text-transform: uppercase; }
+
+    .divider { height: 2rem; background: #ddd; }
+
+    /* ==================== BASE STYLES ==================== */
+    .swiss-b { background: #fff; max-width: 960px; margin: 0 auto; }
+
+    .swiss-b-header {
+      background: #000;
+      color: #fff;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 1rem 2rem;
+    }
+    .swiss-b-header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .swiss-b-header nav { display: flex; gap: 1.5rem; }
+    .swiss-b-header nav a {
+      color: #888;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 400;
+    }
+    .swiss-b-header nav a:hover { color: #fff; }
+    .swiss-b-header nav a.active { color: #fff; }
+
+    .swiss-b-cats {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #e0e0e0;
+      background: #fafafa;
+    }
+    .swiss-b-cats a {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.8rem;
+      color: #555;
+      text-decoration: none;
+      border-right: 1px solid #e0e0e0;
+    }
+    .swiss-b-cats a:hover { background: #f0f0f0; }
+
+    /* ==================== HOMEPAGE STYLES ==================== */
+    .swiss-b-hero {
+      padding: 2.5rem 2rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .swiss-b-hero .label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .swiss-b-hero .label .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .swiss-b-hero .label span {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      font-weight: 500;
+    }
+    .swiss-b-hero h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.5px;
+    }
+    .swiss-b-hero p {
+      font-size: 1.1rem;
+      color: #555;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+
+    .swiss-b-content {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+    }
+
+    .swiss-b-articles {
+      padding: 0 2rem 2rem;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .article-numbered {
+      display: grid;
+      grid-template-columns: 50px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid #eee;
+    }
+    .article-numbered .num {
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: #ddd;
+    }
+    .article-numbered .cat {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 0.25rem;
+    }
+    .article-numbered h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: 0.25rem;
+    }
+    .article-numbered p {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .view-more {
+      padding: 1.5rem 0;
+      text-align: center;
+    }
+    .view-more a {
+      display: inline-block;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.8rem;
+      color: #555;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      transition: all 0.15s;
+    }
+    .view-more a:hover {
+      background: #000;
+      color: #fff;
+      border-color: #000;
+    }
+
+    .swiss-b-sidebar {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-subscribe {
+      padding: 1.5rem;
+      background: #fafafa;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .sidebar-subscribe h3 {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+    .sidebar-subscribe p {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    .sidebar-subscribe input {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid #ddd;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+    .sidebar-subscribe input:focus {
+      outline: none;
+      border-color: #000;
+    }
+    .sidebar-subscribe button {
+      width: 100%;
+      padding: 0.6rem;
+      background: #000;
+      color: #fff;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .sidebar-subscribe button:hover {
+      background: #333;
+    }
+
+    .sidebar-editorial {
+      padding: 1.5rem;
+      background: #fff;
+    }
+    .sidebar-editorial h3 {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+    .sidebar-editorial h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: 0.5rem;
+    }
+    .sidebar-editorial p {
+      font-size: 0.8rem;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+    .sidebar-editorial a {
+      font-size: 0.75rem;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .sidebar-editorial a:hover {
+      text-decoration: underline;
+    }
+
+    /* ==================== OPTION A: Purple ==================== */
+    .color-purple .swiss-b-cats a.active {
+      background: #5b21b6;
+      color: #fff;
+      border-bottom: none;
+    }
+    .color-purple .swiss-b-hero .label .dot {
+      background: #5b21b6;
+    }
+    .color-purple .sidebar-editorial a {
+      color: #5b21b6;
+    }
+
+    /* ==================== OPTION B: Deep Teal ==================== */
+    .color-teal .swiss-b-cats a.active {
+      background: #0d9488;
+      color: #fff;
+      border-bottom: none;
+    }
+    .color-teal .swiss-b-hero .label .dot {
+      background: #0d9488;
+    }
+    .color-teal .sidebar-editorial a {
+      color: #0d9488;
+    }
+
+    /* ==================== OPTION C: Slate Blue ==================== */
+    .color-slate .swiss-b-cats a.active {
+      background: #475569;
+      color: #fff;
+      border-bottom: none;
+    }
+    .color-slate .swiss-b-hero .label .dot {
+      background: #475569;
+    }
+    .color-slate .sidebar-editorial a {
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="mockup-nav">
+  <h1>AI Credit News – Color Background Comparison</h1>
+  <a href="#option-a">A: Purple</a>
+  <a href="#option-b">B: Deep Teal</a>
+  <a href="#option-c">C: Slate Blue</a>
+</nav>
+
+<!-- ==================== OPTION A: Purple ==================== -->
+<section id="option-a" class="mockup-section">
+  <span class="mockup-label">Option A</span>
+  <h2>Purple</h2>
+  <p class="description">Sophisticated, tech-forward. #5b21b6</p>
+
+  <div class="swiss-b color-purple">
+    <header class="swiss-b-header">
+      <h1>AI Credit News</h1>
+      <nav>
+        <a href="#" class="active">Home</a>
+        <a href="#">All</a>
+        <a href="#">About</a>
+      </nav>
+    </header>
+
+    <nav class="swiss-b-cats">
+      <a href="#" class="active">All</a>
+      <a href="#">Credit Scoring</a>
+      <a href="#">Fraud Detection</a>
+      <a href="#">Credit Risk</a>
+      <a href="#">Income</a>
+      <a href="#">Regulatory</a>
+    </nav>
+
+    <div class="swiss-b-hero">
+      <div class="label">
+        <span class="dot"></span>
+        <span>Fraud Detection</span>
+      </div>
+      <h2>JPMorgan Deploys Real-Time Fraud Detection Across Consumer Banking</h2>
+      <p>The bank's new AI system achieves 40% reduction in false positives while maintaining detection rates, setting a new industry benchmark.</p>
+    </div>
+
+    <div class="swiss-b-content">
+      <div class="swiss-b-articles">
+        <article class="article-numbered">
+          <span class="num">01</span>
+          <div>
+            <div class="cat">Credit Scoring</div>
+            <h4>Alternative Data in Credit Scoring Gains Regulatory Acceptance</h4>
+            <p>Cash flow and rental history now accepted for credit decisions.</p>
+          </div>
+        </article>
+        <article class="article-numbered">
+          <span class="num">02</span>
+          <div>
+            <div class="cat">Regulatory</div>
+            <h4>European Banks Face New CRD VI Model Risk Rules</h4>
+            <p>Capital requirements increase for AI-based credit models.</p>
+          </div>
+        </article>
+        <article class="article-numbered">
+          <span class="num">03</span>
+          <div>
+            <div class="cat">Lending Automation</div>
+            <h4>Instant Decisioning Reaches Auto Lending Market</h4>
+            <p>Sub-second approvals now standard at major lenders.</p>
+          </div>
+        </article>
+        <article class="article-numbered">
+          <span class="num">04</span>
+          <div>
+            <div class="cat">Income & Employment</div>
+            <h4>Payroll APIs Transform Income Verification</h4>
+            <p>Direct employer data replaces traditional paystub collection.</p>
+          </div>
+        </article>
+
+        <div class="view-more">
+          <a href="#">View more articles →</a>
+        </div>
+      </div>
+
+      <aside class="swiss-b-sidebar">
+        <div class="sidebar-subscribe">
+          <h3>Newsletter</h3>
+          <p>Weekly AI credit insights delivered to your inbox every Monday.</p>
+          <input type="email" placeholder="your@email.com">
+          <button>Subscribe</button>
+        </div>
+
+        <div class="sidebar-editorial">
+          <h3>Weekly Editorial</h3>
+          <h4>The Coming Wave of AI Model Governance</h4>
+          <p>As regulators sharpen their focus on algorithmic lending, risk teams must prepare for a new era of model documentation...</p>
+          <a href="#">Read Editorial →</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== OPTION B: Deep Teal ==================== -->
+<section id="option-b" class="mockup-section">
+  <span class="mockup-label">Option B</span>
+  <h2>Deep Teal</h2>
+  <p class="description">Financial trust, modern fintech. #0d9488</p>
+
+  <div class="swiss-b color-teal">
+    <header class="swiss-b-header">
+      <h1>AI Credit News</h1>
+      <nav>
+        <a href="#" class="active">Home</a>
+        <a href="#">All</a>
+        <a href="#">About</a>
+      </nav>
+    </header>
+
+    <nav class="swiss-b-cats">
+      <a href="#" class="active">All</a>
+      <a href="#">Credit Scoring</a>
+      <a href="#">Fraud Detection</a>
+      <a href="#">Credit Risk</a>
+      <a href="#">Income</a>
+      <a href="#">Regulatory</a>
+    </nav>
+
+    <div class="swiss-b-hero">
+      <div class="label">
+        <span class="dot"></span>
+        <span>Fraud Detection</span>
+      </div>
+      <h2>JPMorgan Deploys Real-Time Fraud Detection Across Consumer Banking</h2>
+      <p>The bank's new AI system achieves 40% reduction in false positives while maintaining detection rates, setting a new industry benchmark.</p>
+    </div>
+
+    <div class="swiss-b-content">
+      <div class="swiss-b-articles">
+        <article class="article-numbered">
+          <span class="num">01</span>
+          <div>
+            <div class="cat">Credit Scoring</div>
+            <h4>Alternative Data in Credit Scoring Gains Regulatory Acceptance</h4>
+            <p>Cash flow and rental history now accepted for credit decisions.</p>
+          </div>
+        </article>
+        <article class="article-numbered">
+          <span class="num">02</span>
+          <div>
+            <div class="cat">Regulatory</div>
+            <h4>European Banks Face New CRD VI Model Risk Rules</h4>
+            <p>Capital requirements increase for AI-based credit models.</p>
+          </div>
+        </article>
+        <article class="article-numbered">
+          <span class="num">03</span>
+          <div>
+            <div class="cat">Lending Automation</div>
+            <h4>Instant Decisioning Reaches Auto Lending Market</h4>
+            <p>Sub-second approvals now standard at major lenders.</p>
+          </div>
+        </article>
+        <article class="article-numbered">
+          <span class="num">04</span>
+          <div>
+            <div class="cat">Income & Employment</div>
+            <h4>Payroll APIs Transform Income Verification</h4>
+            <p>Direct employer data replaces traditional paystub collection.</p>
+          </div>
+        </article>
+
+        <div class="view-more">
+          <a href="#">View more articles →</a>
+        </div>
+      </div>
+
+      <aside class="swiss-b-sidebar">
+        <div class="sidebar-subscribe">
+          <h3>Newsletter</h3>
+          <p>Weekly AI credit insights delivered to your inbox every Monday.</p>
+          <input type="email" placeholder="your@email.com">
+          <button>Subscribe</button>
+        </div>
+
+        <div class="sidebar-editorial">
+          <h3>Weekly Editorial</h3>
+          <h4>The Coming Wave of AI Model Governance</h4>
+          <p>As regulators sharpen their focus on algorithmic lending, risk teams must prepare for a new era of model documentation...</p>
+          <a href="#">Read Editorial →</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== OPTION C: Slate Blue ==================== -->
+<section id="option-c" class="mockup-section">
+  <span class="mockup-label">Option C</span>
+  <h2>Slate Blue</h2>
+  <p class="description">Professional, understated, editorial. #475569</p>
+
+  <div class="swiss-b color-slate">
+    <header class="swiss-b-header">
+      <h1>AI Credit News</h1>
+      <nav>
+        <a href="#" class="active">Home</a>
+        <a href="#">All</a>
+        <a href="#">About</a>
+      </nav>
+    </header>
+
+    <nav class="swiss-b-cats">
+      <a href="#" class="active">All</a>
+      <a href="#">Credit Scoring</a>
+      <a href="#">Fraud Detection</a>
+      <a href="#">Credit Risk</a>
+      <a href="#">Income</a>
+      <a href="#">Regulatory</a>
+    </nav>
+
+    <div class="swiss-b-hero">
+      <div class="label">
+        <span class="dot"></span>
+        <span>Fraud Detection</span>
+      </div>
+      <h2>JPMorgan Deploys Real-Time Fraud Detection Across Consumer Banking</h2>
+      <p>The bank's new AI system achieves 40% reduction in false positives while maintaining detection rates, setting a new industry benchmark.</p>
+    </div>
+
+    <div class="swiss-b-content">
+      <div class="swiss-b-articles">
+        <article class="article-numbered">
+          <span class="num">01</span>
+          <div>
+            <div class="cat">Credit Scoring</div>
+            <h4>Alternative Data in Credit Scoring Gains Regulatory Acceptance</h4>
+            <p>Cash flow and rental history now accepted for credit decisions.</p>
+          </div>
+        </article>
+        <article class="article-numbered">
+          <span class="num">02</span>
+          <div>
+            <div class="cat">Regulatory</div>
+            <h4>European Banks Face New CRD VI Model Risk Rules</h4>
+            <p>Capital requirements increase for AI-based credit models.</p>
+          </div>
+        </article>
+        <article class="article-numbered">
+          <span class="num">03</span>
+          <div>
+            <div class="cat">Lending Automation</div>
+            <h4>Instant Decisioning Reaches Auto Lending Market</h4>
+            <p>Sub-second approvals now standard at major lenders.</p>
+          </div>
+        </article>
+        <article class="article-numbered">
+          <span class="num">04</span>
+          <div>
+            <div class="cat">Income & Employment</div>
+            <h4>Payroll APIs Transform Income Verification</h4>
+            <p>Direct employer data replaces traditional paystub collection.</p>
+          </div>
+        </article>
+
+        <div class="view-more">
+          <a href="#">View more articles →</a>
+        </div>
+      </div>
+
+      <aside class="swiss-b-sidebar">
+        <div class="sidebar-subscribe">
+          <h3>Newsletter</h3>
+          <p>Weekly AI credit insights delivered to your inbox every Monday.</p>
+          <input type="email" placeholder="your@email.com">
+          <button>Subscribe</button>
+        </div>
+
+        <div class="sidebar-editorial">
+          <h3>Weekly Editorial</h3>
+          <h4>The Coming Wave of AI Model Governance</h4>
+          <p>As regulators sharpen their focus on algorithmic lending, risk teams must prepare for a new era of model documentation...</p>
+          <a href="#">Read Editorial →</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<div style="text-align: center; padding: 2rem; background: #000; color: white;">
+  <p style="font-size: 0.85rem; letter-spacing: 0.5px;">A (Purple), B (Deep Teal), or C (Slate Blue)?</p>
+</div>
+
+</body>
+</html>

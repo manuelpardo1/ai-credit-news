@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full Homepage Mockups - AI Credit News</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #5b21b6;
+      --accent-light: #7c3aed;
+      --black: #000;
+      --white: #fff;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-300: #d4d4d4;
+      --gray-400: #a3a3a3;
+      --gray-500: #737373;
+      --gray-600: #525252;
+      --gray-800: #262626;
+      --text: #1a1a1a;
+      --text-light: #555;
+      --text-muted: #888;
+      --border: #e0e0e0;
+      --border-light: #eee;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--gray-100);
+      padding: 2rem;
+      color: var(--text);
+    }
+
+    h1.page-title {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p.page-desc {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+    }
+
+    .mockup-section {
+      margin-bottom: 4rem;
+    }
+
+    .mockup-label {
+      background: var(--black);
+      color: var(--white);
+      padding: 1rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .mockup-label span {
+      opacity: 0.6;
+      font-weight: 400;
+      margin-left: 1rem;
+    }
+
+    .mockup-frame {
+      background: var(--white);
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    /* ========================================
+       SHARED COMPONENTS
+       ======================================== */
+
+    /* Header */
+    .site-header {
+      background: var(--black);
+      color: var(--white);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .header-nav a {
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 0.8rem;
+    }
+
+    .header-nav a:hover { color: var(--white); }
+
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--gray-400);
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    /* Category Nav */
+    .category-nav {
+      display: flex;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .category-nav a {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-light);
+      text-decoration: none;
+      border-right: 1px solid var(--border);
+    }
+
+    .category-nav a:hover { background: var(--gray-100); }
+    .category-nav a.active {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    /* Home Layout */
+    .home-layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+    }
+
+    .main-content {
+      padding: 0 2rem 2rem;
+      border-right: 1px solid var(--border);
+    }
+
+    /* Article List */
+    .article-item {
+      display: grid;
+      grid-template-columns: 50px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .article-num {
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: var(--gray-300);
+    }
+
+    .article-cat {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .article-item h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: 0.25rem;
+    }
+
+    .article-item p {
+      font-size: 0.85rem;
+      color: var(--gray-600);
+    }
+
+    .view-more {
+      padding: 1.5rem 0;
+      text-align: center;
+    }
+
+    .view-more a {
+      display: inline-block;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-light);
+      border: 1px solid var(--gray-300);
+      text-decoration: none;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--gray-50);
+    }
+
+    .sidebar-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-section:last-child { border-bottom: none; }
+
+    .sidebar-title {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-section p {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .sidebar-section input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid var(--gray-300);
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-section button {
+      width: 100%;
+      padding: 0.6rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .editorial-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .editorial-link {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* Footer */
+    .site-footer {
+      background: var(--black);
+      color: var(--gray-500);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .site-footer a {
+      color: var(--gray-400);
+      text-decoration: none;
+      margin-left: 1.5rem;
+    }
+
+    /* ========================================
+       HERO OPTION 4: Card with Stats
+       ======================================== */
+    .hero-stats {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-stats-main {
+      padding: 2.5rem 2rem;
+    }
+
+    .hero-stats-sidebar {
+      background: var(--gray-50);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-left: 1px solid var(--border);
+    }
+
+    .hero-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .hero-category {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .hero-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+      max-width: 600px;
+    }
+
+    .hero-summary {
+      font-size: 1rem;
+      color: var(--text-light);
+      line-height: 1.6;
+      max-width: 550px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-cta {
+      display: inline-block;
+      padding: 0.6rem 1.25rem;
+      background: var(--black);
+      color: var(--white);
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+
+    .stat-item {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-item:last-child { border-bottom: none; }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 0.25rem;
+    }
+
+    /* ========================================
+       HERO OPTION 5C: Black with Grid Pattern
+       ======================================== */
+    .hero-black-grid {
+      position: relative;
+      background: var(--black);
+      padding: 2.5rem 2rem;
+    }
+
+    .hero-black-grid::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .hero-black-grid .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-black-grid .hero-dot { background: var(--accent-light); }
+    .hero-black-grid .hero-category { color: rgba(255,255,255,0.6); }
+    .hero-black-grid .hero-title { color: var(--white); }
+    .hero-black-grid .hero-summary { color: rgba(255,255,255,0.75); }
+    .hero-black-grid .hero-cta {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    /* ========================================
+       HERO OPTION 5D: Black with Accent Gradient
+       ======================================== */
+    .hero-black-accent {
+      position: relative;
+      background: linear-gradient(135deg, var(--black) 0%, var(--black) 70%, #1e1b4b 100%);
+      padding: 2.5rem 2rem;
+      overflow: hidden;
+    }
+
+    .hero-black-accent::before {
+      content: '';
+      position: absolute;
+      right: -100px;
+      top: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+      opacity: 0.15;
+    }
+
+    .hero-black-accent::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+
+    .hero-black-accent .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-black-accent .hero-dot { background: var(--white); }
+    .hero-black-accent .hero-category { color: rgba(255,255,255,0.7); }
+    .hero-black-accent .hero-title { color: var(--white); }
+    .hero-black-accent .hero-summary { color: rgba(255,255,255,0.8); }
+    .hero-black-accent .hero-cta {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    /* Search box in hero */
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .search-box {
+      display: flex;
+    }
+
+    .search-box input {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--gray-300);
+      border-right: none;
+      font-size: 0.85rem;
+      width: 180px;
+      background: var(--white);
+    }
+
+    .search-box button {
+      padding: 0.5rem 0.75rem;
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-left: none;
+      cursor: pointer;
+    }
+
+    .hero-black-grid .search-box input,
+    .hero-black-accent .search-box input {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+      color: var(--white);
+    }
+
+    .hero-black-grid .search-box input::placeholder,
+    .hero-black-accent .search-box input::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+
+    .hero-black-grid .search-box button,
+    .hero-black-accent .search-box button {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+      color: var(--white);
+    }
+  </style>
+</head>
+<body>
+  <h1 class="page-title">Full Homepage Mockups</h1>
+  <p class="page-desc">Complete homepage designs with your preferred hero options</p>
+
+  <!-- ========================================
+       MOCKUP 1: Hero Option 4 (Stats Sidebar)
+       ======================================== -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Homepage with Hero Option 4: Card Style with Statistics
+      <span>Shows site metrics alongside featured content</span>
+    </div>
+    <div class="mockup-frame">
+      <!-- Header -->
+      <header class="site-header">
+        <div class="logo">AI Credit News</div>
+        <nav class="header-nav">
+          <a href="#">Home</a>
+          <a href="#">About</a>
+          <div class="lang-toggle">EN</div>
+        </nav>
+      </header>
+
+      <!-- Category Nav -->
+      <nav class="category-nav">
+        <a href="#" class="active">Home</a>
+        <a href="#">All</a>
+        <a href="#">Credit Risk</a>
+        <a href="#">Credit Scoring</a>
+        <a href="#">Fraud Detection</a>
+        <a href="#">Lending Automation</a>
+      </nav>
+
+      <!-- Hero with Stats -->
+      <section class="hero-stats">
+        <div class="hero-stats-main">
+          <div class="hero-label">
+            <span class="hero-dot"></span>
+            <span class="hero-category">Regulatory & Compliance</span>
+          </div>
+          <h1 class="hero-title">CommBank Bids to Ease Customer Fears Over AI Adoption</h1>
+          <p class="hero-summary">Commonwealth Bank of Australia partners with Melbourne Business School to launch AI Attitudes Barometer, measuring public sentiment toward AI in banking.</p>
+          <a href="#" class="hero-cta">Read Article &rarr;</a>
+        </div>
+        <div class="hero-stats-sidebar">
+          <div class="stat-item">
+            <div class="stat-number">127</div>
+            <div class="stat-label">Articles This Week</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">24</div>
+            <div class="stat-label">News Sources</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">6</div>
+            <div class="stat-label">Categories</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Content -->
+      <div class="home-layout">
+        <main class="main-content">
+          <article class="article-item">
+            <span class="article-num">01</span>
+            <div>
+              <div class="article-cat">Lending Automation</div>
+              <h4>Lloyds Banking Group Targets Over 100m Value From AI in 2026</h4>
+              <p>The bank reports 50M in GenAI value for 2025 and targets over 100M...</p>
+            </div>
+          </article>
+          <article class="article-item">
+            <span class="article-num">02</span>
+            <div>
+              <div class="article-cat">Credit Risk</div>
+              <h4>Bank of America Overhauls Credit Card Program</h4>
+              <p>Bank of America is revamping its credit card program with AI...</p>
+            </div>
+          </article>
+          <article class="article-item">
+            <span class="article-num">03</span>
+            <div>
+              <div class="article-cat">Fraud Detection</div>
+              <h4>Equifax Unveils Credit Abuse Risk Model</h4>
+              <p>New predictive model using FCRA-regulated data to combat fraud...</p>
+            </div>
+          </article>
+          <div class="view-more">
+            <a href="#">View All Articles &rarr;</a>
+          </div>
+        </main>
+        <aside class="sidebar">
+          <div class="sidebar-section">
+            <div class="sidebar-title">Newsletter</div>
+            <p>Get weekly AI credit insights delivered to your inbox.</p>
+            <input type="email" placeholder="your@email.com">
+            <button>Subscribe</button>
+          </div>
+          <div class="sidebar-section">
+            <div class="sidebar-title">Weekly Editorial</div>
+            <h4 class="editorial-title">The Rise of Agentic AI in Banking</h4>
+            <p>This week we explore how autonomous AI agents are transforming...</p>
+            <a href="#" class="editorial-link">Read more &rarr;</a>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <span>&copy; 2026 AI Credit News</span>
+        <nav>
+          <a href="#">About</a>
+          <a href="#">Privacy</a>
+        </nav>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ========================================
+       MOCKUP 2: Hero Option 5C (Black Grid)
+       ======================================== -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Homepage with Hero Option 5C: Black with Grid Pattern
+      <span>Subtle visual interest, Swiss-style minimal</span>
+    </div>
+    <div class="mockup-frame">
+      <!-- Header -->
+      <header class="site-header">
+        <div class="logo">AI Credit News</div>
+        <nav class="header-nav">
+          <a href="#">Home</a>
+          <a href="#">About</a>
+          <div class="lang-toggle">EN</div>
+        </nav>
+      </header>
+
+      <!-- Category Nav -->
+      <nav class="category-nav">
+        <a href="#" class="active">Home</a>
+        <a href="#">All</a>
+        <a href="#">Credit Risk</a>
+        <a href="#">Credit Scoring</a>
+        <a href="#">Fraud Detection</a>
+        <a href="#">Lending Automation</a>
+      </nav>
+
+      <!-- Hero Black Grid -->
+      <section class="hero-black-grid">
+        <div class="hero-content">
+          <div class="hero-top">
+            <div class="hero-label">
+              <span class="hero-dot"></span>
+              <span class="hero-category">Regulatory & Compliance</span>
+            </div>
+            <div class="search-box">
+              <input type="text" placeholder="Search articles...">
+              <button>Go</button>
+            </div>
+          </div>
+          <h1 class="hero-title">CommBank Bids to Ease Customer Fears Over AI Adoption</h1>
+          <p class="hero-summary">Commonwealth Bank of Australia partners with Melbourne Business School to launch AI Attitudes Barometer, measuring public sentiment toward AI in banking.</p>
+          <a href="#" class="hero-cta">Read Article &rarr;</a>
+        </div>
+      </section>
+
+      <!-- Main Content -->
+      <div class="home-layout">
+        <main class="main-content">
+          <article class="article-item">
+            <span class="article-num">01</span>
+            <div>
+              <div class="article-cat">Lending Automation</div>
+              <h4>Lloyds Banking Group Targets Over 100m Value From AI in 2026</h4>
+              <p>The bank reports 50M in GenAI value for 2025 and targets over 100M...</p>
+            </div>
+          </article>
+          <article class="article-item">
+            <span class="article-num">02</span>
+            <div>
+              <div class="article-cat">Credit Risk</div>
+              <h4>Bank of America Overhauls Credit Card Program</h4>
+              <p>Bank of America is revamping its credit card program with AI...</p>
+            </div>
+          </article>
+          <article class="article-item">
+            <span class="article-num">03</span>
+            <div>
+              <div class="article-cat">Fraud Detection</div>
+              <h4>Equifax Unveils Credit Abuse Risk Model</h4>
+              <p>New predictive model using FCRA-regulated data to combat fraud...</p>
+            </div>
+          </article>
+          <div class="view-more">
+            <a href="#">View All Articles &rarr;</a>
+          </div>
+        </main>
+        <aside class="sidebar">
+          <div class="sidebar-section">
+            <div class="sidebar-title">Newsletter</div>
+            <p>Get weekly AI credit insights delivered to your inbox.</p>
+            <input type="email" placeholder="your@email.com">
+            <button>Subscribe</button>
+          </div>
+          <div class="sidebar-section">
+            <div class="sidebar-title">Weekly Editorial</div>
+            <h4 class="editorial-title">The Rise of Agentic AI in Banking</h4>
+            <p>This week we explore how autonomous AI agents are transforming...</p>
+            <a href="#" class="editorial-link">Read more &rarr;</a>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <span>&copy; 2026 AI Credit News</span>
+        <nav>
+          <a href="#">About</a>
+          <a href="#">Privacy</a>
+        </nav>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ========================================
+       MOCKUP 3: Hero Option 5D (Accent Gradient)
+       ======================================== -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Homepage with Hero Option 5D: Black with Purple Accent Gradient
+      <span>Brand color accent, professional and polished</span>
+    </div>
+    <div class="mockup-frame">
+      <!-- Header -->
+      <header class="site-header">
+        <div class="logo">AI Credit News</div>
+        <nav class="header-nav">
+          <a href="#">Home</a>
+          <a href="#">About</a>
+          <div class="lang-toggle">EN</div>
+        </nav>
+      </header>
+
+      <!-- Category Nav -->
+      <nav class="category-nav">
+        <a href="#" class="active">Home</a>
+        <a href="#">All</a>
+        <a href="#">Credit Risk</a>
+        <a href="#">Credit Scoring</a>
+        <a href="#">Fraud Detection</a>
+        <a href="#">Lending Automation</a>
+      </nav>
+
+      <!-- Hero Black Accent -->
+      <section class="hero-black-accent">
+        <div class="hero-content">
+          <div class="hero-top">
+            <div class="hero-label">
+              <span class="hero-dot"></span>
+              <span class="hero-category">Regulatory & Compliance</span>
+            </div>
+            <div class="search-box">
+              <input type="text" placeholder="Search articles...">
+              <button>Go</button>
+            </div>
+          </div>
+          <h1 class="hero-title">CommBank Bids to Ease Customer Fears Over AI Adoption</h1>
+          <p class="hero-summary">Commonwealth Bank of Australia partners with Melbourne Business School to launch AI Attitudes Barometer, measuring public sentiment toward AI in banking.</p>
+          <a href="#" class="hero-cta">Read Article &rarr;</a>
+        </div>
+      </section>
+
+      <!-- Main Content -->
+      <div class="home-layout">
+        <main class="main-content">
+          <article class="article-item">
+            <span class="article-num">01</span>
+            <div>
+              <div class="article-cat">Lending Automation</div>
+              <h4>Lloyds Banking Group Targets Over 100m Value From AI in 2026</h4>
+              <p>The bank reports 50M in GenAI value for 2025 and targets over 100M...</p>
+            </div>
+          </article>
+          <article class="article-item">
+            <span class="article-num">02</span>
+            <div>
+              <div class="article-cat">Credit Risk</div>
+              <h4>Bank of America Overhauls Credit Card Program</h4>
+              <p>Bank of America is revamping its credit card program with AI...</p>
+            </div>
+          </article>
+          <article class="article-item">
+            <span class="article-num">03</span>
+            <div>
+              <div class="article-cat">Fraud Detection</div>
+              <h4>Equifax Unveils Credit Abuse Risk Model</h4>
+              <p>New predictive model using FCRA-regulated data to combat fraud...</p>
+            </div>
+          </article>
+          <div class="view-more">
+            <a href="#">View All Articles &rarr;</a>
+          </div>
+        </main>
+        <aside class="sidebar">
+          <div class="sidebar-section">
+            <div class="sidebar-title">Newsletter</div>
+            <p>Get weekly AI credit insights delivered to your inbox.</p>
+            <input type="email" placeholder="your@email.com">
+            <button>Subscribe</button>
+          </div>
+          <div class="sidebar-section">
+            <div class="sidebar-title">Weekly Editorial</div>
+            <h4 class="editorial-title">The Rise of Agentic AI in Banking</h4>
+            <p>This week we explore how autonomous AI agents are transforming...</p>
+            <a href="#" class="editorial-link">Read more &rarr;</a>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <span>&copy; 2026 AI Credit News</span>
+        <nav>
+          <a href="#">About</a>
+          <a href="#">Privacy</a>
+        </nav>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Visual Comparison -->
+  <div style="background: var(--white); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+    <h2 style="margin-bottom: 1rem;">Quick Comparison</h2>
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--border);">
+          <th style="padding: 0.75rem; text-align: left;">Option</th>
+          <th style="padding: 0.75rem; text-align: left;">Best For</th>
+          <th style="padding: 0.75rem; text-align: left;">Pros</th>
+          <th style="padding: 0.75rem; text-align: left;">Cons</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--border-light);">
+          <td style="padding: 0.75rem;"><strong>4: Stats Sidebar</strong></td>
+          <td style="padding: 0.75rem;">Showcasing site activity</td>
+          <td style="padding: 0.75rem;">Shows credibility, dynamic feel</td>
+          <td style="padding: 0.75rem;">Takes horizontal space, white background</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-light);">
+          <td style="padding: 0.75rem;"><strong>5C: Black Grid</strong></td>
+          <td style="padding: 0.75rem;">Clean, technical audience</td>
+          <td style="padding: 0.75rem;">Subtle texture, Swiss-style minimal</td>
+          <td style="padding: 0.75rem;">Grid might feel cold/technical</td>
+        </tr>
+        <tr>
+          <td style="padding: 0.75rem;"><strong>5D: Accent Gradient</strong></td>
+          <td style="padding: 0.75rem;">Brand presence, polish</td>
+          <td style="padding: 0.75rem;">Purple accent ties to brand, premium feel</td>
+          <td style="padding: 0.75rem;">Gradient adds subtle complexity</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top: 1.5rem; color: var(--text-muted); font-size: 0.85rem;">
+      <strong>My recommendation:</strong> 5D (Accent Gradient) for the most polished, branded look.
+      Or combine: use 5D hero + stats in the sidebar instead of a separate hero section.
+    </p>
+  </div>
+
+</body>
+</html>

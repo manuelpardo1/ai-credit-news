@@ -1,0 +1,2366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage Redesign - AI Credit News</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #5b21b6;
+      --accent-light: #7c3aed;
+      --accent-dark: #4c1d95;
+      --accent-subtle: #ede9fe;
+      --black: #000;
+      --white: #fff;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-300: #d4d4d4;
+      --gray-400: #a3a3a3;
+      --gray-500: #737373;
+      --gray-600: #525252;
+      --gray-700: #404040;
+      --gray-800: #262626;
+      --gray-900: #171717;
+      --text: #1a1a1a;
+      --text-light: #555;
+      --text-muted: #888;
+      --border: #e0e0e0;
+      --border-light: #eee;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--gray-200);
+      padding: 2rem;
+      color: var(--text);
+    }
+
+    h1.page-title {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p.page-desc {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .changes-list {
+      background: var(--white);
+      padding: 1.5rem 2rem;
+      border-radius: 8px;
+      margin-bottom: 3rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .changes-list h3 {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .changes-list ul {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem 2rem;
+    }
+
+    .changes-list li {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+
+    .changes-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .mockup-section {
+      margin-bottom: 5rem;
+    }
+
+    .mockup-label {
+      background: var(--black);
+      color: var(--white);
+      padding: 1rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mockup-label span {
+      opacity: 0.6;
+      font-weight: 400;
+      font-size: 0.8rem;
+    }
+
+    .mockup-frame {
+      background: var(--white);
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    /* ========================================
+       VARIATION A: Editorial Hero Block
+       Editorial becomes the main hero, article secondary
+       ======================================== */
+    .var-a .site-header {
+      background: var(--white);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .var-a .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .var-a .logo span { color: var(--accent); }
+
+    .var-a .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .var-a .header-nav {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .var-a .header-nav a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 0.8rem;
+    }
+
+    .var-a .btn-login {
+      background: var(--accent);
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      color: var(--white);
+      font-size: 0.8rem;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .var-a .accent-bar {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 30%, transparent 100%);
+    }
+
+    .var-a .category-nav {
+      display: flex;
+      background: var(--white);
+      padding: 0 2rem;
+      gap: 0.25rem;
+    }
+
+    .var-a .category-nav a {
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-light);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+    }
+
+    .var-a .category-nav a.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Editorial as hero */
+    .var-a .editorial-hero {
+      background: linear-gradient(135deg, var(--accent-dark) 0%, var(--accent) 100%);
+      padding: 3rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .var-a .editorial-hero::before {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .var-a .editorial-main {
+      position: relative;
+      z-index: 1;
+    }
+
+    .var-a .editorial-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.15);
+      padding: 0.4rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: var(--white);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .var-a .editorial-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      max-width: 550px;
+    }
+
+    .var-a .editorial-excerpt {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.7;
+      max-width: 500px;
+      margin-bottom: 1.5rem;
+    }
+
+    .var-a .editorial-cta {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: var(--white);
+      color: var(--accent-dark);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+
+    .var-a .editorial-sidebar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .var-a .featured-article {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .var-a .featured-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 0.75rem;
+    }
+
+    .var-a .featured-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.35;
+      margin-bottom: 0.5rem;
+    }
+
+    .var-a .featured-meta {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .var-a .quick-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .var-a .quick-stat {
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .var-a .quick-stat .num {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .var-a .quick-stat .label {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+    }
+
+    /* Main content area */
+    .var-a .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      border-top: 1px solid var(--border);
+    }
+
+    .var-a .content-area {
+      padding: 2rem;
+      border-right: 1px solid var(--border);
+    }
+
+    .var-a .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .var-a .section-header h2 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+    }
+
+    .var-a .section-header a {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* Trending horizontal */
+    .var-a .trending-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .var-a .trending-card {
+      background: var(--gray-50);
+      border-radius: 8px;
+      padding: 1.25rem;
+      position: relative;
+    }
+
+    .var-a .trending-rank {
+      position: absolute;
+      top: -8px;
+      left: 12px;
+      background: var(--accent);
+      color: var(--white);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .var-a .trending-card h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: 0.5rem;
+    }
+
+    .var-a .trending-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Article list */
+    .var-a .article-item {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 1rem;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .var-a .article-num {
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: var(--gray-300);
+    }
+
+    .var-a .article-cat {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+
+    .var-a .article-item h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: 0.25rem;
+    }
+
+    .var-a .article-item p {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+
+    .var-a .article-feedback {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .var-a .feedback-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    .var-a .feedback-btns {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .var-a .feedback-btn {
+      padding: 0.2rem 0.5rem;
+      font-size: 0.65rem;
+      background: var(--gray-100);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .var-a .feedback-btn.active {
+      background: var(--accent);
+      color: var(--white);
+      border-color: var(--accent);
+    }
+
+    /* Sidebar */
+    .var-a .sidebar {
+      background: var(--gray-50);
+      padding: 2rem;
+    }
+
+    .var-a .sidebar-section {
+      margin-bottom: 2rem;
+    }
+
+    .var-a .sidebar-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* Newsletter widget */
+    .var-a .newsletter-widget {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+
+    .var-a .newsletter-widget p {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .var-a .newsletter-widget input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .var-a .newsletter-widget button {
+      width: 100%;
+      padding: 0.6rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    /* Community widget */
+    .var-a .community-widget {
+      background: linear-gradient(135deg, var(--accent-subtle) 0%, var(--white) 100%);
+      border: 1px solid var(--accent-subtle);
+      border-radius: 10px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .var-a .community-count {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .var-a .community-label {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-bottom: 1rem;
+    }
+
+    .var-a .social-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .var-a .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .var-a .social-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Footer */
+    .site-footer {
+      background: var(--black);
+      color: var(--gray-500);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .site-footer a {
+      color: var(--gray-400);
+      text-decoration: none;
+      margin-left: 1.5rem;
+    }
+
+    /* ========================================
+       VARIATION B: Split Layout
+       Editorial prominent left, content right
+       ======================================== */
+    .var-b .site-header {
+      background: var(--black);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .var-b .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .var-b .header-nav {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .var-b .header-nav a {
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 0.8rem;
+    }
+
+    .var-b .btn-login {
+      background: var(--accent);
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      color: var(--white);
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+
+    .var-b .category-nav {
+      display: flex;
+      background: var(--gray-900);
+      padding: 0 2rem;
+    }
+
+    .var-b .category-nav a {
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      color: var(--gray-400);
+      text-decoration: none;
+    }
+
+    .var-b .category-nav a.active {
+      color: var(--white);
+      background: var(--accent);
+    }
+
+    .var-b .split-hero {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      min-height: 400px;
+    }
+
+    .var-b .editorial-panel {
+      background: var(--accent);
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .var-b .editorial-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 100%);
+    }
+
+    .var-b .editorial-panel > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .var-b .editorial-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.2);
+      padding: 0.4rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      width: fit-content;
+    }
+
+    .var-b .editorial-content h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .var-b .editorial-content p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .var-b .editorial-cta {
+      display: inline-block;
+      padding: 0.65rem 1.25rem;
+      background: var(--white);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+
+    .var-b .content-panel {
+      background: var(--white);
+      padding: 2rem;
+    }
+
+    .var-b .featured-article-large {
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .var-b .featured-cat {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .var-b .featured-article-large h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 0.75rem;
+    }
+
+    .var-b .featured-article-large p {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .var-b .read-more {
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .var-b .mini-articles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .var-b .mini-article h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: 0.25rem;
+    }
+
+    .var-b .mini-article span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Rest of page */
+    .var-b .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      border-top: 1px solid var(--border);
+    }
+
+    .var-b .content-area {
+      padding: 2rem;
+      border-right: 1px solid var(--border);
+    }
+
+    .var-b .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .var-b .section-header h2 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .var-b .section-header a {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .var-b .trending-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .var-b .trending-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--gray-50);
+      border-radius: 8px;
+    }
+
+    .var-b .trending-rank {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 30px;
+    }
+
+    .var-b .trending-item h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 0.15rem;
+    }
+
+    .var-b .trending-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .var-b .sidebar {
+      background: var(--gray-50);
+      padding: 2rem;
+    }
+
+    .var-b .sidebar-section {
+      margin-bottom: 2rem;
+    }
+
+    .var-b .sidebar-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .var-b .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .var-b .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .var-b .stat-card .num {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .var-b .stat-card .label {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .var-b .newsletter-widget {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+
+    .var-b .newsletter-widget p {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 1rem;
+    }
+
+    .var-b .newsletter-widget input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .var-b .newsletter-widget button {
+      width: 100%;
+      padding: 0.6rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .var-b .join-widget {
+      text-align: center;
+    }
+
+    .var-b .join-widget p {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 1rem;
+    }
+
+    .var-b .social-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .var-b .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .var-b .social-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ========================================
+       VARIATION C: Card-based Modern
+       Clean cards, editorial featured prominently
+       ======================================== */
+    .var-c .site-header {
+      background: var(--white);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .var-c .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .var-c .logo span {
+      background: var(--accent);
+      color: var(--white);
+      padding: 0.1rem 0.5rem;
+      border-radius: 4px;
+      margin-left: 0.25rem;
+    }
+
+    .var-c .header-nav {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .var-c .header-nav a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 0.8rem;
+    }
+
+    .var-c .btn-login {
+      background: var(--black);
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      color: var(--white);
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+
+    .var-c .category-strip {
+      background: var(--gray-50);
+      padding: 0.5rem 2rem;
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .var-c .category-strip a {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      text-decoration: none;
+      border-radius: 20px;
+    }
+
+    .var-c .category-strip a.active {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .var-c .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      padding: 2rem;
+      background: var(--gray-50);
+    }
+
+    .var-c .editorial-card {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 320px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .var-c .editorial-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    }
+
+    .var-c .editorial-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .var-c .editorial-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.2);
+      padding: 0.4rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      width: fit-content;
+    }
+
+    .var-c .editorial-card h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.25;
+    }
+
+    .var-c .editorial-card p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.5;
+    }
+
+    .var-c .editorial-cta {
+      display: inline-block;
+      padding: 0.65rem 1.25rem;
+      background: var(--white);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 6px;
+      width: fit-content;
+    }
+
+    .var-c .featured-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--border);
+    }
+
+    .var-c .featured-cat {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .var-c .featured-card h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 0.75rem;
+    }
+
+    .var-c .featured-card p {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+
+    .var-c .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .var-c .read-more {
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .var-c .article-feedback {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .var-c .feedback-btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      background: var(--gray-100);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .var-c .main-content {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .var-c .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .var-c .section-header h2 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+    }
+
+    .var-c .section-header a {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .var-c .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    .var-c .articles-col .article-card {
+      display: flex;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .var-c .article-num {
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: var(--gray-300);
+      min-width: 40px;
+    }
+
+    .var-c .article-cat {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+
+    .var-c .article-card h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: 0.5rem;
+    }
+
+    .var-c .article-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .var-c .sidebar-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .var-c .widget {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .var-c .widget-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .var-c .stats-row {
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+    }
+
+    .var-c .stat-item .num {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .var-c .stat-item .label {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .var-c .trending-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .var-c .trending-item {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .var-c .trending-rank {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 20px;
+    }
+
+    .var-c .trending-item h4 {
+      font-size: 0.8rem;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .var-c .widget input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .var-c .widget button {
+      width: 100%;
+      padding: 0.6rem;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .var-c .join-widget {
+      text-align: center;
+      background: var(--accent-subtle);
+      border-color: var(--accent-subtle);
+    }
+
+    .var-c .join-widget p {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 1rem;
+    }
+
+    .var-c .social-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .var-c .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .var-c .social-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ========================================
+       VARIATION D: Newspaper Grid Style
+       Traditional feel with modern touches
+       ======================================== */
+    .var-d .masthead {
+      background: var(--white);
+      text-align: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 3px double var(--black);
+    }
+
+    .var-d .masthead h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .var-d .masthead h1 span {
+      color: var(--accent);
+    }
+
+    .var-d .masthead-meta {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .var-d .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--black);
+      padding: 0 2rem;
+    }
+
+    .var-d .category-nav {
+      display: flex;
+    }
+
+    .var-d .category-nav a {
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      color: var(--gray-400);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .var-d .category-nav a.active {
+      color: var(--white);
+      background: var(--accent);
+    }
+
+    .var-d .nav-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .var-d .nav-right a {
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 0.75rem;
+    }
+
+    .var-d .btn-login {
+      background: var(--accent);
+      padding: 0.4rem 1rem;
+      border-radius: 4px;
+      color: var(--white);
+      font-size: 0.75rem;
+      text-decoration: none;
+    }
+
+    .var-d .newspaper-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px 300px;
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .var-d .newspaper-grid > * {
+      background: var(--white);
+      padding: 1.5rem;
+    }
+
+    .var-d .main-editorial {
+      border-right: 1px solid var(--border);
+    }
+
+    .var-d .editorial-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent);
+      color: var(--white);
+      padding: 0.3rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+    }
+
+    .var-d .main-editorial h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .var-d .main-editorial p {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    .var-d .main-editorial p:first-of-type::first-letter {
+      font-size: 3rem;
+      font-weight: 700;
+      float: left;
+      margin-right: 0.5rem;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .var-d .read-more {
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .var-d .featured-col {
+      border-right: 1px solid var(--border);
+    }
+
+    .var-d .featured-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .var-d .featured-article {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .var-d .featured-article:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .var-d .featured-cat {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+
+    .var-d .featured-article h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 0.35rem;
+    }
+
+    .var-d .featured-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .var-d .sidebar-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .var-d .sidebar-section {
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .var-d .sidebar-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .var-d .sidebar-title {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .var-d .stats-row {
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+    }
+
+    .var-d .stat-item .num {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .var-d .stat-item .label {
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .var-d .trending-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .var-d .trending-item {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .var-d .trending-rank {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 20px;
+    }
+
+    .var-d .trending-item h4 {
+      font-size: 0.8rem;
+      font-weight: 500;
+      line-height: 1.25;
+    }
+
+    .var-d .newsletter-widget p {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin-bottom: 0.75rem;
+    }
+
+    .var-d .newsletter-widget input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .var-d .newsletter-widget button {
+      width: 100%;
+      padding: 0.5rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .var-d .join-widget {
+      text-align: center;
+    }
+
+    .var-d .join-widget p {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin-bottom: 0.75rem;
+    }
+
+    .var-d .social-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .var-d .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .var-d .social-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Comparison table */
+    .comparison {
+      background: var(--white);
+      padding: 2rem;
+      border-radius: 8px;
+      margin-top: 2rem;
+    }
+
+    .comparison h2 {
+      margin-bottom: 1rem;
+    }
+
+    .comparison table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .comparison th, .comparison td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comparison th {
+      border-bottom-width: 2px;
+    }
+
+    .comparison strong {
+      color: var(--text);
+    }
+
+    .comparison p {
+      margin-top: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="page-title">Homepage Redesign Options</h1>
+  <p class="page-desc">Fresh designs with Editorial given visual prominence (not just position), smoother color flow, and all Phase 1 & 2 community features</p>
+
+  <div class="changes-list">
+    <h3>Design Principles Applied</h3>
+    <ul>
+      <li>Editorial has visual prominence (size, color, position)</li>
+      <li>Smooth color transitions (no jarring black-gray-black)</li>
+      <li>Swiss-style typography and spacing</li>
+      <li>Public platform stats visible</li>
+      <li>"Most Read This Week" trending section</li>
+      <li>Article feedback (thumbs up/down)</li>
+      <li>Google/Apple social login</li>
+      <li>Community member counts</li>
+    </ul>
+  </div>
+
+  <!-- ========================================
+       VARIATION A: Editorial Hero Block
+       ======================================== -->
+  <div class="mockup-section var-a">
+    <div class="mockup-label">
+      Design A: Editorial as Hero
+      <span>Editorial gets the full hero treatment with gradient background</span>
+    </div>
+    <div class="mockup-frame">
+      <header class="site-header">
+        <div class="logo">AI <span>Credit</span> News</div>
+        <div class="header-right">
+          <nav class="header-nav">
+            <a href="#">About</a>
+            <a href="#">Analytics</a>
+          </nav>
+          <a href="#" class="btn-login">Sign In</a>
+        </div>
+      </header>
+
+      <div class="accent-bar"></div>
+
+      <nav class="category-nav">
+        <a href="#" class="active">Home</a>
+        <a href="#">All</a>
+        <a href="#">Credit Risk</a>
+        <a href="#">Credit Scoring</a>
+        <a href="#">Fraud Detection</a>
+        <a href="#">Lending</a>
+      </nav>
+
+      <section class="editorial-hero">
+        <div class="editorial-main">
+          <div class="editorial-badge">✦ Weekly Editorial</div>
+          <h1 class="editorial-title">The Rise of Agentic AI in Banking: What Credit Professionals Need to Know</h1>
+          <p class="editorial-excerpt">This week, autonomous AI agents moved from concept to reality in credit operations. We analyze the implications for risk assessment, compliance, and the future of lending decisions.</p>
+          <a href="#" class="editorial-cta">Read This Week's Editorial &rarr;</a>
+        </div>
+        <div class="editorial-sidebar">
+          <div class="featured-article">
+            <div class="featured-label">Featured Article</div>
+            <h3 class="featured-title">CommBank Bids to Ease Customer Fears Over AI Adoption</h3>
+            <p class="featured-meta">Regulatory & Compliance · 5 min read</p>
+          </div>
+          <div class="quick-stats">
+            <div class="quick-stat">
+              <div class="num">127</div>
+              <div class="label">Articles</div>
+            </div>
+            <div class="quick-stat">
+              <div class="num">8.2K</div>
+              <div class="label">Reads</div>
+            </div>
+            <div class="quick-stat">
+              <div class="num">24</div>
+              <div class="label">Sources</div>
+            </div>
+            <div class="quick-stat">
+              <div class="num">342</div>
+              <div class="label">Members</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="main-grid">
+        <div class="content-area">
+          <div class="section-header">
+            <h2>🔥 Most Read This Week</h2>
+            <a href="#">View all &rarr;</a>
+          </div>
+
+          <div class="trending-row">
+            <div class="trending-card">
+              <span class="trending-rank">1</span>
+              <h4>Lloyds Banking Group Targets Over 100m Value From AI in 2026</h4>
+              <p class="trending-meta">2,847 reads · Lending</p>
+            </div>
+            <div class="trending-card">
+              <span class="trending-rank">2</span>
+              <h4>Equifax Unveils Credit Abuse Risk Model</h4>
+              <p class="trending-meta">1,923 reads · Fraud</p>
+            </div>
+            <div class="trending-card">
+              <span class="trending-rank">3</span>
+              <h4>Bank of America Overhauls Credit Card Program</h4>
+              <p class="trending-meta">1,456 reads · Risk</p>
+            </div>
+          </div>
+
+          <div class="section-header">
+            <h2>Latest Articles</h2>
+            <a href="#">View all &rarr;</a>
+          </div>
+
+          <article class="article-item">
+            <span class="article-num">01</span>
+            <div>
+              <div class="article-cat">Lending Automation</div>
+              <h4>Lloyds Banking Group Targets Over 100m Value From AI in 2026</h4>
+              <p>The bank reports 50M in GenAI value for 2025 and targets over 100M...</p>
+              <div class="article-feedback">
+                <span class="feedback-label">Helpful?</span>
+                <div class="feedback-btns">
+                  <button class="feedback-btn active">👍 24</button>
+                  <button class="feedback-btn">👎 2</button>
+                </div>
+              </div>
+            </div>
+          </article>
+          <article class="article-item">
+            <span class="article-num">02</span>
+            <div>
+              <div class="article-cat">Credit Risk</div>
+              <h4>Bank of America Overhauls Credit Card Program</h4>
+              <p>Bank of America is revamping its credit card program with AI...</p>
+              <div class="article-feedback">
+                <span class="feedback-label">Helpful?</span>
+                <div class="feedback-btns">
+                  <button class="feedback-btn">👍 18</button>
+                  <button class="feedback-btn">👎 1</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <aside class="sidebar">
+          <div class="sidebar-section">
+            <div class="sidebar-title">Newsletter</div>
+            <div class="newsletter-widget">
+              <p>Get weekly AI credit insights delivered to your inbox.</p>
+              <input type="email" placeholder="your@email.com">
+              <button>Subscribe Free</button>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-title">Join Community</div>
+            <div class="community-widget">
+              <div class="community-count">342</div>
+              <div class="community-label">Community Members</div>
+              <div class="social-btns">
+                <button class="social-btn">
+                  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  Continue with Google
+                </button>
+                <button class="social-btn">
+                  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                  Continue with Apple
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="site-footer">
+        <span>&copy; 2026 AI Credit News</span>
+        <nav>
+          <a href="#">About</a>
+          <a href="#">Privacy</a>
+          <a href="#">Analytics</a>
+        </nav>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ========================================
+       VARIATION B: Split Layout
+       ======================================== -->
+  <div class="mockup-section var-b">
+    <div class="mockup-label">
+      Design B: Split Panel Layout
+      <span>Editorial takes left panel, featured content on right</span>
+    </div>
+    <div class="mockup-frame">
+      <header class="site-header">
+        <div class="logo">AI Credit News</div>
+        <nav class="header-nav">
+          <a href="#">About</a>
+          <a href="#">Analytics</a>
+          <a href="#" class="btn-login">Sign In</a>
+        </nav>
+      </header>
+
+      <nav class="category-nav">
+        <a href="#" class="active">Home</a>
+        <a href="#">All</a>
+        <a href="#">Credit Risk</a>
+        <a href="#">Credit Scoring</a>
+        <a href="#">Fraud Detection</a>
+        <a href="#">Lending</a>
+      </nav>
+
+      <div class="split-hero">
+        <div class="editorial-panel">
+          <div class="editorial-badge">✦ Weekly Editorial</div>
+          <div class="editorial-content">
+            <h2>The Rise of Agentic AI in Banking</h2>
+            <p>This week, autonomous AI agents moved from concept to reality in credit operations. We analyze the implications.</p>
+            <a href="#" class="editorial-cta">Read Editorial &rarr;</a>
+          </div>
+        </div>
+        <div class="content-panel">
+          <div class="featured-article-large">
+            <div class="featured-cat">Regulatory & Compliance</div>
+            <h3>CommBank Bids to Ease Customer Fears Over AI Adoption</h3>
+            <p>Commonwealth Bank of Australia partners with Melbourne Business School to launch AI Attitudes Barometer, measuring public sentiment toward AI in banking.</p>
+            <a href="#" class="read-more">Read full article &rarr;</a>
+          </div>
+          <div class="mini-articles">
+            <div class="mini-article">
+              <h4>Lloyds Banking Group Targets Over 100m Value From AI</h4>
+              <span>Lending Automation</span>
+            </div>
+            <div class="mini-article">
+              <h4>Equifax Unveils Credit Abuse Risk Model</h4>
+              <span>Fraud Detection</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="content-area">
+          <div class="section-header">
+            <h2>🔥 Most Read This Week</h2>
+            <a href="#">View all &rarr;</a>
+          </div>
+
+          <div class="trending-list">
+            <div class="trending-item">
+              <span class="trending-rank">1</span>
+              <div>
+                <h4>Lloyds Banking Group Targets Over 100m Value From AI in 2026</h4>
+                <p class="trending-meta">2,847 reads · Lending Automation</p>
+              </div>
+            </div>
+            <div class="trending-item">
+              <span class="trending-rank">2</span>
+              <div>
+                <h4>Equifax Unveils Credit Abuse Risk Model</h4>
+                <p class="trending-meta">1,923 reads · Fraud Detection</p>
+              </div>
+            </div>
+            <div class="trending-item">
+              <span class="trending-rank">3</span>
+              <div>
+                <h4>Bank of America Overhauls Credit Card Program</h4>
+                <p class="trending-meta">1,456 reads · Credit Risk</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="sidebar">
+          <div class="sidebar-section">
+            <div class="sidebar-title">Platform Stats</div>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="num">127</div>
+                <div class="label">Articles</div>
+              </div>
+              <div class="stat-card">
+                <div class="num">24</div>
+                <div class="label">Sources</div>
+              </div>
+              <div class="stat-card">
+                <div class="num">8.2K</div>
+                <div class="label">Reads</div>
+              </div>
+              <div class="stat-card">
+                <div class="num">342</div>
+                <div class="label">Members</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-title">Newsletter</div>
+            <div class="newsletter-widget">
+              <p>Weekly AI credit insights in your inbox.</p>
+              <input type="email" placeholder="your@email.com">
+              <button>Subscribe</button>
+            </div>
+          </div>
+
+          <div class="sidebar-section join-widget">
+            <div class="sidebar-title">Join Community</div>
+            <p>Save articles, comment, and connect.</p>
+            <div class="social-btns">
+              <button class="social-btn">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Google
+              </button>
+              <button class="social-btn">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                Apple
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="site-footer">
+        <span>&copy; 2026 AI Credit News</span>
+        <nav>
+          <a href="#">About</a>
+          <a href="#">Privacy</a>
+        </nav>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ========================================
+       VARIATION C: Modern Card-based
+       ======================================== -->
+  <div class="mockup-section var-c">
+    <div class="mockup-label">
+      Design C: Modern Card Grid
+      <span>Equal visual weight cards, Editorial in branded color</span>
+    </div>
+    <div class="mockup-frame">
+      <header class="site-header">
+        <div class="logo">AI Credit<span>News</span></div>
+        <nav class="header-nav">
+          <a href="#">About</a>
+          <a href="#">Analytics</a>
+          <a href="#" class="btn-login">Sign In</a>
+        </nav>
+      </header>
+
+      <nav class="category-strip">
+        <a href="#" class="active">Home</a>
+        <a href="#">All</a>
+        <a href="#">Credit Risk</a>
+        <a href="#">Credit Scoring</a>
+        <a href="#">Fraud Detection</a>
+        <a href="#">Lending</a>
+      </nav>
+
+      <div class="hero-grid">
+        <div class="editorial-card">
+          <div class="editorial-badge">✦ Weekly Editorial</div>
+          <div>
+            <h2>The Rise of Agentic AI in Banking</h2>
+            <p>This week, autonomous AI agents moved from concept to reality in credit operations.</p>
+          </div>
+          <a href="#" class="editorial-cta">Read Editorial &rarr;</a>
+        </div>
+        <div class="featured-card">
+          <div>
+            <div class="featured-cat">Regulatory & Compliance</div>
+            <h3>CommBank Bids to Ease Customer Fears Over AI Adoption</h3>
+            <p>Commonwealth Bank of Australia partners with Melbourne Business School...</p>
+          </div>
+          <div class="card-footer">
+            <a href="#" class="read-more">Read article &rarr;</a>
+            <div class="article-feedback">
+              <button class="feedback-btn">👍 24</button>
+              <button class="feedback-btn">👎 2</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="content-grid">
+          <div class="articles-col">
+            <div class="section-header">
+              <h2>Latest Articles</h2>
+              <a href="#">View all &rarr;</a>
+            </div>
+
+            <div class="article-card">
+              <span class="article-num">01</span>
+              <div>
+                <div class="article-cat">Lending Automation</div>
+                <h4>Lloyds Banking Group Targets Over 100m Value From AI in 2026</h4>
+                <p class="article-meta">2,847 reads · 5 min read</p>
+              </div>
+            </div>
+
+            <div class="article-card">
+              <span class="article-num">02</span>
+              <div>
+                <div class="article-cat">Credit Risk</div>
+                <h4>Bank of America Overhauls Credit Card Program</h4>
+                <p class="article-meta">1,456 reads · 4 min read</p>
+              </div>
+            </div>
+
+            <div class="article-card">
+              <span class="article-num">03</span>
+              <div>
+                <div class="article-cat">Fraud Detection</div>
+                <h4>Equifax Unveils Credit Abuse Risk Model</h4>
+                <p class="article-meta">1,923 reads · 6 min read</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-col">
+            <div class="widget">
+              <div class="widget-title">Platform Stats</div>
+              <div class="stats-row">
+                <div class="stat-item">
+                  <div class="num">127</div>
+                  <div class="label">Articles</div>
+                </div>
+                <div class="stat-item">
+                  <div class="num">8.2K</div>
+                  <div class="label">Reads</div>
+                </div>
+                <div class="stat-item">
+                  <div class="num">342</div>
+                  <div class="label">Members</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="widget">
+              <div class="widget-title">🔥 Trending</div>
+              <div class="trending-list">
+                <div class="trending-item">
+                  <span class="trending-rank">1</span>
+                  <h4>Lloyds Banking Group Targets Over 100m Value</h4>
+                </div>
+                <div class="trending-item">
+                  <span class="trending-rank">2</span>
+                  <h4>Equifax Unveils Credit Abuse Risk Model</h4>
+                </div>
+                <div class="trending-item">
+                  <span class="trending-rank">3</span>
+                  <h4>Bank of America Overhauls Credit Cards</h4>
+                </div>
+              </div>
+            </div>
+
+            <div class="widget">
+              <div class="widget-title">Newsletter</div>
+              <input type="email" placeholder="your@email.com">
+              <button>Subscribe</button>
+            </div>
+
+            <div class="widget join-widget">
+              <div class="widget-title">Join Community</div>
+              <p>Save articles and join the conversation.</p>
+              <div class="social-btns">
+                <button class="social-btn">
+                  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  Google
+                </button>
+                <button class="social-btn">
+                  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                  Apple
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="site-footer">
+        <span>&copy; 2026 AI Credit News</span>
+        <nav>
+          <a href="#">About</a>
+          <a href="#">Privacy</a>
+        </nav>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ========================================
+       VARIATION D: Newspaper Style
+       ======================================== -->
+  <div class="mockup-section var-d">
+    <div class="mockup-label">
+      Design D: Classic Newspaper Grid
+      <span>Traditional editorial layout with modern touches</span>
+    </div>
+    <div class="mockup-frame">
+      <div class="masthead">
+        <h1>AI <span>Credit</span> News</h1>
+        <div class="masthead-meta">
+          <span>Thursday, February 6, 2026</span>
+          <span>127 Articles</span>
+          <span>24 Sources</span>
+          <span>342 Members</span>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <nav class="category-nav">
+          <a href="#" class="active">Home</a>
+          <a href="#">All</a>
+          <a href="#">Credit Risk</a>
+          <a href="#">Credit Scoring</a>
+          <a href="#">Fraud</a>
+          <a href="#">Lending</a>
+        </nav>
+        <div class="nav-right">
+          <a href="#">About</a>
+          <a href="#">Analytics</a>
+          <a href="#" class="btn-login">Sign In</a>
+        </div>
+      </div>
+
+      <div class="newspaper-grid">
+        <div class="main-editorial">
+          <div class="editorial-label">✦ Weekly Editorial</div>
+          <h2>The Rise of Agentic AI in Banking: What Credit Professionals Need to Know</h2>
+          <p>This week, autonomous AI agents moved from concept to reality in credit operations. Major banks announced deployments of AI systems capable of making lending decisions independently, sparking both excitement and concern across the industry.</p>
+          <p>We analyze what this means for risk assessment, compliance requirements, and the evolving role of credit professionals in an AI-augmented landscape.</p>
+          <a href="#" class="read-more">Continue reading &rarr;</a>
+        </div>
+
+        <div class="featured-col">
+          <div class="featured-label">Featured Stories</div>
+          <div class="featured-article">
+            <div class="featured-cat">Regulatory & Compliance</div>
+            <h3>CommBank Bids to Ease Customer Fears Over AI Adoption</h3>
+            <p class="featured-meta">5 min read · 1,234 reads</p>
+          </div>
+          <div class="featured-article">
+            <div class="featured-cat">Lending Automation</div>
+            <h3>Lloyds Banking Group Targets Over 100m Value From AI in 2026</h3>
+            <p class="featured-meta">4 min read · 2,847 reads</p>
+          </div>
+          <div class="featured-article">
+            <div class="featured-cat">Fraud Detection</div>
+            <h3>Equifax Unveils Credit Abuse Risk Model</h3>
+            <p class="featured-meta">6 min read · 1,923 reads</p>
+          </div>
+        </div>
+
+        <div class="sidebar-col">
+          <div class="sidebar-section">
+            <div class="sidebar-title">Platform Stats</div>
+            <div class="stats-row">
+              <div class="stat-item">
+                <div class="num">8.2K</div>
+                <div class="label">Reads</div>
+              </div>
+              <div class="stat-item">
+                <div class="num">127</div>
+                <div class="label">Articles</div>
+              </div>
+              <div class="stat-item">
+                <div class="num">342</div>
+                <div class="label">Members</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-title">🔥 Trending</div>
+            <div class="trending-list">
+              <div class="trending-item">
+                <span class="trending-rank">1</span>
+                <h4>Lloyds Banking Group Targets 100m Value</h4>
+              </div>
+              <div class="trending-item">
+                <span class="trending-rank">2</span>
+                <h4>Equifax Credit Abuse Model</h4>
+              </div>
+              <div class="trending-item">
+                <span class="trending-rank">3</span>
+                <h4>BofA Credit Card Overhaul</h4>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-section newsletter-widget">
+            <div class="sidebar-title">Newsletter</div>
+            <p>Weekly insights in your inbox.</p>
+            <input type="email" placeholder="your@email.com">
+            <button>Subscribe</button>
+          </div>
+
+          <div class="sidebar-section join-widget">
+            <div class="sidebar-title">Join Us</div>
+            <p>Save articles & comment.</p>
+            <div class="social-btns">
+              <button class="social-btn">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Google
+              </button>
+              <button class="social-btn">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                Apple
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="site-footer">
+        <span>&copy; 2026 AI Credit News</span>
+        <nav>
+          <a href="#">About</a>
+          <a href="#">Privacy</a>
+          <a href="#">Analytics</a>
+        </nav>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Comparison -->
+  <div class="comparison">
+    <h2>Design Comparison</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Design</th>
+          <th>Editorial Prominence</th>
+          <th>Color Flow</th>
+          <th>Style</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>A: Editorial Hero</strong></td>
+          <td>Maximum - full hero section</td>
+          <td>White → accent line → white → purple hero</td>
+          <td>Modern, bold</td>
+        </tr>
+        <tr>
+          <td><strong>B: Split Panel</strong></td>
+          <td>High - left 40% of hero</td>
+          <td>Black header → dark nav → split (purple/white)</td>
+          <td>Structured, clear</td>
+        </tr>
+        <tr>
+          <td><strong>C: Card Grid</strong></td>
+          <td>High - equal card treatment</td>
+          <td>White header → pills nav → gray bg with cards</td>
+          <td>Clean, modern</td>
+        </tr>
+        <tr>
+          <td><strong>D: Newspaper</strong></td>
+          <td>High - traditional editorial column</td>
+          <td>White masthead → black nav → white grid</td>
+          <td>Classic, authoritative</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>All designs include:</strong> Public stats, Most Read trending, article feedback, Google/Apple login, community member counts, and newsletter subscription.</p>
+  </div>
+
+</body>
+</html>

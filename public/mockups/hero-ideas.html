@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero Section Mockups - AI Credit News</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #5b21b6;
+      --accent-light: #7c3aed;
+      --black: #000;
+      --white: #fff;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-300: #d4d4d4;
+      --gray-400: #a3a3a3;
+      --gray-500: #737373;
+      --gray-600: #525252;
+      --text: #1a1a1a;
+      --text-light: #555;
+      --text-muted: #888;
+      --border: #e0e0e0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--gray-100);
+      padding: 2rem;
+      color: var(--text);
+    }
+
+    h1.page-title {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p.page-desc {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+    }
+
+    .mockup-section {
+      margin-bottom: 4rem;
+      background: var(--white);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .mockup-label {
+      background: var(--black);
+      color: var(--white);
+      padding: 1rem 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .mockup-label span {
+      opacity: 0.6;
+      font-weight: 400;
+      margin-left: 1rem;
+    }
+
+    /* ========================================
+       IDEA 1: Split Layout with Abstract Visual
+       ======================================== */
+    .hero-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 350px;
+    }
+
+    .hero-split-content {
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero-split-visual {
+      background: linear-gradient(135deg, var(--accent) 0%, #1e1b4b 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-split-visual::before {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+
+    .hero-split-visual::after {
+      content: '';
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+    }
+
+    .visual-icon {
+      font-size: 4rem;
+      color: rgba(255,255,255,0.9);
+      z-index: 1;
+    }
+
+    .hero-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .hero-category {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .hero-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+
+    .hero-summary {
+      font-size: 1rem;
+      color: var(--text-light);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      background: var(--black);
+      color: var(--white);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .hero-cta:hover {
+      background: var(--gray-600);
+    }
+
+    /* ========================================
+       IDEA 2: Full-Width with Gradient Overlay
+       ======================================== */
+    .hero-gradient {
+      position: relative;
+      min-height: 320px;
+      background: linear-gradient(135deg, #1e1b4b 0%, var(--accent) 50%, #0f172a 100%);
+      display: flex;
+      align-items: center;
+      padding: 3rem;
+    }
+
+    .hero-gradient::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .hero-gradient-content {
+      position: relative;
+      z-index: 1;
+      max-width: 650px;
+    }
+
+    .hero-gradient .hero-label {
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-gradient .hero-dot {
+      background: var(--white);
+    }
+
+    .hero-gradient .hero-category {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .hero-gradient .hero-title {
+      color: var(--white);
+      font-size: 2rem;
+    }
+
+    .hero-gradient .hero-summary {
+      color: rgba(255,255,255,0.85);
+    }
+
+    .hero-gradient .hero-cta {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .hero-gradient .hero-cta:hover {
+      background: var(--gray-100);
+    }
+
+    /* ========================================
+       IDEA 3: Minimal with Accent Line
+       ======================================== */
+    .hero-minimal {
+      padding: 3rem;
+      border-left: 4px solid var(--accent);
+      background: var(--white);
+    }
+
+    .hero-minimal-inner {
+      max-width: 700px;
+    }
+
+    .hero-minimal .hero-title {
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero-minimal .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 1.5rem;
+    }
+
+    .hero-minimal .hero-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* ========================================
+       IDEA 4: Card Style with Stats
+       ======================================== */
+    .hero-card-style {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 0;
+      background: var(--white);
+    }
+
+    .hero-card-main {
+      padding: 3rem;
+      border-right: 1px solid var(--border);
+    }
+
+    .hero-card-stats {
+      padding: 2rem;
+      background: var(--gray-50);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat-item {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0.25rem;
+    }
+
+    /* ========================================
+       IDEA 5: Image Background (Placeholder)
+       ======================================== */
+    .hero-image-bg {
+      position: relative;
+      min-height: 350px;
+      background: linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 100%),
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%231a1a2e' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23333' font-family='sans-serif' font-size='14'%3EFeatured Image%3C/text%3E%3C/svg%3E");
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      padding: 3rem;
+    }
+
+    .hero-image-content {
+      max-width: 550px;
+    }
+
+    .hero-image-bg .hero-category {
+      color: rgba(255,255,255,0.6);
+    }
+
+    .hero-image-bg .hero-dot {
+      background: var(--accent-light);
+    }
+
+    .hero-image-bg .hero-title {
+      color: var(--white);
+      font-size: 2rem;
+    }
+
+    .hero-image-bg .hero-summary {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* ========================================
+       IDEA 5B: Solid Black Background
+       ======================================== */
+    .hero-solid-black {
+      position: relative;
+      min-height: 350px;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      padding: 3rem;
+    }
+
+    /* ========================================
+       IDEA 5C: Black with Grid Pattern
+       ======================================== */
+    .hero-black-pattern {
+      position: relative;
+      min-height: 350px;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      padding: 3rem;
+    }
+
+    .hero-black-pattern::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .hero-black-pattern .hero-image-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ========================================
+       IDEA 5D: Black with Accent Gradient
+       ======================================== */
+    .hero-black-accent {
+      position: relative;
+      min-height: 350px;
+      background: linear-gradient(135deg, var(--black) 0%, var(--black) 70%, #1e1b4b 100%);
+      display: flex;
+      align-items: center;
+      padding: 3rem;
+      overflow: hidden;
+    }
+
+    .hero-black-accent::before {
+      content: '';
+      position: absolute;
+      right: -100px;
+      top: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+      opacity: 0.15;
+    }
+
+    .hero-black-accent::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+
+    .hero-black-accent .hero-image-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-black-accent .hero-cta:hover {
+      background: var(--accent-light);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-split {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-split-visual {
+        min-height: 150px;
+        order: -1;
+      }
+
+      .hero-card-style {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card-main {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .hero-card-stats {
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 1.5rem;
+      }
+
+      .stat-item {
+        border-bottom: none;
+        padding: 0 1rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 class="page-title">Hero Section Ideas</h1>
+  <p class="page-desc">Five alternative designs for the homepage featured article section</p>
+
+  <!-- IDEA 1: Split Layout -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Idea 1: Split Layout with Abstract Visual
+      <span>Good for: Visual impact without requiring images</span>
+    </div>
+    <div class="hero-split">
+      <div class="hero-split-content">
+        <div class="hero-label">
+          <span class="hero-dot"></span>
+          <span class="hero-category">Regulatory & Compliance</span>
+        </div>
+        <h2 class="hero-title">CommBank Bids to Ease Customer Fears Over AI Adoption</h2>
+        <p class="hero-summary">Commonwealth Bank of Australia partners with Melbourne Business School to launch AI Attitudes Barometer, measuring public sentiment toward AI in banking.</p>
+        <a href="#" class="hero-cta">Read Article &rarr;</a>
+      </div>
+      <div class="hero-split-visual">
+        <div class="visual-icon">AI</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDEA 2: Gradient Overlay -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Idea 2: Full-Width with Gradient
+      <span>Good for: Bold, modern look with brand colors</span>
+    </div>
+    <div class="hero-gradient">
+      <div class="hero-gradient-content">
+        <div class="hero-label">
+          <span class="hero-dot"></span>
+          <span class="hero-category">Lending Automation</span>
+        </div>
+        <h2 class="hero-title">Lloyds Banking Group Targets Over 100m Value From 'Next Gen' AI in 2026</h2>
+        <p class="hero-summary">The bank reports 50M in GenAI value for 2025 and targets over 100M through deploying an agentic financial assistant to 21 million users.</p>
+        <a href="#" class="hero-cta">Read Article &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDEA 3: Minimal with Accent Line -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Idea 3: Minimal with Accent Line
+      <span>Good for: Clean, Swiss-style emphasis on typography</span>
+    </div>
+    <div class="hero-minimal">
+      <div class="hero-minimal-inner">
+        <div class="hero-label">
+          <span class="hero-dot"></span>
+          <span class="hero-category">Credit Risk</span>
+        </div>
+        <h2 class="hero-title">Bank of America Overhauls Credit Card Program to Boost Customer Base</h2>
+        <p class="hero-summary">Bank of America is revamping its credit card program with artificial intelligence as a central component to drive profits and boost customer acquisition.</p>
+        <div class="hero-meta">
+          <span>PaymentsJournal</span>
+          <span>Feb 5, 2026</span>
+          <span>Intermediate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDEA 4: Card Style with Stats -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Idea 4: Card Style with Statistics Sidebar
+      <span>Good for: Showcasing site metrics alongside featured content</span>
+    </div>
+    <div class="hero-card-style">
+      <div class="hero-card-main">
+        <div class="hero-label">
+          <span class="hero-dot"></span>
+          <span class="hero-category">Featured</span>
+        </div>
+        <h2 class="hero-title">A Human-Centered Approach to Agentic AI in Financial Services</h2>
+        <p class="hero-summary">Accenture explores human-centered approaches to agentic AI in financial services, building on previous discussions about AI scaling and the gap between leading and lagging firms.</p>
+        <a href="#" class="hero-cta">Read Article &rarr;</a>
+      </div>
+      <div class="hero-card-stats">
+        <div class="stat-item">
+          <div class="stat-number">127</div>
+          <div class="stat-label">Articles This Week</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">24</div>
+          <div class="stat-label">News Sources</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">6</div>
+          <div class="stat-label">Categories</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDEA 5A: With Real Image -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Idea 5A: With Background Image
+      <span>Requires sourcing/generating images for articles</span>
+    </div>
+    <div class="hero-image-bg" style="background: linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 100%), url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80'); background-size: cover; background-position: center;">
+      <div class="hero-image-content">
+        <div class="hero-label">
+          <span class="hero-dot"></span>
+          <span class="hero-category">Fraud Detection</span>
+        </div>
+        <h2 class="hero-title">Equifax Unveils Credit Abuse Risk to Combat First-Party Fraud</h2>
+        <p class="hero-summary">Equifax launched Credit Abuse Risk, a new predictive model using FCRA-regulated data to help lenders identify first-party fraud tactics.</p>
+        <a href="#" class="hero-cta">Read Article &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDEA 5B: Solid Black Background -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Idea 5B: Solid Black Background
+      <span>Clean, no images needed - matches header aesthetic</span>
+    </div>
+    <div class="hero-solid-black">
+      <div class="hero-image-content">
+        <div class="hero-label">
+          <span class="hero-dot" style="background: var(--accent-light);"></span>
+          <span class="hero-category" style="color: rgba(255,255,255,0.6);">Fraud Detection</span>
+        </div>
+        <h2 class="hero-title" style="color: var(--white);">Equifax Unveils Credit Abuse Risk to Combat First-Party Fraud</h2>
+        <p class="hero-summary" style="color: rgba(255,255,255,0.75);">Equifax launched Credit Abuse Risk, a new predictive model using FCRA-regulated data to help lenders identify first-party fraud tactics.</p>
+        <a href="#" class="hero-cta" style="background: var(--white); color: var(--black);">Read Article &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDEA 5C: Black with Subtle Pattern -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Idea 5C: Black with Subtle Grid Pattern
+      <span>Adds visual interest while staying minimal</span>
+    </div>
+    <div class="hero-black-pattern">
+      <div class="hero-image-content">
+        <div class="hero-label">
+          <span class="hero-dot" style="background: var(--accent-light);"></span>
+          <span class="hero-category" style="color: rgba(255,255,255,0.6);">Lending Automation</span>
+        </div>
+        <h2 class="hero-title" style="color: var(--white);">Lloyds Banking Group Targets Over 100m Value From 'Next Gen' AI</h2>
+        <p class="hero-summary" style="color: rgba(255,255,255,0.75);">The bank reports 50M in GenAI value for 2025 and targets over 100M through deploying an agentic financial assistant to 21 million users.</p>
+        <a href="#" class="hero-cta" style="background: var(--white); color: var(--black);">Read Article &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDEA 5D: Black with Accent Gradient Edge -->
+  <div class="mockup-section">
+    <div class="mockup-label">
+      Idea 5D: Black with Purple Accent Gradient
+      <span>Brand color accent without overwhelming</span>
+    </div>
+    <div class="hero-black-accent">
+      <div class="hero-image-content">
+        <div class="hero-label">
+          <span class="hero-dot" style="background: var(--white);"></span>
+          <span class="hero-category" style="color: rgba(255,255,255,0.7);">Credit Risk</span>
+        </div>
+        <h2 class="hero-title" style="color: var(--white);">Bank of America Overhauls Credit Card Program to Boost Customer Base</h2>
+        <p class="hero-summary" style="color: rgba(255,255,255,0.8);">Bank of America is revamping its credit card program with artificial intelligence as a central component to drive profits and boost customer acquisition.</p>
+        <a href="#" class="hero-cta" style="background: var(--accent); color: var(--white);">Read Article &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

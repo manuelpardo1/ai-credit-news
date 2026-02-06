@@ -1,14 +1,23 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const dbPath = path.resolve(process.env.DATABASE_PATH || './database/news.db');
+
+// Ensure database directory exists (important for Railway volumes)
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+  console.log(`Created database directory: ${dbDir}`);
+}
 
 let db = null;
 
 function getDatabase() {
   if (db) return db;
 
+  console.log(`Connecting to database at: ${dbPath}`);
   db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
       console.error('Error connecting to database:', err.message);
