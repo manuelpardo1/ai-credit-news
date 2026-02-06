@@ -104,4 +104,33 @@ router.get('/test-ai', async (req, res) => {
   }
 });
 
+// GET /api/scrape/test-process - Test article processing
+router.get('/test-process', async (req, res) => {
+  try {
+    const Article = require('../models/Article');
+    const { processArticle } = require('../services/ai');
+
+    // Get one pending article
+    const articles = await Article.findAll({ status: 'pending', limit: 1 });
+    if (articles.length === 0) {
+      return res.json({ success: false, error: 'No pending articles found' });
+    }
+
+    const article = articles[0];
+    const result = await processArticle(article);
+
+    res.json({
+      success: true,
+      article: { id: article.id, title: article.title },
+      result: result
+    });
+  } catch (err) {
+    res.json({
+      success: false,
+      error: err.message,
+      stack: err.stack
+    });
+  }
+});
+
 module.exports = router;
