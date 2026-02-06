@@ -82,7 +82,7 @@ router.get('/test-ai', async (req, res) => {
     });
 
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-haiku-20241022',
+      model: 'claude-3-haiku-20240307',
       max_tokens: 50,
       messages: [{ role: 'user', content: 'Say "API working" and nothing else.' }]
     });
@@ -90,7 +90,7 @@ router.get('/test-ai', async (req, res) => {
     res.json({
       success: true,
       response: response.content[0].text,
-      model: 'claude-3-5-haiku-20241022'
+      model: 'claude-3-haiku-20240307'
     });
   } catch (err) {
     res.json({
