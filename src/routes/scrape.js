@@ -73,4 +73,33 @@ router.get('/process/status', (req, res) => {
   res.json({ status: processStatus });
 });
 
+// GET /api/scrape/test-ai - Test AI API connection
+router.get('/test-ai', async (req, res) => {
+  try {
+    const Anthropic = require('@anthropic-ai/sdk');
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+
+    const response = await anthropic.messages.create({
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 50,
+      messages: [{ role: 'user', content: 'Say "API working" and nothing else.' }]
+    });
+
+    res.json({
+      success: true,
+      response: response.content[0].text,
+      model: 'claude-3-5-haiku-20241022'
+    });
+  } catch (err) {
+    res.json({
+      success: false,
+      error: err.message,
+      errorType: err.constructor.name,
+      fullError: JSON.stringify(err, Object.getOwnPropertyNames(err), 2)
+    });
+  }
+});
+
 module.exports = router;
