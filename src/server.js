@@ -295,12 +295,15 @@ const { processPendingArticles } = require('./services/processor');
 // Scrape and process articles twice daily
 // 12 AM Colombia (UTC-5) = 5 AM UTC
 // 12 PM Colombia (UTC-5) = 5 PM UTC
+// Daily limit: 10 articles (5 per scrape)
+const ARTICLES_PER_SCRAPE = 5;
+
 cron.schedule('0 5 * * *', async () => {
   console.log('[CRON] Starting scheduled scrape (12 AM Colombia)...');
   try {
     await runScrape();
     console.log('[CRON] Scrape complete, processing articles...');
-    await processPendingArticles({ limit: 50 });
+    await processPendingArticles({ limit: ARTICLES_PER_SCRAPE });
     console.log('[CRON] Article processing complete');
   } catch (err) {
     console.error('[CRON] Scrape/process failed:', err.message);
@@ -312,7 +315,7 @@ cron.schedule('0 17 * * *', async () => {
   try {
     await runScrape();
     console.log('[CRON] Scrape complete, processing articles...');
-    await processPendingArticles({ limit: 50 });
+    await processPendingArticles({ limit: ARTICLES_PER_SCRAPE });
     console.log('[CRON] Article processing complete');
   } catch (err) {
     console.error('[CRON] Scrape/process failed:', err.message);
@@ -383,14 +386,14 @@ app.listen(PORT, async () => {
     console.error('Error seeding editorial:', err.message);
   }
 
-  // If no approved articles, run initial scrape
+  // If no approved articles, run initial scrape (get 10 articles to start)
   try {
     const articleCount = await Article.count({ status: 'approved' });
     if (articleCount === 0) {
       console.log('[STARTUP] No articles found, running initial scrape...');
       await runScrape();
       console.log('[STARTUP] Scrape complete, processing articles...');
-      await processPendingArticles({ limit: 50 });
+      await processPendingArticles({ limit: 10 });
       console.log('[STARTUP] Initial content population complete!');
     } else {
       console.log(`[STARTUP] Found ${articleCount} approved articles`);
