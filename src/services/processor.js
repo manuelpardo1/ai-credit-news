@@ -11,8 +11,14 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Process all pending articles through AI pipeline
+ * @param {Object} options
+ * @param {number} options.limit - Max articles to process
+ * @param {boolean} options.dryRun - If true, don't save changes
+ * @param {Object} options.progressCallback - Progress tracker object
  */
-async function processPendingArticles({ limit = 10, dryRun = false } = {}) {
+async function processPendingArticles({ limit = 10, dryRun = false, progressCallback } = {}) {
+  const progress = progressCallback;
+
   console.log('\n========================================');
   console.log('AI Article Processing Pipeline');
   console.log('========================================');
@@ -28,16 +34,29 @@ async function processPendingArticles({ limit = 10, dryRun = false } = {}) {
 
   console.log(`Found ${articles.length} pending articles to process\n`);
 
+  // Update progress
+  if (progress) {
+    progress.updateProcessing({ articlesToProcess: articles.length, articlesProcessed: 0 });
+    progress.log(`Found ${articles.length} pending articles to process`);
+  }
+
   if (articles.length === 0) {
     console.log('No pending articles to process.');
+    if (progress) progress.log('No pending articles to process');
     return { processed: 0, approved: 0, rejected: 0 };
   }
 
   let approved = 0;
   let rejected = 0;
   let errors = 0;
+  let processed = 0;
 
   for (const article of articles) {
+    // Update progress with current article
+    if (progress) {
+      progress.updateProcessing({ currentArticle: article.title?.substring(0, 50) });
+    }
+
     try {
       // Process through AI
       const result = await processArticle(article);
@@ -69,8 +88,10 @@ async function processPendingArticles({ limit = 10, dryRun = false } = {}) {
 
       if (result.status === 'approved') {
         approved++;
+        if (progress) progress.log(`Approved: ${article.title?.substring(0, 40)}...`);
       } else {
         rejected++;
+        if (progress) progress.log(`Rejected: ${article.title?.substring(0, 40)}...`);
       }
 
       // Rate limit to avoid API throttling
@@ -79,6 +100,18 @@ async function processPendingArticles({ limit = 10, dryRun = false } = {}) {
     } catch (err) {
       console.error(`  ✗ Error processing article #${article.id}:`, err.message);
       errors++;
+      if (progress) progress.log(`Error: ${article.title?.substring(0, 40)}...`);
+    }
+
+    processed++;
+
+    // Update progress
+    if (progress) {
+      progress.updateProcessing({
+        articlesProcessed: processed,
+        articlesApproved: approved,
+        articlesRejected: rejected
+      });
     }
   }
 
@@ -96,6 +129,10 @@ async function processPendingArticles({ limit = 10, dryRun = false } = {}) {
   console.log(`Approved:  ${summary.approved}`);
   console.log(`Rejected:  ${summary.rejected}`);
   console.log(`Errors:    ${summary.errors}`);
+
+  if (progress) {
+    progress.log(`Processing complete: ${approved} approved, ${rejected} rejected`);
+  }
 
   return summary;
 }

@@ -155,6 +155,57 @@
     </div>
   </form>
 
+  <!-- Operation Progress Dashboard -->
+  <div id="operation-dashboard" class="settings-section dashboard-section" style="display: none;">
+    <h2>Operation Progress</h2>
+    <div class="dashboard-content">
+      <div class="progress-header">
+        <span id="operation-name" class="operation-name">Full Content Refresh</span>
+        <span id="operation-status" class="status-badge running">Running</span>
+      </div>
+
+      <div class="progress-bar-container">
+        <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+      </div>
+      <div class="progress-text">
+        <span id="progress-percent">0%</span>
+        <span id="current-step">Step 1 of 3: Scraping RSS Feeds</span>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card" id="scraping-stats">
+          <h4>Scraping</h4>
+          <div class="stat-row"><span>Sources:</span> <span id="stat-sources">0 / 0</span></div>
+          <div class="stat-row"><span>Current:</span> <span id="stat-current-source">-</span></div>
+          <div class="stat-row"><span>Articles Found:</span> <span id="stat-found">0</span></div>
+          <div class="stat-row"><span>Added:</span> <span id="stat-added" class="text-success">0</span></div>
+          <div class="stat-row"><span>Skipped:</span> <span id="stat-skipped">0</span></div>
+          <div class="stat-row"><span>Errors:</span> <span id="stat-errors" class="text-error">0</span></div>
+        </div>
+
+        <div class="stat-card" id="processing-stats">
+          <h4>Processing</h4>
+          <div class="stat-row"><span>Articles:</span> <span id="stat-processed">0 / 0</span></div>
+          <div class="stat-row"><span>Current:</span> <span id="stat-current-article">-</span></div>
+          <div class="stat-row"><span>Approved:</span> <span id="stat-approved" class="text-success">0</span></div>
+          <div class="stat-row"><span>Rejected:</span> <span id="stat-rejected" class="text-error">0</span></div>
+        </div>
+
+        <div class="stat-card" id="ai-stats">
+          <h4>AI Generation</h4>
+          <div class="stat-row"><span>To Generate:</span> <span id="stat-ai-total">0</span></div>
+          <div class="stat-row"><span>Generated:</span> <span id="stat-ai-generated" class="text-success">0</span></div>
+          <div class="stat-row"><span>Category:</span> <span id="stat-ai-category">-</span></div>
+        </div>
+      </div>
+
+      <div class="log-section">
+        <h4>Activity Log</h4>
+        <div id="activity-log" class="activity-log"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Manual Operations -->
   <div class="settings-section operations-section">
     <h2>Manual Operations</h2>
@@ -165,7 +216,7 @@
         <div class="operation-card">
           <h3>Scrape RSS Feeds</h3>
           <p>Fetch articles from all RSS sources (3 month lookback)</p>
-          <button type="submit" class="btn btn-secondary">Run Scrape</button>
+          <button type="submit" class="btn btn-secondary" id="btn-scrape">Run Scrape</button>
         </div>
       </form>
 
@@ -173,7 +224,7 @@
         <div class="operation-card">
           <h3>AI Supplement</h3>
           <p>Generate AI articles to fill content gaps</p>
-          <button type="submit" class="btn btn-secondary">Run AI Supplement</button>
+          <button type="submit" class="btn btn-secondary" id="btn-supplement">Run AI Supplement</button>
         </div>
       </form>
 
@@ -181,7 +232,7 @@
         <div class="operation-card highlight">
           <h3>Full Content Refresh</h3>
           <p>Scrape + Process + AI Supplement (takes a few minutes)</p>
-          <button type="submit" class="btn btn-primary">Run Full Refresh</button>
+          <button type="submit" class="btn btn-primary" id="btn-full-refresh">Run Full Refresh</button>
         </div>
       </form>
     </div>
@@ -457,32 +508,191 @@
 .operation-status.active {
   display: block;
 }
+
+/* Dashboard Styles */
+.dashboard-section {
+  background: #f0fdf4;
+  border: 2px solid #22c55e;
+}
+
+.dashboard-section.error {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.dashboard-section.completed {
+  background: #f0fdf4;
+  border-color: #22c55e;
+}
+
+.dashboard-content {
+  margin-top: 1rem;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.operation-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge.running {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.progress-bar-container {
+  background: #e5e7eb;
+  border-radius: 9999px;
+  height: 12px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #5b21b6, #8b5cf6);
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+#progress-percent {
+  font-weight: 600;
+  color: #5b21b6;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.stat-card h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 0.25rem 0;
+}
+
+.stat-row span:first-child {
+  color: #6b7280;
+}
+
+.stat-row span:last-child {
+  font-weight: 500;
+  color: #374151;
+}
+
+.text-success {
+  color: #059669 !important;
+}
+
+.text-error {
+  color: #dc2626 !important;
+}
+
+.log-section h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.activity-log {
+  background: #1f2937;
+  border-radius: 6px;
+  padding: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.activity-log .log-entry {
+  color: #9ca3af;
+}
+
+.activity-log .log-entry.success {
+  color: #34d399;
+}
+
+.activity-log .log-entry.error {
+  color: #f87171;
+}
+
+.activity-log .log-entry .timestamp {
+  color: #6b7280;
+  margin-right: 0.5rem;
+}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  const dashboard = document.getElementById('operation-dashboard');
   const operationForms = document.querySelectorAll('.operation-form');
+  let pollingInterval = null;
 
+  // Check URL for operation param (indicates we should start polling)
+  const urlParams = new URLSearchParams(window.location.search);
+  const activeOperation = urlParams.get('operation');
+
+  if (activeOperation) {
+    startPolling();
+  }
+
+  // Form submission handlers
   operationForms.forEach(form => {
     form.addEventListener('submit', function(e) {
       const btn = this.querySelector('button');
-      const card = this.querySelector('.operation-card');
-
-      // Add loading state to button
       btn.classList.add('loading');
       btn.disabled = true;
-
-      // Show status message
-      let status = card.querySelector('.operation-status');
-      if (!status) {
-        status = document.createElement('div');
-        status.className = 'operation-status';
-        card.appendChild(status);
-      }
-
-      const action = btn.textContent.trim();
-      status.textContent = 'Running... This may take a few minutes. Please wait.';
-      status.classList.add('active');
 
       // Disable all operation buttons
       document.querySelectorAll('.operation-form button').forEach(b => {
@@ -490,6 +700,122 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   });
+
+  function startPolling() {
+    dashboard.style.display = 'block';
+    pollingInterval = setInterval(fetchProgress, 1000);
+    fetchProgress(); // Immediate first fetch
+  }
+
+  function stopPolling() {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+    }
+    // Re-enable buttons
+    document.querySelectorAll('.operation-form button').forEach(b => {
+      b.disabled = false;
+      b.classList.remove('loading');
+    });
+  }
+
+  async function fetchProgress() {
+    try {
+      const res = await fetch('/admin/operation-progress');
+      const data = await res.json();
+
+      if (data.status === 'idle' || !data.operation) {
+        stopPolling();
+        return;
+      }
+
+      updateDashboard(data);
+
+      if (data.status === 'completed' || data.status === 'error') {
+        stopPolling();
+        // Reload page after 3 seconds to show updated stats
+        setTimeout(() => {
+          window.location.href = '/admin/settings';
+        }, 3000);
+      }
+    } catch (err) {
+      console.error('Failed to fetch progress:', err);
+    }
+  }
+
+  function updateDashboard(data) {
+    // Operation name
+    const opNames = {
+      'scrape': 'Scrape RSS Feeds',
+      'supplement': 'AI Supplement',
+      'full-refresh': 'Full Content Refresh'
+    };
+    document.getElementById('operation-name').textContent = opNames[data.operation] || data.operation;
+
+    // Status badge
+    const statusBadge = document.getElementById('operation-status');
+    statusBadge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+    statusBadge.className = 'status-badge ' + data.status;
+
+    // Progress bar
+    document.getElementById('progress-bar').style.width = data.progress + '%';
+    document.getElementById('progress-percent').textContent = data.progress + '%';
+
+    // Current step (using data.currentStep, data.totalSteps, data.stepName)
+    const stepNum = data.currentStep || 1;
+    const totalSteps = data.totalSteps || 1;
+    const stepName = data.stepName || 'Working...';
+    document.getElementById('current-step').textContent =
+      totalSteps > 1
+        ? `Step ${stepNum} of ${totalSteps}: ${stepName}`
+        : stepName;
+
+    // Scraping stats (from data.stats)
+    const stats = data.stats || {};
+    document.getElementById('stat-sources').textContent =
+      `${stats.sourcesProcessed || 0} / ${stats.totalSources || 0}`;
+    document.getElementById('stat-current-source').textContent =
+      stats.currentSource || '-';
+    document.getElementById('stat-found').textContent = stats.articlesFound || 0;
+    document.getElementById('stat-added').textContent = stats.articlesAdded || 0;
+    document.getElementById('stat-skipped').textContent = stats.articlesSkipped || 0;
+    document.getElementById('stat-errors').textContent = stats.sourceErrors || 0;
+
+    // Processing stats
+    document.getElementById('stat-processed').textContent =
+      `${stats.articlesProcessed || 0} / ${stats.articlesToProcess || 0}`;
+    document.getElementById('stat-current-article').textContent =
+      stats.currentArticle || '-';
+    document.getElementById('stat-approved').textContent = stats.articlesApproved || 0;
+    document.getElementById('stat-rejected').textContent = stats.articlesRejected || 0;
+
+    // AI stats
+    document.getElementById('stat-ai-total').textContent = stats.aiArticlesToGenerate || 0;
+    document.getElementById('stat-ai-generated').textContent = stats.aiArticlesGenerated || 0;
+    document.getElementById('stat-ai-category').textContent = stats.aiCurrentCategory || '-';
+
+    // Activity log (messages are objects with time and text properties)
+    if (data.messages && data.messages.length > 0) {
+      const logContainer = document.getElementById('activity-log');
+      logContainer.innerHTML = data.messages.map(msg => {
+        const text = typeof msg === 'string' ? msg : msg.text || '';
+        const time = msg.time ? new Date(msg.time).toLocaleTimeString() : '';
+        const isError = text.toLowerCase().includes('error') || text.toLowerCase().includes('failed');
+        const isSuccess = text.toLowerCase().includes('approved') || text.toLowerCase().includes('added') || text.toLowerCase().includes('complete');
+        const entryClass = isError ? 'error' : (isSuccess ? 'success' : '');
+        return `<div class="log-entry ${entryClass}"><span class="timestamp">[${time}]</span> ${text}</div>`;
+      }).join('');
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    // Dashboard section styling based on status
+    dashboard.classList.remove('error', 'completed');
+    if (data.status === 'error') {
+      dashboard.classList.add('error');
+    } else if (data.status === 'completed') {
+      dashboard.classList.add('completed');
+    }
+  }
 });
 </script>
 

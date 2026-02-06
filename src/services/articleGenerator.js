@@ -565,6 +565,8 @@ async function getCategoriesNeedingContent() {
  * @returns {Object} Results of generation
  */
 async function supplementDailyContent(options = {}) {
+  const progress = options.progressCallback;
+
   // Load settings from database if not provided
   let settings;
   try {
@@ -599,12 +601,20 @@ async function supplementDailyContent(options = {}) {
   // Check if max already reached
   if (totalToday >= dailyMax) {
     console.log(`[AI SUPPLEMENT] Daily max (${dailyMax}) already reached. Skipping.`);
+    if (progress) {
+      progress.log(`Daily max (${dailyMax}) already reached`);
+      progress.updateAI({ aiArticlesToGenerate: 0, aiArticlesGenerated: 0 });
+    }
     return { generated: [], reason: 'daily_max_reached' };
   }
 
   // Check if we've hit AI hard cap
   if (counts.aiGenerated >= maxAiPerDay) {
     console.log(`[AI SUPPLEMENT] AI hard cap (${maxAiPerDay}) reached. Skipping.`);
+    if (progress) {
+      progress.log(`AI hard cap (${maxAiPerDay}) already reached`);
+      progress.updateAI({ aiArticlesToGenerate: 0, aiArticlesGenerated: 0 });
+    }
     return { generated: [], reason: 'ai_hard_cap_reached' };
   }
 
@@ -615,6 +625,10 @@ async function supplementDailyContent(options = {}) {
 
   if (aiSlotsFromBalance === 0) {
     console.log(`[AI SUPPLEMENT] Balance rule: AI (${counts.aiGenerated}) cannot exceed scraped (${counts.scraped}). Skipping.`);
+    if (progress) {
+      progress.log(`AI balance rule: AI (${counts.aiGenerated}) cannot exceed scraped (${counts.scraped})`);
+      progress.updateAI({ aiArticlesToGenerate: 0, aiArticlesGenerated: 0 });
+    }
     return { generated: [], reason: 'ai_balance_limit', scraped: counts.scraped, aiGenerated: counts.aiGenerated };
   }
 
@@ -639,6 +653,10 @@ async function supplementDailyContent(options = {}) {
 
   if (toGenerate <= 0) {
     console.log('[AI SUPPLEMENT] No AI articles to generate (limits reached). Skipping.');
+    if (progress) {
+      progress.log('No AI articles needed (limits reached)');
+      progress.updateAI({ aiArticlesToGenerate: 0, aiArticlesGenerated: 0 });
+    }
     return { generated: [], reason: 'limits_reached' };
   }
 
@@ -647,6 +665,12 @@ async function supplementDailyContent(options = {}) {
   console.log(`  - Room to max (${dailyMax}): ${roomToMax}`);
   console.log(`  - AI hard cap remaining: ${remainingAiSlots}`);
   console.log(`  - AI balance slots (scraped=${counts.scraped}): ${aiSlotsFromBalance}`);
+
+  // Update progress
+  if (progress) {
+    progress.updateAI({ aiArticlesToGenerate: toGenerate, aiArticlesGenerated: 0 });
+    progress.log(`Will generate ${toGenerate} AI article(s)`);
+  }
 
   // Get categories needing content most
   const categoriesNeedingContent = await getCategoriesNeedingContent();
@@ -661,6 +685,12 @@ async function supplementDailyContent(options = {}) {
   for (let i = 0; i < toGenerate && i < categoriesNeedingContent.length; i++) {
     const category = categoriesNeedingContent[i];
 
+    // Update progress
+    if (progress) {
+      progress.updateAI({ aiCurrentCategory: category.name });
+      progress.log(`Generating article for: ${category.name}`);
+    }
+
     try {
       console.log(`\n[AI SUPPLEMENT] Generating for: ${category.name} (${category.recent_count} recent articles)`);
       const article = await generateArticleForCategory(category.slug);
@@ -669,6 +699,12 @@ async function supplementDailyContent(options = {}) {
         title: article.title,
         category: category.slug
       });
+
+      // Update progress
+      if (progress) {
+        progress.updateAI({ aiArticlesGenerated: results.generated.length });
+        progress.log(`Generated: ${article.title.substring(0, 40)}...`);
+      }
 
       // Rate limit between articles
       if (i < toGenerate - 1) {
@@ -680,6 +716,9 @@ async function supplementDailyContent(options = {}) {
         category: category.slug,
         error: err.message
       });
+      if (progress) {
+        progress.log(`Error generating for ${category.name}: ${err.message}`);
+      }
     }
   }
 

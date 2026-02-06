@@ -219,8 +219,11 @@ async function scrapeSource(source, options = {}) {
  * @param {Object} options - Scraping options
  * @param {number} options.maxAgeHours - Maximum age of articles in hours (default: no limit)
  * @param {number} options.maxAgeMonths - Maximum age of articles in months (default: no limit)
+ * @param {Object} options.progressCallback - Progress tracker object
  */
 async function runScrape(options = {}) {
+  const progress = options.progressCallback;
+
   console.log('\n========================================');
   console.log('Starting scrape at:', new Date().toISOString());
   if (options.maxAgeHours) console.log(`Max article age: ${options.maxAgeHours} hours`);
@@ -230,7 +233,17 @@ async function runScrape(options = {}) {
   const sources = await Source.findActive();
   console.log(`Found ${sources.length} active sources`);
 
+  // Update progress with total sources
+  if (progress) {
+    progress.updateScraping({ totalSources: sources.length, sourcesProcessed: 0 });
+    progress.log(`Found ${sources.length} active RSS sources`);
+  }
+
   const results = [];
+  let totalAdded = 0;
+  let totalSkipped = 0;
+  let totalErrors = 0;
+  let sourcesProcessed = 0;
 
   for (const source of sources) {
     if (!source.rss_feed) {
@@ -238,12 +251,37 @@ async function runScrape(options = {}) {
       continue;
     }
 
+    // Update progress with current source
+    if (progress) {
+      progress.updateScraping({ currentSource: source.name });
+      progress.log(`Scraping: ${source.name}`);
+    }
+
     try {
       const result = await scrapeSource(source, options);
       results.push(result);
+      totalAdded += result.added || 0;
+      totalSkipped += result.skipped || 0;
     } catch (err) {
       console.error(`Error scraping ${source.name}:`, err.message);
       results.push({ source: source.name, error: err.message });
+      totalErrors++;
+      if (progress) {
+        progress.log(`Error: ${source.name} - ${err.message}`);
+      }
+    }
+
+    sourcesProcessed++;
+
+    // Update progress
+    if (progress) {
+      progress.updateScraping({
+        sourcesProcessed,
+        articlesFound: totalAdded + totalSkipped,
+        articlesAdded: totalAdded,
+        articlesSkipped: totalSkipped,
+        sourceErrors: totalErrors
+      });
     }
 
     // Rate limit between sources
@@ -255,9 +293,16 @@ async function runScrape(options = {}) {
   console.log('========================================');
   console.log('Results:', JSON.stringify(results, null, 2));
 
+  if (progress) {
+    progress.log(`Scrape complete: ${totalAdded} added, ${totalSkipped} skipped, ${totalErrors} errors`);
+  }
+
   return {
     timestamp: new Date().toISOString(),
     sourcesProcessed: results.length,
+    articlesAdded: totalAdded,
+    articlesSkipped: totalSkipped,
+    errors: totalErrors,
     results
   };
 }

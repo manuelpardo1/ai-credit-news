@@ -12,6 +12,7 @@ const { generateArticleForCategory, generateArticlesForAllCategories, getArticle
 const Settings = require('../models/Settings');
 const { runScrape } = require('../services/scraper');
 const { processPendingArticles } = require('../services/processor');
+const OperationProgress = require('../models/OperationProgress');
 
 // GET /admin - Redirect to analytics dashboard
 router.get('/', requireAuth, (req, res) => {
@@ -396,63 +397,138 @@ router.post('/settings', requireAuth, async (req, res) => {
 // Manual Content Operations
 // ============================================
 
+// GET /admin/operation-progress - API endpoint for real-time progress
+router.get('/operation-progress', requireAuth, (req, res) => {
+  const progress = OperationProgress.get();
+  if (!progress) {
+    return res.json({ status: 'idle', operation: null });
+  }
+
+  res.json({
+    status: progress.status,
+    operation: progress.type,
+    progress: Math.round(OperationProgress.getProgressPercent()),
+    currentStep: progress.currentStep,
+    totalSteps: progress.totalSteps,
+    stepName: progress.stepName,
+    stats: {
+      // Scraping
+      totalSources: progress.totalSources,
+      sourcesProcessed: progress.sourcesProcessed,
+      currentSource: progress.currentSource,
+      articlesFound: progress.articlesFound,
+      articlesAdded: progress.articlesAdded,
+      articlesSkipped: progress.articlesSkipped,
+      sourceErrors: progress.sourceErrors,
+      // Processing
+      articlesToProcess: progress.articlesToProcess,
+      articlesProcessed: progress.articlesProcessed,
+      articlesApproved: progress.articlesApproved,
+      articlesRejected: progress.articlesRejected,
+      currentArticle: progress.currentArticle,
+      // AI
+      aiArticlesToGenerate: progress.aiArticlesToGenerate,
+      aiArticlesGenerated: progress.aiArticlesGenerated,
+      aiCurrentCategory: progress.aiCurrentCategory
+    },
+    messages: progress.messages.slice(-10), // Last 10 messages
+    startedAt: progress.startedAt,
+    completedAt: progress.completedAt,
+    error: progress.error
+  });
+});
+
 // POST /admin/scrape - Manually trigger scraping
 router.post('/scrape', requireAuth, async (req, res) => {
+  // Check if operation already running
+  const current = OperationProgress.get();
+  if (current && current.status === 'running') {
+    return res.redirect('/admin/settings?message=An operation is already running');
+  }
+
+  // Start operation in background and redirect immediately
+  OperationProgress.start('scrape');
+  res.redirect('/admin/settings?operation=scrape');
+
+  // Run operation in background
   try {
-    const settings = await Settings.getContentSettings();
     console.log('[ADMIN] Manual scrape triggered...');
+    await runScrape({ maxAgeMonths: 3, progressCallback: OperationProgress });
 
-    // Run scrape with 3-month lookback for initial population
-    await runScrape({ maxAgeMonths: 3 });
+    OperationProgress.setStep(1, 'Processing Articles');
     console.log('[ADMIN] Scrape complete, processing articles...');
+    await processPendingArticles({ limit: 30, progressCallback: OperationProgress });
 
-    // Process more articles for initial population
-    await processPendingArticles({ limit: 30 });
     console.log('[ADMIN] Processing complete');
-
-    res.redirect('/admin/settings?message=Scrape completed successfully');
+    OperationProgress.complete();
   } catch (err) {
     console.error('Error during manual scrape:', err);
-    res.redirect('/admin/settings?message=Error: ' + err.message);
+    OperationProgress.complete(err.message);
   }
 });
 
 // POST /admin/supplement - Manually trigger AI supplementation
 router.post('/supplement', requireAuth, async (req, res) => {
+  // Check if operation already running
+  const current = OperationProgress.get();
+  if (current && current.status === 'running') {
+    return res.redirect('/admin/settings?message=An operation is already running');
+  }
+
+  // Start operation and redirect immediately
+  OperationProgress.start('supplement');
+  res.redirect('/admin/settings?operation=supplement');
+
+  // Run operation in background
   try {
     console.log('[ADMIN] Manual AI supplement triggered...');
-    const result = await supplementDailyContent();
+    const result = await supplementDailyContent({ progressCallback: OperationProgress });
     const count = result.generated?.length || 0;
-    res.redirect(`/admin/settings?message=AI supplement complete: ${count} articles generated`);
+    OperationProgress.log(`Generated ${count} AI articles`);
+    OperationProgress.complete();
   } catch (err) {
     console.error('Error during AI supplement:', err);
-    res.redirect('/admin/settings?message=Error: ' + err.message);
+    OperationProgress.complete(err.message);
   }
 });
 
 // POST /admin/full-refresh - Run full content cycle
 router.post('/full-refresh', requireAuth, async (req, res) => {
+  // Check if operation already running
+  const current = OperationProgress.get();
+  if (current && current.status === 'running') {
+    return res.redirect('/admin/settings?message=An operation is already running');
+  }
+
+  // Start operation and redirect immediately
+  OperationProgress.start('full-refresh');
+  res.redirect('/admin/settings?operation=full-refresh');
+
+  // Run operation in background
   try {
-    const settings = await Settings.getContentSettings();
     console.log('[ADMIN] Full content refresh triggered...');
 
     // Step 1: Scrape with extended lookback
+    OperationProgress.setStep(1, 'Scraping RSS Feeds');
     console.log('[ADMIN] Step 1: Scraping...');
-    await runScrape({ maxAgeMonths: 3 });
+    await runScrape({ maxAgeMonths: 3, progressCallback: OperationProgress });
 
     // Step 2: Process articles
+    OperationProgress.setStep(2, 'Processing Articles');
     console.log('[ADMIN] Step 2: Processing...');
-    await processPendingArticles({ limit: 50 });
+    await processPendingArticles({ limit: 50, progressCallback: OperationProgress });
 
     // Step 3: AI supplementation
+    OperationProgress.setStep(3, 'AI Supplementation');
     console.log('[ADMIN] Step 3: AI Supplement...');
-    const result = await supplementDailyContent();
+    const result = await supplementDailyContent({ progressCallback: OperationProgress });
 
     console.log('[ADMIN] Full refresh complete');
-    res.redirect(`/admin/settings?message=Full refresh complete. AI generated: ${result.generated?.length || 0}`);
+    OperationProgress.log(`AI generated: ${result.generated?.length || 0} articles`);
+    OperationProgress.complete();
   } catch (err) {
     console.error('Error during full refresh:', err);
-    res.redirect('/admin/settings?message=Error: ' + err.message);
+    OperationProgress.complete(err.message);
   }
 });
 
