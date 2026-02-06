@@ -3,8 +3,8 @@ const { run, get, all } = require('../database/db');
 class Article {
   static async create(article) {
     const sql = `
-      INSERT INTO articles (title, url, source, author, published_date, content, summary, relevance_score, difficulty_level, category_id, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO articles (title, url, source, author, published_date, content, summary, relevance_score, difficulty_level, category_id, status, language)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const result = await run(sql, [
       article.title,
@@ -17,7 +17,8 @@ class Article {
       article.relevance_score || null,
       article.difficulty_level || null,
       article.category_id || null,
-      article.status || 'pending'
+      article.status || 'pending',
+      article.language || 'en'
     ]);
     return result.lastID;
   }
@@ -36,7 +37,7 @@ class Article {
     return get('SELECT * FROM articles WHERE url = ?', [url]);
   }
 
-  static async findAll({ page = 1, limit = 20, category, difficulty, status = 'approved' } = {}) {
+  static async findAll({ page = 1, limit = 20, category, difficulty, status = 'approved', language } = {}) {
     const offset = (page - 1) * limit;
     let sql = `
       SELECT a.*, c.name as category_name, c.slug as category_slug
@@ -59,6 +60,11 @@ class Article {
     if (difficulty) {
       sql += ' AND a.difficulty_level = ?';
       params.push(difficulty);
+    }
+
+    if (language) {
+      sql += ' AND a.language = ?';
+      params.push(language);
     }
 
     sql += ' ORDER BY a.published_date DESC, a.scraped_date DESC LIMIT ? OFFSET ?';

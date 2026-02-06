@@ -3,17 +3,45 @@ const router = express.Router();
 const Editorial = require('../models/Editorial');
 const Subscriber = require('../models/Subscriber');
 const NewsletterLog = require('../models/NewsletterLog');
+const Analytics = require('../models/Analytics');
 const { requireAuth, validatePassword, setAuthCookie, clearAuthCookie } = require('../middleware/auth');
 const { generateWeeklyEditorial, createWelcomeEditorial } = require('../services/editorial');
 const { sendWeeklyNewsletter, sendExtraordinaryNewsletter } = require('../services/newsletter');
+
+// GET /admin - Redirect to analytics dashboard
+router.get('/', requireAuth, (req, res) => {
+  res.redirect('/admin/analytics');
+});
 
 // GET /admin/login - Login page
 router.get('/login', (req, res) => {
   // If already logged in, redirect to dashboard
   if (req.signedCookies && req.signedCookies.admin === 'authenticated') {
-    return res.redirect('/admin/editorials');
+    return res.redirect('/admin/analytics');
   }
   res.render('admin/login', { error: null });
+});
+
+// GET /admin/analytics - Analytics dashboard
+router.get('/analytics', requireAuth, async (req, res) => {
+  try {
+    const stats = await Analytics.getDashboardStats();
+    const topArticles = await Analytics.getTopArticles(10);
+    const categoryStats = await Analytics.getCategoryStats();
+    const sourceStats = await Analytics.getSourceStats();
+    const freshness = await Analytics.getContentFreshness();
+
+    res.render('admin/analytics', {
+      stats,
+      topArticles,
+      categoryStats,
+      sourceStats,
+      freshness
+    });
+  } catch (err) {
+    console.error('Error loading analytics:', err);
+    res.status(500).send('Error loading analytics dashboard');
+  }
 });
 
 // POST /admin/login - Process login

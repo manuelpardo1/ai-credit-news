@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS sources (
   rss_feed TEXT,
   scrape_selector TEXT,
   active BOOLEAN DEFAULT 1,
-  last_scraped DATETIME
+  last_scraped DATETIME,
+  language TEXT DEFAULT 'en'
 );
 
 -- Tags table
@@ -61,6 +62,7 @@ CREATE TABLE IF NOT EXISTS articles (
   difficulty_level TEXT,
   category_id INTEGER,
   status TEXT DEFAULT 'pending',
+  language TEXT DEFAULT 'en',
   FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 

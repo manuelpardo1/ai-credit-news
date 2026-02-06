@@ -92,7 +92,7 @@ async function fetchArticleContent(url) {
 /**
  * Process a single RSS item and save if new
  */
-async function processItem(item, sourceName) {
+async function processItem(item, sourceName, sourceLanguage = 'en') {
   const url = item.link || item.guid;
   if (!url) return null;
 
@@ -137,7 +137,8 @@ async function processItem(item, sourceName) {
     published_date: publishedDate,
     content: content,
     summary: item.contentSnippet || content.substring(0, 300),
-    status: 'pending' // Will be changed to 'approved' after AI filtering in Phase 2
+    status: 'pending',
+    language: sourceLanguage
   };
 
   try {
@@ -166,7 +167,7 @@ async function scrapeSource(source) {
   let skipped = 0;
 
   for (const item of items.slice(0, 20)) { // Limit to 20 items per source
-    const result = await processItem(item, source.name);
+    const result = await processItem(item, source.name, source.language || 'en');
     if (result) {
       added++;
     } else {

@@ -9,15 +9,122 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-// Model configuration - easily changeable via env vars
-const MODELS = {
-  fast: process.env.AI_MODEL_FAST || 'claude-3-haiku-20240307',
-  full: process.env.AI_MODEL_FULL || 'claude-3-haiku-20240307',
-  editorial: process.env.AI_MODEL_EDITORIAL || 'claude-3-haiku-20240307'
+// Model tiers - ordered by preference (newest/best first)
+const MODEL_TIERS = {
+  // Fast tier: cheap, quick filtering tasks (title relevance check)
+  fast: [
+    'claude-3-5-haiku-20241022',
+    'claude-3-haiku-20240307'
+  ],
+  // Quality tier: full article analysis (relevance, summary, categorization)
+  quality: [
+    'claude-sonnet-4-20250514',
+    'claude-3-5-sonnet-20241022',
+    'claude-3-haiku-20240307'  // fallback
+  ],
+  // Premium tier: editorial generation (highest quality writing)
+  premium: [
+    'claude-sonnet-4-20250514',
+    'claude-3-5-sonnet-20241022',
+    'claude-3-haiku-20240307'  // fallback
+  ]
 };
+
+// Cache for available models (detected at runtime)
+let availableModels = null;
+let modelDetectionPromise = null;
+
+/**
+ * Detect which models are available with current API key
+ * Runs once at startup and caches result
+ */
+async function detectAvailableModels() {
+  if (availableModels) return availableModels;
+  if (modelDetectionPromise) return modelDetectionPromise;
+
+  modelDetectionPromise = (async () => {
+    const allModels = new Set([
+      ...MODEL_TIERS.fast,
+      ...MODEL_TIERS.quality,
+      ...MODEL_TIERS.premium
+    ]);
+
+    const available = new Set();
+    console.log('Detecting available Claude models...');
+
+    for (const model of allModels) {
+      try {
+        await anthropic.messages.create({
+          model: model,
+          max_tokens: 5,
+          messages: [{ role: 'user', content: 'Hi' }]
+        });
+        available.add(model);
+        console.log(`  ✓ ${model}`);
+      } catch (err) {
+        if (err.status === 404) {
+          console.log(`  ✗ ${model} (not available)`);
+        } else {
+          // Other errors (rate limit, etc) - assume model exists
+          available.add(model);
+          console.log(`  ? ${model} (error: ${err.status || err.message}, assuming available)`);
+        }
+      }
+    }
+
+    availableModels = available;
+    return available;
+  })();
+
+  return modelDetectionPromise;
+}
+
+/**
+ * Get the best available model for a given tier
+ */
+async function getModelForTier(tier) {
+  const available = await detectAvailableModels();
+  const candidates = MODEL_TIERS[tier] || MODEL_TIERS.quality;
+
+  for (const model of candidates) {
+    if (available.has(model)) {
+      return model;
+    }
+  }
+
+  // Ultimate fallback - return first available model
+  return available.values().next().value || 'claude-3-haiku-20240307';
+}
+
+// Active model configuration (populated after detection)
+const MODELS = {
+  fast: null,
+  full: null,
+  editorial: null
+};
+
+/**
+ * Initialize models - call this before processing
+ */
+async function initializeModels() {
+  if (MODELS.fast && MODELS.full && MODELS.editorial) return MODELS;
+
+  // Allow env var overrides
+  MODELS.fast = process.env.AI_MODEL_FAST || await getModelForTier('fast');
+  MODELS.full = process.env.AI_MODEL_FULL || await getModelForTier('quality');
+  MODELS.editorial = process.env.AI_MODEL_EDITORIAL || await getModelForTier('premium');
+
+  console.log('\nModel configuration:');
+  console.log(`  Fast (title filter): ${MODELS.fast}`);
+  console.log(`  Full (analysis):     ${MODELS.full}`);
+  console.log(`  Editorial:           ${MODELS.editorial}\n`);
+
+  return MODELS;
+}
 
 // Category cache - loaded dynamically from database
 let categoryCache = null;
+let categoryListCache = null;
 
 async function getCategories() {
   if (categoryCache) return categoryCache;
@@ -34,24 +141,63 @@ async function getCategories() {
   return categoryCache;
 }
 
-function getCategoryId(slug, categories) {
-  return categories[slug] || Object.values(categories)[0]; // fallback to first category
+/**
+ * Get category ID with robust fallback handling
+ * Handles slug changes, missing categories, and creates if needed
+ */
+async function getCategoryId(slug) {
+  const Category = require('../models/Category');
+
+  // Try to find category with fuzzy matching
+  const category = await Category.findBySlugFuzzy(slug);
+  if (category) return category.id;
+
+  // Get default category as fallback
+  const defaultCat = await Category.getDefault();
+  if (defaultCat) {
+    console.log(`  ⚠ Category "${slug}" not found, using default: ${defaultCat.slug}`);
+    return defaultCat.id;
+  }
+
+  // Should never happen, but just in case
+  console.error(`  ✗ No categories found in database!`);
+  return null;
 }
 
-const CATEGORY_LIST = `
-1. credit-scoring - ML models for credit scores and creditworthiness assessment
-2. fraud-detection - AI for detecting financial fraud and anomalies
-3. credit-risk - AI for credit risk assessment and management
-4. income-employment - AI for income verification and employment analysis
-5. regulatory-compliance - AI governance, fair lending regulations, compliance
-6. lending-automation - AI-powered lending decisions and loan processing
-`;
+/**
+ * Get dynamic category list for AI prompts
+ * Regenerates based on current database state
+ */
+async function getCategoryListForPrompt() {
+  if (categoryListCache) return categoryListCache;
+
+  const Category = require('../models/Category');
+  const categories = await Category.findAll();
+
+  categoryListCache = categories.map((cat, i) =>
+    `${i + 1}. ${cat.slug} - ${cat.description || cat.name}`
+  ).join('\n');
+
+  return categoryListCache;
+}
+
+/**
+ * Reset category caches (call when categories change)
+ */
+function resetCategoryCache() {
+  categoryCache = null;
+  categoryListCache = null;
+}
+
+// CATEGORY_LIST is now generated dynamically via getCategoryListForPrompt()
 
 /**
  * Quick title filter using Haiku (cheap, fast)
  * Returns true if the article title suggests relevance to AI in finance
  */
 async function filterByTitle(title, source) {
+  await initializeModels();
+
   const prompt = `Is this article likely about AI/ML in credit, banking, or financial services?
 Title: "${title}"
 Source: ${source}
@@ -82,6 +228,9 @@ Answer only YES or NO.`;
 async function processArticleFull(article) {
   const contentExcerpt = (article.content || article.summary || '').substring(0, 2000);
 
+  // Get dynamic category list from database
+  const categoryList = await getCategoryListForPrompt();
+
   const prompt = `Analyze this article for an AI in credit/banking news aggregation site.
 
 Title: ${article.title}
@@ -108,7 +257,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
 }
 
 Categories:
-${CATEGORY_LIST}
+${categoryList}
 
 DIFFICULTY LEVELS:
 - beginner: General audience, minimal jargon
@@ -118,6 +267,8 @@ DIFFICULTY LEVELS:
 If not relevant, set summary and difficulty_level to null.`;
 
   try {
+    await initializeModels();
+
     const response = await anthropic.messages.create({
       model: MODELS.full,
       max_tokens: 800,
@@ -139,14 +290,14 @@ If not relevant, set summary and difficulty_level to null.`;
 
     const result = JSON.parse(text);
 
-    // Get dynamic category mapping from database
-    const categories = await getCategories();
+    // Get category ID with robust fallback handling
+    const categoryId = await getCategoryId(result.primary_category);
 
     return {
       relevance_score: Math.min(10, Math.max(0, result.relevance_score)),
       is_relevant: result.is_relevant && result.relevance_score >= 6,
       category_slug: result.primary_category,
-      category_id: getCategoryId(result.primary_category, categories),
+      category_id: categoryId,
       tags: result.suggested_tags || [],
       reasoning: result.reasoning,
       summary: result.summary,
@@ -173,10 +324,11 @@ async function processArticle(article) {
 
   if (!passesFilter) {
     console.log('    ✗ Filtered out by title - not relevant');
-    const categories = await getCategories();
+    // Get default category for rejected articles
+    const defaultCategoryId = await getCategoryId('credit-scoring');
     return {
       relevance_score: 2,
-      category_id: getCategoryId('credit-scoring', categories),
+      category_id: defaultCategoryId,
       tags: [],
       summary: article.summary,
       difficulty_level: null,
@@ -236,6 +388,8 @@ FORMAT: Return a JSON object:
 }`;
 
   try {
+    await initializeModels();
+
     const response = await anthropic.messages.create({
       model: MODELS.editorial,
       max_tokens: 1500,
@@ -269,6 +423,18 @@ FORMAT: Return a JSON object:
   }
 }
 
+/**
+ * Force re-detection of available models
+ * Call this if models change or to refresh the cache
+ */
+function resetModelCache() {
+  availableModels = null;
+  modelDetectionPromise = null;
+  MODELS.fast = null;
+  MODELS.full = null;
+  MODELS.editorial = null;
+}
+
 // Legacy functions for backwards compatibility
 async function analyzeRelevance(article) {
   const result = await processArticleFull(article);
@@ -300,5 +466,11 @@ module.exports = {
   analyzeRelevance,
   summarizeArticle,
   assessDifficulty,
-  getCategories
+  getCategories,
+  getCategoryId,
+  getCategoryListForPrompt,
+  resetCategoryCache,
+  initializeModels,
+  detectAvailableModels,
+  resetModelCache
 };
