@@ -9,6 +9,13 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+// Model configuration - easily changeable via env vars
+const MODELS = {
+  fast: process.env.AI_MODEL_FAST || 'claude-3-haiku-20240307',
+  full: process.env.AI_MODEL_FULL || 'claude-3-haiku-20240307',
+  editorial: process.env.AI_MODEL_EDITORIAL || 'claude-3-haiku-20240307'
+};
+
 // Category mapping for AI responses (matches database IDs)
 const CATEGORIES = {
   'credit-scoring': 11,
@@ -41,7 +48,7 @@ Answer only YES or NO.`;
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307',
+      model: MODELS.fast,
       max_tokens: 10,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -61,7 +68,7 @@ Answer only YES or NO.`;
  * Cost optimization: replaces 3 separate calls with 1
  */
 async function processArticleFull(article) {
-  const contentExcerpt = (article.content || article.summary || '').substring(0, 4000);
+  const contentExcerpt = (article.content || article.summary || '').substring(0, 2000);
 
   const prompt = `Analyze this article for an AI in credit/banking news aggregation site.
 
@@ -100,12 +107,24 @@ If not relevant, set summary and difficulty_level to null.`;
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307',
+      model: MODELS.full,
       max_tokens: 800,
       messages: [{ role: 'user', content: prompt }]
     });
 
-    const text = response.content[0].text.trim();
+    let text = response.content[0].text.trim();
+
+    // Remove markdown code blocks if present
+    if (text.startsWith('```json')) {
+      text = text.slice(7);
+    } else if (text.startsWith('```')) {
+      text = text.slice(3);
+    }
+    if (text.endsWith('```')) {
+      text = text.slice(0, -3);
+    }
+    text = text.trim();
+
     const result = JSON.parse(text);
 
     return {
@@ -202,12 +221,24 @@ FORMAT: Return a JSON object:
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307',
+      model: MODELS.editorial,
       max_tokens: 1500,
       messages: [{ role: 'user', content: prompt }]
     });
 
-    const text = response.content[0].text.trim();
+    let text = response.content[0].text.trim();
+
+    // Remove markdown code blocks if present
+    if (text.startsWith('```json')) {
+      text = text.slice(7);
+    } else if (text.startsWith('```')) {
+      text = text.slice(3);
+    }
+    if (text.endsWith('```')) {
+      text = text.slice(0, -3);
+    }
+    text = text.trim();
+
     const result = JSON.parse(text);
 
     return {
