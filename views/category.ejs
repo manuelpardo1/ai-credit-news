@@ -1,4 +1,4 @@
-<%- include('partials/header', { title: category.name, page: 'categories' }) %>
+<%- include('partials/header', { title: category.name, page: 'category', activeCategory: category.slug, categories: categories }) %>
 
 <% const icons = {
   'credit-scoring': '💳',

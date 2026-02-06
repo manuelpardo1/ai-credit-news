@@ -67,16 +67,16 @@ class Article {
     return all(sql, params);
   }
 
-  static async getLatest(limit = 10) {
+  static async getLatest(limit = 10, offset = 0) {
     const sql = `
       SELECT a.*, c.name as category_name, c.slug as category_slug
       FROM articles a
       LEFT JOIN categories c ON a.category_id = c.id
       WHERE a.status = 'approved'
       ORDER BY a.published_date DESC, a.scraped_date DESC
-      LIMIT ?
+      LIMIT ? OFFSET ?
     `;
-    return all(sql, [limit]);
+    return all(sql, [limit, offset]);
   }
 
   static async search(query, { page = 1, limit = 20 } = {}) {

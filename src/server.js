@@ -70,6 +70,30 @@ app.get('/', async (req, res) => {
   }
 });
 
+// All Articles page
+app.get('/all', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 20;
+    const offset = (page - 1) * limit;
+    const articles = await Article.getLatest(limit, offset);
+    const categories = await Category.getWithArticleCount();
+    const total = await Article.count({ status: 'approved' });
+
+    res.render('all', {
+      articles,
+      categories,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err) {
+    console.error('Error loading all articles:', err);
+    res.status(500).render('error', { message: 'Failed to load articles' });
+  }
+});
+
 // Categories list
 app.get('/categories', async (req, res) => {
   try {
@@ -97,9 +121,11 @@ app.get('/category/:slug', async (req, res) => {
       limit,
       status: 'approved'
     });
+    const categories = await Category.getWithArticleCount();
     const total = await Article.count({ category: req.params.slug, status: 'approved' });
 
     res.render('category', {
+      categories,
       category,
       articles,
       pagination: {
@@ -137,7 +163,8 @@ app.get('/article/:id', async (req, res) => {
       relatedArticles = allRelated.filter(a => a.id !== article.id).slice(0, 3);
     }
 
-    res.render('article', { article, relatedArticles });
+    const categories = await Category.getWithArticleCount();
+    res.render('article', { article, relatedArticles, categories });
   } catch (err) {
     console.error('Error loading article:', err);
     res.status(500).render('error', { message: 'Failed to load article' });
@@ -151,7 +178,8 @@ app.get('/editorial/:id', async (req, res) => {
     if (!editorial || editorial.status !== 'published') {
       return res.status(404).render('error', { message: 'Editorial not found' });
     }
-    res.render('editorial', { editorial });
+    const categories = await Category.getWithArticleCount();
+    res.render('editorial', { editorial, categories });
   } catch (err) {
     console.error('Error loading editorial:', err);
     res.status(500).render('error', { message: 'Failed to load editorial' });
@@ -168,7 +196,8 @@ app.get('/search', async (req, res) => {
       articles = await Article.search(query, { limit: 20 });
     }
 
-    res.render('search', { query, articles });
+    const categories = await Category.getWithArticleCount();
+    res.render('search', { query, articles, categories });
   } catch (err) {
     console.error('Error searching:', err);
     res.status(500).render('error', { message: 'Search failed' });
@@ -176,8 +205,14 @@ app.get('/search', async (req, res) => {
 });
 
 // About page
-app.get('/about', (req, res) => {
-  res.render('about');
+app.get('/about', async (req, res) => {
+  try {
+    const categories = await Category.getWithArticleCount();
+    res.render('about', { categories });
+  } catch (err) {
+    console.error('Error loading about page:', err);
+    res.status(500).render('error', { message: 'Failed to load page' });
+  }
 });
 
 // ============================================

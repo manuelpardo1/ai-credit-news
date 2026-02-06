@@ -1,76 +1,92 @@
-<%- include('partials/header', { page: 'home' }) %>
+<%- include('partials/header', { page: 'home', activeCategory: 'all', categories: categories }) %>
 
-<section class="hero">
-  <div class="container">
-    <h1>AI in Credit & Banking</h1>
-    <p>Curated news on artificial intelligence applications in credit scoring, lending, fraud detection, and financial services.</p>
+<%
+// Get featured article (first one)
+const featuredArticle = articles && articles.length > 0 ? articles[0] : null;
+// Get remaining articles for the list
+const listArticles = articles && articles.length > 1 ? articles.slice(1, 5) : [];
+%>
+
+<!-- Hero / Featured Article -->
+<section class="hero container">
+  <div class="hero-top">
+    <% if (featuredArticle) { %>
+    <div class="hero-label">
+      <span class="hero-dot"></span>
+      <span class="hero-category"><%= featuredArticle.category_name || 'News' %></span>
+    </div>
+    <% } else { %>
+    <div class="hero-label">
+      <span class="hero-dot"></span>
+      <span class="hero-category">Latest</span>
+    </div>
+    <% } %>
+    <form action="/search" method="GET" class="search-box">
+      <input type="text" name="q" placeholder="Search articles...">
+      <button type="submit" class="search-btn" aria-label="Search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="M21 21l-4.35-4.35"></path>
+        </svg>
+      </button>
+    </form>
   </div>
+  <% if (featuredArticle) { %>
+  <h1><a href="/article/<%= featuredArticle.id %>"><%= featuredArticle.title %></a></h1>
+  <p><%= featuredArticle.summary %></p>
+  <% } else { %>
+  <h1>AI Credit News</h1>
+  <p>AI-powered insights for credit & financial services</p>
+  <% } %>
 </section>
 
 <main class="container">
   <div class="home-layout">
     <div class="main-content">
-      <!-- Weekly Editorial -->
-      <% if (editorial) { %>
-        <section class="editorial-featured">
-          <div class="editorial-label">Weekly Editorial</div>
-          <h2><%= editorial.title %></h2>
-          <div class="editorial-excerpt">
-            <%= editorial.content.substring(0, 400) %>...
-          </div>
-          <a href="/editorial/<%= editorial.id %>" class="editorial-link">Read Full Editorial &rarr;</a>
-        </section>
+      <!-- Numbered Article List -->
+      <% if (listArticles.length > 0) { %>
+        <% listArticles.forEach((article, index) => { %>
+          <article class="article-numbered">
+            <span class="article-num"><%= String(index + 1).padStart(2, '0') %></span>
+            <div>
+              <div class="article-cat"><%= article.category_name || 'News' %></div>
+              <h4><a href="/article/<%= article.id %>"><%= article.title %></a></h4>
+              <p><%= article.summary ? article.summary.substring(0, 100) + '...' : '' %></p>
+            </div>
+          </article>
+        <% }) %>
+      <% } else if (!featuredArticle) { %>
+        <div class="empty-state">
+          <h3>No articles yet</h3>
+          <p>Check back soon for the latest AI in credit & banking news.</p>
+        </div>
       <% } %>
 
-      <!-- Latest Articles -->
-      <section class="section">
-        <div class="section-header">
-          <h2>Latest Articles</h2>
-        </div>
-
-        <% if (articles && articles.length > 0) { %>
-          <div class="articles-grid">
-            <% articles.forEach(article => { %>
-              <%- include('partials/article-card', { article }) %>
-            <% }) %>
-          </div>
-        <% } else { %>
-          <div class="empty-state">
-            <div class="empty-state-icon">📭</div>
-            <h3>No articles yet</h3>
-            <p>Check back soon for the latest AI in credit & banking news.</p>
-          </div>
-        <% } %>
-      </section>
+      <div class="view-more">
+        <a href="/all">View more articles →</a>
+      </div>
     </div>
 
     <aside class="sidebar">
-      <!-- Subscribe Widget -->
-      <%- include('partials/subscribe-sidebar') %>
-
-      <!-- Categories -->
-      <div class="sidebar-section">
-        <h3>Categories</h3>
-        <% const icons = {
-          'credit-scoring': '💳',
-          'fraud-detection': '🛡️',
-          'credit-risk': '📊',
-          'income-employment': '💼',
-          'regulatory-compliance': '⚖️',
-          'lending-automation': '🤖'
-        }; %>
-        <ul class="sidebar-categories">
-          <% categories.slice(0, 6).forEach(category => { %>
-            <li>
-              <a href="/category/<%= category.slug %>">
-                <span><%= icons[category.slug] || '📁' %> <%= category.name %></span>
-                <span class="count"><%= category.article_count %></span>
-              </a>
-            </li>
-          <% }) %>
-        </ul>
-        <a href="/categories" class="view-all-link">View all categories &rarr;</a>
+      <!-- Newsletter Subscribe -->
+      <div class="sidebar-subscribe">
+        <h3>Newsletter</h3>
+        <p>Weekly AI credit insights delivered to your inbox every Monday.</p>
+        <form action="/subscribe" method="POST">
+          <input type="email" name="email" placeholder="your@email.com" required>
+          <button type="submit">Subscribe</button>
+        </form>
       </div>
+
+      <!-- Weekly Editorial -->
+      <% if (editorial) { %>
+      <div class="sidebar-editorial">
+        <h3>Weekly Editorial</h3>
+        <h4><%= editorial.title %></h4>
+        <p><%= editorial.content ? editorial.content.substring(0, 150) + '...' : '' %></p>
+        <a href="/editorial/<%= editorial.id %>" class="editorial-link">Read Editorial →</a>
+      </div>
+      <% } %>
     </aside>
   </div>
 </main>

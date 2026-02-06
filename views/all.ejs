@@ -1,0 +1,73 @@
+<%- include('partials/header', { page: 'all', activeCategory: typeof activeCategory !== 'undefined' ? activeCategory : 'all', categories: categories }) %>
+
+<div class="container">
+  <div class="all-header">
+    <h2>All Articles</h2>
+    <form action="/search" method="GET" class="search-box">
+      <input type="text" name="q" placeholder="Search articles..." value="<%= typeof query !== 'undefined' ? query : '' %>">
+    </form>
+  </div>
+
+  <%
+  // Group articles by date
+  const groupedArticles = {};
+  if (articles && articles.length > 0) {
+    articles.forEach(article => {
+      const date = new Date(article.published_at || article.created_at);
+      const dateKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      if (!groupedArticles[dateKey]) {
+        groupedArticles[dateKey] = [];
+      }
+      groupedArticles[dateKey].push(article);
+    });
+  }
+  %>
+
+  <% if (Object.keys(groupedArticles).length > 0) { %>
+    <% Object.entries(groupedArticles).forEach(([dateKey, dateArticles]) => { %>
+      <div class="date-group">
+        <div class="date-label"><%= dateKey %></div>
+        <div class="date-items">
+          <% dateArticles.forEach((article, index) => { %>
+            <article class="date-item">
+              <span class="num"><%= String(index + 1).padStart(2, '0') %></span>
+              <div>
+                <span class="cat"><%= article.category_name || 'News' %></span>
+                <h4><a href="/article/<%= article.id %>"><%= article.title %></a></h4>
+                <p><%= article.summary ? article.summary.substring(0, 100) + '...' : '' %></p>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </div>
+    <% }) %>
+
+    <% if (typeof pagination !== 'undefined' && pagination.totalPages > 1) { %>
+    <div class="pagination">
+      <% if (pagination.currentPage > 1) { %>
+        <a href="/all?page=<%= pagination.currentPage - 1 %>">← Previous</a>
+      <% } else { %>
+        <a href="#" class="disabled">← Previous</a>
+      <% } %>
+
+      <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+        <a href="/all?page=<%= i %>" class="<%= i === pagination.currentPage ? 'active' : '' %>"><%= i %></a>
+      <% } %>
+
+      <% if (pagination.currentPage < pagination.totalPages) { %>
+        <a href="/all?page=<%= pagination.currentPage + 1 %>">Next →</a>
+      <% } else { %>
+        <a href="#" class="disabled">Next →</a>
+      <% } %>
+    </div>
+    <% } %>
+
+  <% } else { %>
+    <div class="empty-state">
+      <h3>No articles found</h3>
+      <p>Check back soon for the latest AI in credit & banking news.</p>
+    </div>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <meta name="theme-color" content="#1e3a8a">
+  <meta name="theme-color" content="#000000">
 
   <!-- Open Graph / Social -->
   <meta property="og:type" content="website">
@@ -24,35 +24,27 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
   <header class="header">
     <div class="container header-inner">
-      <a href="/" class="logo">
-        <img src="/images/logo.svg" alt="AI Credit News" class="logo-svg" height="40">
-        <span class="logo-fallback">
-          <span class="logo-icon">AI</span>
-          <span>Credit News</span>
-        </span>
-      </a>
-
-      <form action="/search" method="GET" class="search-form">
-        <input
-          type="text"
-          name="q"
-          placeholder="Search articles..."
-          class="search-input"
-          value="<%= typeof query !== 'undefined' ? query : '' %>"
-        >
-        <button type="submit" class="search-btn">Search</button>
-      </form>
+      <a href="/" class="logo">AI Credit News</a>
 
       <nav class="nav">
         <a href="/" class="<%= typeof page !== 'undefined' && page === 'home' ? 'active' : '' %>">Home</a>
-        <a href="/categories" class="<%= typeof page !== 'undefined' && page === 'categories' ? 'active' : '' %>">Categories</a>
         <a href="/about" class="<%= typeof page !== 'undefined' && page === 'about' ? 'active' : '' %>">About</a>
       </nav>
     </div>
   </header>
+
+  <!-- Category Navigation -->
+  <nav class="category-nav">
+    <a href="<%= typeof page !== 'undefined' && page === 'home' ? '/' : '/all' %>" class="<%= typeof activeCategory === 'undefined' || activeCategory === 'all' ? 'active' : '' %>">All</a>
+    <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+      <% categories.slice(0, 6).forEach(category => { %>
+        <a href="/category/<%= category.slug %>" class="<%= typeof activeCategory !== 'undefined' && activeCategory === category.slug ? 'active' : '' %>"><%= category.name %></a>
+      <% }) %>
+    <% } %>
+  </nav>
