@@ -221,7 +221,34 @@ app.get('/article/:id', async (req, res) => {
   }
 });
 
-// Editorial page
+// Latest editorial (redirect to most recent)
+app.get('/editorial', async (req, res) => {
+  try {
+    const editorial = await Editorial.findLatestPublished();
+    if (!editorial) {
+      const categories = await Category.getWithArticleCount();
+      return res.render('editorials', { editorials: [], categories, page: 'editorials' });
+    }
+    res.redirect(`/editorial/${editorial.id}`);
+  } catch (err) {
+    console.error('Error loading editorial:', err);
+    res.status(500).render('error', { message: 'Failed to load editorial' });
+  }
+});
+
+// All editorials list
+app.get('/editorials', async (req, res) => {
+  try {
+    const editorials = await Editorial.findAll({ status: 'published', limit: 50 });
+    const categories = await Category.getWithArticleCount();
+    res.render('editorials', { editorials, categories, page: 'editorials' });
+  } catch (err) {
+    console.error('Error loading editorials:', err);
+    res.status(500).render('error', { message: 'Failed to load editorials' });
+  }
+});
+
+// Editorial page by ID
 app.get('/editorial/:id', async (req, res) => {
   try {
     const editorial = await Editorial.findById(req.params.id);
@@ -229,7 +256,7 @@ app.get('/editorial/:id', async (req, res) => {
       return res.status(404).render('error', { message: 'Editorial not found' });
     }
     const categories = await Category.getWithArticleCount();
-    res.render('editorial', { editorial, categories });
+    res.render('editorial', { editorial, categories, page: 'editorial' });
   } catch (err) {
     console.error('Error loading editorial:', err);
     res.status(500).render('error', { message: 'Failed to load editorial' });
