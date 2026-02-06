@@ -26,6 +26,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <script src="/js/i18n.js"></script>
 </head>
 <body>
   <header class="header">
@@ -33,8 +34,12 @@
       <a href="/" class="logo">AI Credit News</a>
 
       <nav class="nav">
-        <a href="/" class="<%= typeof page !== 'undefined' && page === 'home' ? 'active' : '' %>">Home</a>
-        <a href="/about" class="<%= typeof page !== 'undefined' && page === 'about' ? 'active' : '' %>">About</a>
+        <a href="/" class="<%= typeof page !== 'undefined' && page === 'home' ? 'active' : '' %>" data-en="Home" data-es="Inicio">Home</a>
+        <a href="/about" class="<%= typeof page !== 'undefined' && page === 'about' ? 'active' : '' %>" data-en="About" data-es="Acerca">About</a>
+        <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language">
+          <span class="lang-flag" id="langFlag">🇺🇸</span>
+          <span class="lang-code" id="langCode">EN</span>
+        </button>
       </nav>
     </div>
   </header>

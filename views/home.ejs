@@ -22,7 +22,7 @@ const listArticles = articles && articles.length > 1 ? articles.slice(1, 5) : []
     </div>
     <% } %>
     <form action="/search" method="GET" class="search-box">
-      <input type="text" name="q" placeholder="Search articles...">
+      <input type="text" name="q" placeholder="Search articles..." data-i18n-placeholder="searchPlaceholder">
       <button type="submit" class="search-btn" aria-label="Search">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
@@ -63,28 +63,28 @@ const listArticles = articles && articles.length > 1 ? articles.slice(1, 5) : []
       <% } %>
 
       <div class="view-more">
-        <a href="/all">View more articles →</a>
+        <a href="/all" data-en="View more articles →" data-es="Ver mas articulos →">View more articles →</a>
       </div>
     </div>
 
     <aside class="sidebar">
       <!-- Newsletter Subscribe -->
       <div class="sidebar-subscribe">
-        <h3>Newsletter</h3>
-        <p>Weekly AI credit insights delivered to your inbox every Monday.</p>
+        <h3 data-en="Newsletter" data-es="Boletin">Newsletter</h3>
+        <p data-en="Weekly AI credit insights delivered to your inbox every Monday." data-es="Perspectivas semanales de IA crediticia en tu correo cada lunes.">Weekly AI credit insights delivered to your inbox every Monday.</p>
         <form action="/subscribe" method="POST">
-          <input type="email" name="email" placeholder="your@email.com" required>
-          <button type="submit">Subscribe</button>
+          <input type="email" name="email" placeholder="your@email.com" data-i18n-placeholder="emailPlaceholder" required>
+          <button type="submit" data-en="Subscribe" data-es="Suscribirse">Subscribe</button>
         </form>
       </div>
 
       <!-- Weekly Editorial -->
       <% if (editorial) { %>
       <div class="sidebar-editorial">
-        <h3>Weekly Editorial</h3>
+        <h3 data-en="Weekly Editorial" data-es="Editorial Semanal">Weekly Editorial</h3>
         <h4><%= editorial.title %></h4>
         <p><%= editorial.content ? editorial.content.substring(0, 150) + '...' : '' %></p>
-        <a href="/editorial/<%= editorial.id %>" class="editorial-link">Read Editorial →</a>
+        <a href="/editorial/<%= editorial.id %>" class="editorial-link" data-en="Read Editorial →" data-es="Leer Editorial →">Read Editorial →</a>
       </div>
       <% } %>
     </aside>
