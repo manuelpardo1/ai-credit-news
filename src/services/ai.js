@@ -41,7 +41,7 @@ Answer only YES or NO.`;
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-3-5-haiku-20241022',
       max_tokens: 10,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -50,6 +50,7 @@ Answer only YES or NO.`;
     return answer.includes('YES');
   } catch (err) {
     console.error('Error in title filter:', err.message);
+    console.error('Full error:', JSON.stringify(err, null, 2));
     // On error, pass through to full processing
     return true;
   }
@@ -99,7 +100,7 @@ If not relevant, set summary and difficulty_level to null.`;
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-3-5-sonnet-20241022',
       max_tokens: 800,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -120,6 +121,7 @@ If not relevant, set summary and difficulty_level to null.`;
     };
   } catch (err) {
     console.error('Error in full processing:', err.message);
+    console.error('Full error:', JSON.stringify(err, null, 2));
     throw err;
   }
 }
@@ -200,7 +202,7 @@ FORMAT: Return a JSON object:
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-3-5-sonnet-20241022',
       max_tokens: 1500,
       messages: [{ role: 'user', content: prompt }]
     });
