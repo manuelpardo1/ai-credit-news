@@ -411,11 +411,24 @@ FORMAT: Return a JSON object:
 
     const result = JSON.parse(text);
 
+    // Calculate proper Monday-Sunday week
+    const getMonday = (d) => {
+      const date = new Date(d);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+      return new Date(date.setDate(diff));
+    };
+
+    const monday = getMonday(today);
+    monday.setDate(monday.getDate() - 7); // Previous week's Monday
+    const sunday = new Date(monday);
+    sunday.setDate(sunday.getDate() + 6); // That week's Sunday
+
     return {
       title: result.title,
       content: result.content,
-      week_start: weekAgo.toISOString().split('T')[0],
-      week_end: today.toISOString().split('T')[0]
+      week_start: monday.toISOString().split('T')[0],
+      week_end: sunday.toISOString().split('T')[0]
     };
   } catch (err) {
     console.error('Error generating editorial:', err.message);

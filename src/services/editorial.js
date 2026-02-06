@@ -38,9 +38,16 @@ async function generateWeeklyEditorial() {
       return null;
     }
 
-    // Check if editorial already exists for this week
+    // Check if editorial already exists for this week (Monday-Sunday)
     const today = new Date();
-    const weekStart = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const getMonday = (d) => {
+      const date = new Date(d);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(date.setDate(diff));
+    };
+    const weekStart = getMonday(today);
+    weekStart.setDate(weekStart.getDate() - 7); // Previous week's Monday
     const weekStartStr = weekStart.toISOString().split('T')[0];
 
     const existingEditorial = await Editorial.findByWeek(weekStartStr);
@@ -90,7 +97,18 @@ async function generateWeeklyEditorial() {
  */
 async function createWelcomeEditorial() {
   const today = new Date();
-  const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  // Calculate proper Monday-Sunday week
+  const getMonday = (d) => {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(date.setDate(diff));
+  };
+  const monday = getMonday(today);
+  monday.setDate(monday.getDate() - 7); // Previous week's Monday
+  const sunday = new Date(monday);
+  sunday.setDate(sunday.getDate() + 6); // That week's Sunday
 
   const content = `Welcome to AI Credit News, your weekly source for the latest developments at the intersection of artificial intelligence and financial services.
 
@@ -116,8 +134,8 @@ Welcome aboard.`;
   const editorial = await Editorial.create({
     title: 'Welcome to AI Credit News: Your Guide to AI in Financial Services',
     content,
-    week_start: weekAgo.toISOString().split('T')[0],
-    week_end: today.toISOString().split('T')[0]
+    week_start: monday.toISOString().split('T')[0],
+    week_end: sunday.toISOString().split('T')[0]
   });
 
   return editorial;
