@@ -55,7 +55,7 @@ router.post('/login', (req, res) => {
 
   if (validatePassword(password)) {
     setAuthCookie(res);
-    res.redirect('/admin/editorials');
+    res.redirect('/admin/settings');
   } else {
     res.render('admin/login', { error: 'Invalid password' });
   }
