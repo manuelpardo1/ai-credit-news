@@ -1,0 +1,166 @@
+<%- include('partials/header', { page: 'analytics', categories: categories }) %>
+
+<div class="analytics-page">
+  <div class="analytics-header">
+    <h1>Platform Analytics</h1>
+    <p>Real-time insights into AI Credit News performance</p>
+  </div>
+
+  <div class="analytics-grid">
+    <!-- Key Stats -->
+    <div class="analytics-section stats-overview">
+      <h2>Overview</h2>
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-card-num"><%= stats ? stats.total_articles : 0 %></div>
+          <div class="stat-card-label">Total Articles</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-num"><%= stats ? stats.articles_this_week : 0 %></div>
+          <div class="stat-card-label">This Week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-num"><%= stats ? stats.source_count : 0 %></div>
+          <div class="stat-card-label">Sources</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-num"><%= stats && stats.total_reads > 1000 ? (stats.total_reads / 1000).toFixed(1) + 'K' : (stats ? stats.total_reads : 0) %></div>
+          <div class="stat-card-label">Total Views</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-num"><%= stats ? stats.category_count : 0 %></div>
+          <div class="stat-card-label">Categories</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-num"><%= stats ? stats.community_members : 0 %></div>
+          <div class="stat-card-label">Members</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Articles This Week -->
+    <div class="analytics-section">
+      <h2>Top Articles This Week</h2>
+      <% if (topArticles && topArticles.length > 0) { %>
+      <div class="top-articles-list">
+        <% topArticles.forEach((article, index) => { %>
+        <div class="top-article-item">
+          <span class="top-article-rank"><%= index + 1 %></span>
+          <div class="top-article-info">
+            <a href="/article/<%= article.id %>" class="top-article-title"><%= article.title %></a>
+            <div class="top-article-meta">
+              <span class="top-article-cat"><%= article.category_name || 'News' %></span>
+              <span class="top-article-views"><%= article.views || 0 %> views</span>
+            </div>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+      <% } else { %>
+      <p class="empty-state-inline">No articles viewed this week yet.</p>
+      <% } %>
+    </div>
+
+    <!-- Category Performance -->
+    <div class="analytics-section">
+      <h2>Category Performance</h2>
+      <% if (categoryStats && categoryStats.length > 0) { %>
+      <div class="category-stats-list">
+        <% categoryStats.forEach(cat => { %>
+        <div class="category-stat-item">
+          <div class="category-stat-header">
+            <a href="/category/<%= cat.slug %>" class="category-stat-name"><%= cat.name %></a>
+            <span class="category-stat-articles"><%= cat.article_count %> articles</span>
+          </div>
+          <div class="category-stat-bar">
+            <div class="category-stat-fill" style="width: <%= categoryStats[0].total_views > 0 ? Math.round((cat.total_views / categoryStats[0].total_views) * 100) : 0 %>%"></div>
+          </div>
+          <div class="category-stat-footer">
+            <span><%= cat.total_views || 0 %> views</span>
+            <% if (cat.avg_relevance) { %>
+            <span>Relevance: <%= cat.avg_relevance %></span>
+            <% } %>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+      <% } else { %>
+      <p class="empty-state-inline">No category data available.</p>
+      <% } %>
+    </div>
+
+    <!-- Views Over Time Chart -->
+    <div class="analytics-section chart-section">
+      <h2>Views - Last 30 Days</h2>
+      <div class="chart-container">
+        <canvas id="viewsChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Views over time chart
+const viewsData = <%= JSON.stringify(viewsOverTime || []) %>;
+
+if (viewsData.length > 0) {
+  const ctx = document.getElementById('viewsChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: viewsData.map(d => {
+        const date = new Date(d.date);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }),
+      datasets: [{
+        label: 'Views',
+        data: viewsData.map(d => d.views),
+        borderColor: '#5b21b6',
+        backgroundColor: 'rgba(91, 33, 182, 0.1)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 2,
+        pointHoverRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            maxTicksLimit: 7,
+            font: {
+              family: 'Inter'
+            }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: '#f0f0f0'
+          },
+          ticks: {
+            font: {
+              family: 'Inter'
+            }
+          }
+        }
+      }
+    }
+  });
+} else {
+  document.getElementById('viewsChart').parentElement.innerHTML = '<p class="empty-state-inline">No view data available yet.</p>';
+}
+</script>
+
+<%- include('partials/footer') %>

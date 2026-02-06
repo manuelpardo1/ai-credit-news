@@ -29,13 +29,78 @@
   <script src="/js/i18n.js"></script>
 </head>
 <body>
+  <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Mobile Slide-out Sidebar -->
+  <aside class="mobile-sidebar" id="mobileSidebar">
+    <div class="mobile-sidebar-header">
+      <a href="/" class="mobile-sidebar-logo">AI Credit News</a>
+      <button class="mobile-sidebar-close" id="closeSidebar" aria-label="Close menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="mobile-sidebar-nav">
+      <a href="/" class="<%= typeof page !== 'undefined' && page === 'home' ? 'active' : '' %>">Home</a>
+      <a href="/all" class="<%= typeof activeCategory !== 'undefined' && activeCategory === 'all' && page !== 'home' ? 'active' : '' %>">All Articles</a>
+      <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+        <% categories.forEach(category => { %>
+          <a href="/category/<%= category.slug %>" class="<%= typeof activeCategory !== 'undefined' && activeCategory === category.slug ? 'active' : '' %>"><%= category.name %></a>
+        <% }) %>
+      <% } %>
+    </nav>
+
+    <div class="mobile-sidebar-divider"></div>
+
+    <nav class="mobile-sidebar-secondary">
+      <a href="/about">About</a>
+      <a href="/analytics">Analytics</a>
+    </nav>
+
+    <div class="mobile-sidebar-divider"></div>
+
+    <div class="mobile-sidebar-auth">
+      <% if (typeof user !== 'undefined' && user) { %>
+        <a href="/auth/profile" class="mobile-sidebar-user">
+          <span class="user-avatar"><%= user.name ? user.name.charAt(0).toUpperCase() : 'U' %></span>
+          <span><%= user.name || user.email %></span>
+        </a>
+        <a href="/auth/logout" class="mobile-sidebar-logout">Sign Out</a>
+      <% } else { %>
+        <a href="/auth/login" class="btn-sidebar-login">Sign In</a>
+      <% } %>
+    </div>
+
+    <div class="mobile-sidebar-footer">
+      <button class="lang-toggle-sidebar" onclick="toggleLanguage()">
+        <span class="lang-flag" id="langFlagSidebar">🇺🇸</span>
+        <span class="lang-code">EN</span>
+      </button>
+    </div>
+  </aside>
+
   <header class="header">
     <div class="container header-inner">
+      <!-- Mobile menu button -->
+      <button class="mobile-menu-btn" id="openSidebar" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12h18M3 6h18M3 18h18"></path>
+        </svg>
+      </button>
+
       <a href="/" class="logo">AI Credit News</a>
 
       <nav class="nav">
-        <a href="/" class="<%= typeof page !== 'undefined' && page === 'home' ? 'active' : '' %>" data-en="Home" data-es="Inicio">Home</a>
-        <a href="/about" class="<%= typeof page !== 'undefined' && page === 'about' ? 'active' : '' %>" data-en="About" data-es="Acerca">About</a>
+        <a href="/about" class="<%= typeof page !== 'undefined' && page === 'about' ? 'active' : '' %>" data-i18n="about">About</a>
+        <a href="/analytics">Analytics</a>
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/auth/profile" class="user-link"><%= user.name || 'Account' %></a>
+        <% } else { %>
+          <a href="/auth/login" class="btn-login">Sign In</a>
+        <% } %>
         <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language">
           <span class="lang-flag" id="langFlag">🇺🇸</span>
           <span class="lang-code" id="langCode">EN</span>
@@ -44,12 +109,42 @@
     </div>
   </header>
 
-  <!-- Category Navigation -->
+  <!-- Category Navigation (Desktop) -->
   <nav class="category-nav">
-    <a href="<%= typeof page !== 'undefined' && page === 'home' ? '/' : '/all' %>" class="<%= typeof activeCategory === 'undefined' || activeCategory === 'all' ? 'active' : '' %>">All</a>
+    <a href="/" class="<%= typeof page !== 'undefined' && page === 'home' ? 'active' : '' %>" data-i18n="home">Home</a>
+    <a href="/all" class="<%= typeof activeCategory !== 'undefined' && activeCategory === 'all' && page !== 'home' ? 'active' : '' %>" data-i18n="all">All</a>
     <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
       <% categories.slice(0, 6).forEach(category => { %>
-        <a href="/category/<%= category.slug %>" class="<%= typeof activeCategory !== 'undefined' && activeCategory === category.slug ? 'active' : '' %>"><%= category.name %></a>
+        <a href="/category/<%= category.slug %>" class="<%= typeof activeCategory !== 'undefined' && activeCategory === category.slug ? 'active' : '' %>" data-category="<%= category.slug %>"><%= category.name %></a>
       <% }) %>
     <% } %>
   </nav>
+
+<script>
+// Mobile sidebar toggle
+const sidebar = document.getElementById('mobileSidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const openBtn = document.getElementById('openSidebar');
+const closeBtn = document.getElementById('closeSidebar');
+
+function openSidebar() {
+  sidebar.classList.add('open');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+openBtn.addEventListener('click', openSidebar);
+closeBtn.addEventListener('click', closeSidebar);
+overlay.addEventListener('click', closeSidebar);
+
+// Close on escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeSidebar();
+});
+</script>

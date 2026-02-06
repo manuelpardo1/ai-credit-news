@@ -12,9 +12,33 @@ const PORT = process.env.PORT || 3000;
 const Article = require('./models/Article');
 const Category = require('./models/Category');
 const Editorial = require('./models/Editorial');
+const Analytics = require('./models/Analytics');
 
 // Auth middleware
 const { addAuthStatus } = require('./middleware/auth');
+
+// Security headers middleware
+app.use((req, res, next) => {
+  // Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  // Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // XSS protection
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Referrer policy
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // Content Security Policy
+  res.setHeader('Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline'; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "img-src 'self' data: https:; " +
+    "connect-src 'self'; " +
+    "frame-ancestors 'self';"
+  );
+  next();
+});
 
 // Middleware
 app.use(cors());
@@ -38,6 +62,7 @@ const sourcesRouter = require('./routes/sources');
 const scrapeRouter = require('./routes/scrape');
 const adminRouter = require('./routes/admin');
 const subscribeRouter = require('./routes/subscribe');
+const { router: authRouter } = require('./routes/auth');
 
 app.use('/api/articles', articlesRouter);
 app.use('/api/categories', categoriesRouter);
@@ -47,6 +72,7 @@ app.use('/api/scrape', scrapeRouter);
 app.use('/admin', adminRouter);
 app.use('/subscribe', subscribeRouter);
 app.use('/', subscribeRouter); // For /unsubscribe/:token
+app.use('/auth', authRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -60,10 +86,14 @@ app.get('/api/health', (req, res) => {
 // Homepage
 app.get('/', async (req, res) => {
   try {
-    const articles = await Article.getLatest(12);
-    const categories = await Category.getWithArticleCount();
-    const latestEditorial = await Editorial.findLatestPublished();
-    res.render('home', { articles, categories, editorial: latestEditorial });
+    const [articles, categories, latestEditorial, stats, trending] = await Promise.all([
+      Article.getLatest(12),
+      Category.getWithArticleCount(),
+      Editorial.findLatestPublished(),
+      Analytics.getPublicStats(),
+      Analytics.getTrendingArticles(5)
+    ]);
+    res.render('home', { articles, categories, editorial: latestEditorial, stats, trending });
   } catch (err) {
     console.error('Error loading homepage:', err);
     res.status(500).render('error', { message: 'Failed to load homepage' });
@@ -149,6 +179,15 @@ app.get('/article/:id', async (req, res) => {
       return res.status(404).render('error', { message: 'Article not found' });
     }
 
+    // Track article view (async, don't wait)
+    const sessionId = req.signedCookies?.sessionId || req.ip;
+    Analytics.recordView(
+      article.id,
+      sessionId,
+      req.get('User-Agent'),
+      req.get('Referer')
+    ).catch(err => console.error('Error recording view:', err.message));
+
     // Get tags for the article
     article.tags = await Article.getTags(article.id);
 
@@ -163,8 +202,19 @@ app.get('/article/:id', async (req, res) => {
       relatedArticles = allRelated.filter(a => a.id !== article.id).slice(0, 3);
     }
 
+    // Get comments
+    const Comment = require('./models/Comment');
+    const comments = await Comment.getByArticle(article.id);
+
+    // Check if user has saved this article
+    let isSaved = false;
+    if (req.user) {
+      const User = require('./models/User');
+      isSaved = await User.isArticleSaved(req.user.id, article.id);
+    }
+
     const categories = await Category.getWithArticleCount();
-    res.render('article', { article, relatedArticles, categories });
+    res.render('article', { article, relatedArticles, categories, comments, isSaved });
   } catch (err) {
     console.error('Error loading article:', err);
     res.status(500).render('error', { message: 'Failed to load article' });
@@ -212,6 +262,23 @@ app.get('/about', async (req, res) => {
   } catch (err) {
     console.error('Error loading about page:', err);
     res.status(500).render('error', { message: 'Failed to load page' });
+  }
+});
+
+// Analytics page (public)
+app.get('/analytics', async (req, res) => {
+  try {
+    const [stats, topArticles, categoryStats, viewsOverTime, categories] = await Promise.all([
+      Analytics.getPublicStats(),
+      Analytics.getTopArticles(10, 'week'),
+      Analytics.getCategoryStats(),
+      Analytics.getViewsOverTime(30),
+      Category.getWithArticleCount()
+    ]);
+    res.render('analytics', { stats, topArticles, categoryStats, viewsOverTime, categories });
+  } catch (err) {
+    console.error('Error loading analytics page:', err);
+    res.status(500).render('error', { message: 'Failed to load analytics' });
   }
 });
 
