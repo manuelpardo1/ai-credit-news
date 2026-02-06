@@ -73,6 +73,17 @@ router.get('/process/status', (req, res) => {
   res.json({ status: processStatus });
 });
 
+// GET /api/scrape/categories - List all categories with IDs
+router.get('/categories', async (req, res) => {
+  try {
+    const { all } = require('../database/db');
+    const categories = await all('SELECT * FROM categories');
+    res.json({ categories });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
+
 // GET /api/scrape/test-ai - Test AI API connection
 router.get('/test-ai', async (req, res) => {
   const model = req.query.model || 'claude-3-haiku-20240307';
