@@ -7,7 +7,7 @@ const categories = [
   {
     name: 'Credit Scoring',
     slug: 'credit-scoring',
-    description: 'Machine learning models for creditworthiness assessment and scoring',
+    description: 'Machine learning models for creditworthiness assessment, risk scoring, and credit decisions',
     icon: 'credit-card'
   },
   {
@@ -17,21 +17,15 @@ const categories = [
     icon: 'shield'
   },
   {
-    name: 'Credit Risk',
-    slug: 'credit-risk',
-    description: 'AI for credit risk assessment, modeling, and management',
-    icon: 'chart-line'
-  },
-  {
     name: 'Income & Employment',
     slug: 'income-employment',
-    description: 'AI for income verification, employment data, and affordability analysis',
+    description: 'AI for income verification, cash flow analysis, affordability, and capacity to pay',
     icon: 'briefcase'
   },
   {
     name: 'Regulatory & Compliance',
     slug: 'regulatory-compliance',
-    description: 'AI governance, fair lending requirements, and regulatory compliance',
+    description: 'AI governance, fair lending requirements, explainability, and regulatory compliance',
     icon: 'scale'
   },
   {
