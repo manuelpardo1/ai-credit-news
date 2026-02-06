@@ -300,5 +300,5 @@ module.exports = {
   analyzeRelevance,
   summarizeArticle,
   assessDifficulty,
-  CATEGORIES
+  getCategories
 };
