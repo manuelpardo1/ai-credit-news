@@ -16,15 +16,27 @@ const MODELS = {
   editorial: process.env.AI_MODEL_EDITORIAL || 'claude-3-haiku-20240307'
 };
 
-// Category mapping for AI responses (matches database IDs)
-const CATEGORIES = {
-  'credit-scoring': 11,
-  'fraud-detection': 12,
-  'credit-risk': 13,
-  'income-employment': 14,
-  'regulatory-compliance': 15,
-  'lending-automation': 16
-};
+// Category cache - loaded dynamically from database
+let categoryCache = null;
+
+async function getCategories() {
+  if (categoryCache) return categoryCache;
+
+  const Category = require('../models/Category');
+  const categories = await Category.findAll();
+
+  categoryCache = {};
+  for (const cat of categories) {
+    categoryCache[cat.slug] = cat.id;
+  }
+
+  console.log('Loaded category mapping:', categoryCache);
+  return categoryCache;
+}
+
+function getCategoryId(slug, categories) {
+  return categories[slug] || Object.values(categories)[0]; // fallback to first category
+}
 
 const CATEGORY_LIST = `
 1. credit-scoring - ML models for credit scores and creditworthiness assessment
@@ -127,11 +139,14 @@ If not relevant, set summary and difficulty_level to null.`;
 
     const result = JSON.parse(text);
 
+    // Get dynamic category mapping from database
+    const categories = await getCategories();
+
     return {
       relevance_score: Math.min(10, Math.max(0, result.relevance_score)),
       is_relevant: result.is_relevant && result.relevance_score >= 6,
       category_slug: result.primary_category,
-      category_id: CATEGORIES[result.primary_category] || 11, // default to credit-scoring
+      category_id: getCategoryId(result.primary_category, categories),
       tags: result.suggested_tags || [],
       reasoning: result.reasoning,
       summary: result.summary,
@@ -158,9 +173,10 @@ async function processArticle(article) {
 
   if (!passesFilter) {
     console.log('    ✗ Filtered out by title - not relevant');
+    const categories = await getCategories();
     return {
       relevance_score: 2,
-      category_id: 11, // default to credit-scoring
+      category_id: getCategoryId('credit-scoring', categories),
       tags: [],
       summary: article.summary,
       difficulty_level: null,
