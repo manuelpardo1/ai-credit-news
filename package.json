@@ -7,12 +7,12 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "start": "node src/database/migrate-categories.js && node src/database/migrate-analytics.js && node src/database/migrate-community.js && node src/server.js",
+    "start": "node src/database/migrate-categories.js && node src/database/migrate-analytics.js && node src/database/migrate-community.js && node src/database/migrate-categories-consolidate.js && node src/server.js",
     "dev": "nodemon src/server.js",
     "build": "npm run db:init && npm run db:seed && npm run db:migrate",
     "db:init": "node src/database/init.js",
     "db:seed": "node src/database/seed.js",
-    "db:migrate": "node src/database/migrate-categories.js && node src/database/migrate-analytics.js && node src/database/migrate-community.js",
+    "db:migrate": "node src/database/migrate-categories.js && node src/database/migrate-analytics.js && node src/database/migrate-community.js && node src/database/migrate-categories-consolidate.js",
     "db:migrate-categories": "node src/database/migrate-categories.js",
     "db:migrate-analytics": "node src/database/migrate-analytics.js",
     "db:migrate-community": "node src/database/migrate-community.js",
