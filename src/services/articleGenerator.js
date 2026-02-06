@@ -468,10 +468,43 @@ async function getArticlesPendingReview() {
   `);
 }
 
+/**
+ * Auto-publish AI articles that have been in review for more than X hours
+ * @param {number} hoursThreshold - Hours to wait before auto-publishing (default: 48)
+ * @returns {number} Number of articles auto-published
+ */
+async function autoPublishOldReviewArticles(hoursThreshold = 48) {
+  const cutoffDate = new Date();
+  cutoffDate.setHours(cutoffDate.getHours() - hoursThreshold);
+  const cutoffStr = cutoffDate.toISOString();
+
+  // Find AI-generated articles in 'review' status older than threshold
+  const articlesToPublish = await all(`
+    SELECT id, title
+    FROM articles
+    WHERE status = 'review'
+      AND is_ai_generated = 1
+      AND scraped_date < ?
+  `, [cutoffStr]);
+
+  if (articlesToPublish.length === 0) {
+    return 0;
+  }
+
+  // Auto-approve each article
+  for (const article of articlesToPublish) {
+    await run('UPDATE articles SET status = ? WHERE id = ?', ['approved', article.id]);
+    console.log(`[AUTO-PUBLISH] Published: ${article.title}`);
+  }
+
+  return articlesToPublish.length;
+}
+
 module.exports = {
   generateArticleForCategory,
   generateArticlesForAllCategories,
   getArticlesPendingReview,
+  autoPublishOldReviewArticles,
   CATEGORY_RESEARCH_FOCUS,
   ARTICLE_TYPES
 };

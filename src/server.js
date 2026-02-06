@@ -373,6 +373,23 @@ cron.schedule('0 13 * * 1', async () => {
   }
 });
 
+// Auto-publish AI articles after 48 hours if not reviewed
+// Runs every 6 hours
+const { autoPublishOldReviewArticles } = require('./services/articleGenerator');
+cron.schedule('0 */6 * * *', async () => {
+  console.log('[CRON] Checking for AI articles to auto-publish...');
+  try {
+    const count = await autoPublishOldReviewArticles(48);
+    if (count > 0) {
+      console.log(`[CRON] Auto-published ${count} AI articles`);
+    } else {
+      console.log('[CRON] No articles to auto-publish');
+    }
+  } catch (err) {
+    console.error('[CRON] Auto-publish failed:', err.message);
+  }
+});
+
 // ============================================
 // Error Handling
 // ============================================
