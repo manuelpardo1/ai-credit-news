@@ -1,0 +1,346 @@
+<%- include('./partials/header', { title: 'Content Settings - Admin' }) %>
+
+<div class="admin-content">
+  <div class="admin-header">
+    <h1>Content Settings</h1>
+    <p class="subtitle">Configure article generation and scraping parameters</p>
+  </div>
+
+  <% if (message) { %>
+  <div class="admin-message <%= message.includes('Error') ? 'error' : 'success' %>">
+    <%= message %>
+  </div>
+  <% } %>
+
+  <form action="/admin/settings" method="POST" class="settings-form">
+    <!-- Daily Article Limits -->
+    <div class="settings-section">
+      <h2>Daily Article Limits</h2>
+      <p class="section-desc">Control how many articles are published each day</p>
+
+      <div class="settings-grid">
+        <div class="form-group">
+          <label for="daily_min_articles">
+            Minimum Articles per Day
+            <span class="help-text">Target minimum (will use AI to supplement if needed)</span>
+          </label>
+          <input type="number" id="daily_min_articles" name="daily_min_articles"
+                 value="<%= settings.daily_min_articles %>" min="1" max="20" required>
+        </div>
+
+        <div class="form-group">
+          <label for="daily_max_articles">
+            Maximum Articles per Day
+            <span class="help-text">Upper limit for daily content</span>
+          </label>
+          <input type="number" id="daily_max_articles" name="daily_max_articles"
+                 value="<%= settings.daily_max_articles %>" min="1" max="50" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Article Limits -->
+    <div class="settings-section">
+      <h2>AI Article Limits</h2>
+      <p class="section-desc">Control AI-generated content to maintain quality balance</p>
+
+      <div class="settings-grid">
+        <div class="form-group">
+          <label for="daily_max_ai_articles">
+            Maximum AI Articles per Day
+            <span class="help-text">Hard cap on AI-generated articles (AI articles ≤ scraped articles)</span>
+          </label>
+          <input type="number" id="daily_max_ai_articles" name="daily_max_ai_articles"
+                 value="<%= settings.daily_max_ai_articles %>" min="0" max="10" required>
+        </div>
+
+        <div class="form-group">
+          <label for="auto_publish_hours">
+            Auto-Publish After (hours)
+            <span class="help-text">AI articles auto-publish if not reviewed within this time</span>
+          </label>
+          <input type="number" id="auto_publish_hours" name="auto_publish_hours"
+                 value="<%= settings.auto_publish_hours %>" min="1" max="168" required>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>AI Balance Rule:</strong> The system ensures AI articles never exceed scraped articles.
+        <br>Example: If 4 articles are scraped, max 3 AI articles can be generated (limited by both this setting and the balance rule).
+      </div>
+    </div>
+
+    <!-- Category Balance -->
+    <div class="settings-section">
+      <h2>Category Balance</h2>
+      <p class="section-desc">Ensure even distribution across categories</p>
+
+      <div class="settings-grid">
+        <div class="form-group">
+          <label for="weekly_min_per_category">
+            Minimum Articles per Category (Weekly)
+            <span class="help-text">System prioritizes categories below this threshold</span>
+          </label>
+          <input type="number" id="weekly_min_per_category" name="weekly_min_per_category"
+                 value="<%= settings.weekly_min_per_category %>" min="1" max="20" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scraping Settings -->
+    <div class="settings-section">
+      <h2>Scraping Settings</h2>
+      <p class="section-desc">Configure how RSS feeds are scraped</p>
+
+      <div class="settings-grid">
+        <div class="form-group">
+          <label for="scrape_max_age_hours">
+            Maximum Article Age (hours)
+            <span class="help-text">Only scrape articles newer than this</span>
+          </label>
+          <input type="number" id="scrape_max_age_hours" name="scrape_max_age_hours"
+                 value="<%= settings.scrape_max_age_hours %>" min="1" max="168" required>
+        </div>
+
+        <div class="form-group">
+          <label for="articles_per_scrape">
+            Articles per Scrape Run
+            <span class="help-text">Max articles to process per scheduled scrape</span>
+          </label>
+          <input type="number" id="articles_per_scrape" name="articles_per_scrape"
+                 value="<%= settings.articles_per_scrape %>" min="1" max="20" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current Status -->
+    <div class="settings-section status-section">
+      <h2>Current Status</h2>
+      <div class="status-grid">
+        <div class="status-item">
+          <span class="status-label">Today's Scraped</span>
+          <span class="status-value"><%= stats.scraped %></span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Today's AI Generated</span>
+          <span class="status-value"><%= stats.aiGenerated %></span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Total Today</span>
+          <span class="status-value"><%= stats.scraped + stats.aiGenerated %></span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Pending Review</span>
+          <span class="status-value"><%= stats.pendingReview %></span>
+        </div>
+      </div>
+
+      <h3>Category Balance (Last 7 Days)</h3>
+      <div class="category-balance">
+        <% categoryStats.forEach(cat => { %>
+        <div class="category-stat <%= cat.recent_count < settings.weekly_min_per_category ? 'below-min' : '' %>">
+          <span class="cat-name"><%= cat.name %></span>
+          <div class="cat-bar-container">
+            <div class="cat-bar" style="width: <%= Math.min(100, (cat.recent_count / settings.weekly_min_per_category) * 100) %>%"></div>
+          </div>
+          <span class="cat-count"><%= cat.recent_count %> / <%= settings.weekly_min_per_category %></span>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save Settings</button>
+      <a href="/admin" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<style>
+.subtitle {
+  color: #666;
+  margin-top: -0.5rem;
+}
+
+.settings-form {
+  max-width: 800px;
+}
+
+.settings-section {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.settings-section h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.section-desc {
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.help-text {
+  display: block;
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.15s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #5b21b6;
+  box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+}
+
+.info-box {
+  background: #f3f4f6;
+  border-left: 4px solid #5b21b6;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.status-section {
+  background: #fafafa;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.status-item {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.status-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.status-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #5b21b6;
+}
+
+.category-balance {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.category-stat {
+  display: grid;
+  grid-template-columns: 150px 1fr 80px;
+  align-items: center;
+  gap: 1rem;
+}
+
+.category-stat.below-min .cat-name {
+  color: #dc2626;
+}
+
+.cat-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.cat-bar-container {
+  background: #e5e7eb;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.cat-bar {
+  background: #5b21b6;
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.category-stat.below-min .cat-bar {
+  background: #dc2626;
+}
+
+.cat-count {
+  font-size: 0.85rem;
+  color: #6b7280;
+  text-align: right;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.admin-message {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.admin-message.success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.admin-message.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.settings-section h3 {
+  font-size: 1rem;
+  color: #374151;
+  margin: 0 0 1rem 0;
+}
+</style>
+
+<%- include('./partials/footer') %>

@@ -319,33 +319,46 @@ const { sendWeeklyNewsletter } = require('./services/newsletter');
 const { runScrape } = require('./services/scraper');
 const { processPendingArticles } = require('./services/processor');
 
+// Settings model for dynamic configuration
+const Settings = require('./models/Settings');
+
 // Scrape and process articles twice daily
 // 12 AM Colombia (UTC-5) = 5 AM UTC
 // 12 PM Colombia (UTC-5) = 5 PM UTC
-// Daily limit: 10 articles (5 per scrape)
-const ARTICLES_PER_SCRAPE = 5;
-// Max age for scheduled scrapes: 24 hours (only fresh news)
-const CRON_MAX_AGE_HOURS = 24;
+
+// Helper function to run content cycle with settings from database
+async function runContentCycle(label) {
+  // Load settings from database
+  const settings = await Settings.getContentSettings();
+
+  console.log(`[CRON] Starting scheduled scrape (${label})...`);
+  console.log(`[CRON] Settings: maxAge=${settings.scrapeMaxAgeHours}h, perScrape=${settings.articlesPerScrape}`);
+
+  // Step 1: Scrape new articles
+  await runScrape({ maxAgeHours: settings.scrapeMaxAgeHours });
+  console.log('[CRON] Scrape complete, processing articles...');
+
+  // Step 2: Process scraped articles
+  await processPendingArticles({ limit: settings.articlesPerScrape });
+  console.log('[CRON] Article processing complete');
+
+  // Step 3: Supplement with AI articles if needed
+  // Uses settings from database (respects AI ≤ scraped rule)
+  console.log('[CRON] Checking if AI supplementation needed...');
+  await supplementDailyContent();
+}
 
 cron.schedule('0 5 * * *', async () => {
-  console.log('[CRON] Starting scheduled scrape (12 AM Colombia)...');
   try {
-    await runScrape({ maxAgeHours: CRON_MAX_AGE_HOURS });
-    console.log('[CRON] Scrape complete, processing articles...');
-    await processPendingArticles({ limit: ARTICLES_PER_SCRAPE });
-    console.log('[CRON] Article processing complete');
+    await runContentCycle('12 AM Colombia');
   } catch (err) {
     console.error('[CRON] Scrape/process failed:', err.message);
   }
 });
 
 cron.schedule('0 17 * * *', async () => {
-  console.log('[CRON] Starting scheduled scrape (12 PM Colombia)...');
   try {
-    await runScrape({ maxAgeHours: CRON_MAX_AGE_HOURS });
-    console.log('[CRON] Scrape complete, processing articles...');
-    await processPendingArticles({ limit: ARTICLES_PER_SCRAPE });
-    console.log('[CRON] Article processing complete');
+    await runContentCycle('12 PM Colombia');
   } catch (err) {
     console.error('[CRON] Scrape/process failed:', err.message);
   }
@@ -373,15 +386,16 @@ cron.schedule('0 13 * * 1', async () => {
   }
 });
 
-// Auto-publish AI articles after 48 hours if not reviewed
+// Auto-publish AI articles after configured hours if not reviewed
 // Runs every 6 hours
-const { autoPublishOldReviewArticles } = require('./services/articleGenerator');
+const { autoPublishOldReviewArticles, supplementDailyContent } = require('./services/articleGenerator');
 cron.schedule('0 */6 * * *', async () => {
   console.log('[CRON] Checking for AI articles to auto-publish...');
   try {
-    const count = await autoPublishOldReviewArticles(48);
+    const settings = await Settings.getContentSettings();
+    const count = await autoPublishOldReviewArticles(settings.autoPublishHours);
     if (count > 0) {
-      console.log(`[CRON] Auto-published ${count} AI articles`);
+      console.log(`[CRON] Auto-published ${count} AI articles (after ${settings.autoPublishHours}h)`);
     } else {
       console.log('[CRON] No articles to auto-publish');
     }

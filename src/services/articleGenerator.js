@@ -500,11 +500,205 @@ async function autoPublishOldReviewArticles(hoursThreshold = 48) {
   return articlesToPublish.length;
 }
 
+/**
+ * Get today's article counts by source type
+ * Returns counts of scraped vs AI-generated articles approved today
+ */
+async function getTodaysArticleCounts() {
+  const today = new Date().toISOString().split('T')[0];
+
+  // Count scraped articles approved today
+  const scrapedResult = await get(`
+    SELECT COUNT(*) as count
+    FROM articles
+    WHERE status = 'approved'
+      AND (is_ai_generated = 0 OR is_ai_generated IS NULL)
+      AND DATE(scraped_date) = ?
+  `, [today]);
+
+  // Count AI articles created today (any status - to track generation limit)
+  const aiResult = await get(`
+    SELECT COUNT(*) as count
+    FROM articles
+    WHERE is_ai_generated = 1
+      AND DATE(scraped_date) = ?
+  `, [today]);
+
+  return {
+    scraped: scrapedResult?.count || 0,
+    aiGenerated: aiResult?.count || 0
+  };
+}
+
+/**
+ * Get categories sorted by which needs content most
+ * Returns categories with fewest recent articles first
+ */
+async function getCategoriesNeedingContent() {
+  // Get article count per category from the last 7 days
+  const categories = await all(`
+    SELECT
+      c.slug,
+      c.name,
+      COUNT(a.id) as recent_count
+    FROM categories c
+    LEFT JOIN articles a ON a.category_id = c.id
+      AND a.status = 'approved'
+      AND a.scraped_date >= datetime('now', '-7 days')
+    GROUP BY c.id
+    ORDER BY recent_count ASC
+  `);
+
+  return categories;
+}
+
+/**
+ * Generate AI articles to supplement daily content
+ *
+ * Rules:
+ * 1. AI articles ≤ scraped articles (AI never majority)
+ * 2. Max 3 AI articles per day (hard cap from settings)
+ * 3. Min 5 articles/day, max 10 articles/day (from settings)
+ * 4. Prioritizes categories with least recent content
+ *
+ * @param {Object} options - Override settings (or load from DB)
+ * @returns {Object} Results of generation
+ */
+async function supplementDailyContent(options = {}) {
+  // Load settings from database if not provided
+  let settings;
+  try {
+    const Settings = require('../models/Settings');
+    settings = await Settings.getContentSettings();
+  } catch {
+    // Fallback defaults if Settings not available
+    settings = {
+      dailyMinArticles: 5,
+      dailyMaxArticles: 10,
+      dailyMaxAiArticles: 3,
+      weeklyMinPerCategory: 5
+    };
+  }
+
+  // Allow options to override settings
+  const dailyMin = options.dailyMin ?? settings.dailyMinArticles;
+  const dailyMax = options.dailyMax ?? settings.dailyMaxArticles;
+  const maxAiPerDay = options.maxAiPerDay ?? settings.dailyMaxAiArticles;
+
+  console.log('\n========================================');
+  console.log('[AI SUPPLEMENT] Checking daily content needs');
+  console.log(`[AI SUPPLEMENT] Settings: min=${dailyMin}, max=${dailyMax}, maxAI=${maxAiPerDay}`);
+  console.log('========================================');
+
+  // Get today's counts
+  const counts = await getTodaysArticleCounts();
+  console.log(`Today's articles: ${counts.scraped} scraped, ${counts.aiGenerated} AI-generated`);
+
+  const totalToday = counts.scraped + counts.aiGenerated;
+
+  // Check if max already reached
+  if (totalToday >= dailyMax) {
+    console.log(`[AI SUPPLEMENT] Daily max (${dailyMax}) already reached. Skipping.`);
+    return { generated: [], reason: 'daily_max_reached' };
+  }
+
+  // Check if we've hit AI hard cap
+  if (counts.aiGenerated >= maxAiPerDay) {
+    console.log(`[AI SUPPLEMENT] AI hard cap (${maxAiPerDay}) reached. Skipping.`);
+    return { generated: [], reason: 'ai_hard_cap_reached' };
+  }
+
+  // RULE: AI articles ≤ scraped articles
+  // This ensures AI is never the majority
+  const maxAiAllowedByBalance = counts.scraped;
+  const aiSlotsFromBalance = Math.max(0, maxAiAllowedByBalance - counts.aiGenerated);
+
+  if (aiSlotsFromBalance === 0) {
+    console.log(`[AI SUPPLEMENT] Balance rule: AI (${counts.aiGenerated}) cannot exceed scraped (${counts.scraped}). Skipping.`);
+    return { generated: [], reason: 'ai_balance_limit', scraped: counts.scraped, aiGenerated: counts.aiGenerated };
+  }
+
+  // Calculate how many we need to reach minimum
+  const neededForMin = Math.max(0, dailyMin - totalToday);
+  // Calculate how many we could add before hitting max
+  const roomToMax = dailyMax - totalToday;
+
+  // Calculate remaining AI slots (hard cap)
+  const remainingAiSlots = maxAiPerDay - counts.aiGenerated;
+
+  // Determine how many articles to generate:
+  // - At least enough to reach minimum (if possible)
+  // - But respect AI limits (hard cap and balance rule)
+  // - And don't exceed daily max
+  const toGenerate = Math.min(
+    Math.max(neededForMin, 1), // At least try for 1, or enough to reach min
+    remainingAiSlots,          // Respect AI hard cap
+    aiSlotsFromBalance,        // Respect balance rule
+    roomToMax                  // Don't exceed daily max
+  );
+
+  if (toGenerate <= 0) {
+    console.log('[AI SUPPLEMENT] No AI articles to generate (limits reached). Skipping.');
+    return { generated: [], reason: 'limits_reached' };
+  }
+
+  console.log(`[AI SUPPLEMENT] Will generate: ${toGenerate} AI article(s)`);
+  console.log(`  - Needed for min (${dailyMin}): ${neededForMin}`);
+  console.log(`  - Room to max (${dailyMax}): ${roomToMax}`);
+  console.log(`  - AI hard cap remaining: ${remainingAiSlots}`);
+  console.log(`  - AI balance slots (scraped=${counts.scraped}): ${aiSlotsFromBalance}`);
+
+  // Get categories needing content most
+  const categoriesNeedingContent = await getCategoriesNeedingContent();
+  console.log('Categories by content need:', categoriesNeedingContent.map(c => `${c.slug}(${c.recent_count})`).join(', '));
+
+  const results = {
+    generated: [],
+    errors: []
+  };
+
+  // Generate articles for categories that need content most
+  for (let i = 0; i < toGenerate && i < categoriesNeedingContent.length; i++) {
+    const category = categoriesNeedingContent[i];
+
+    try {
+      console.log(`\n[AI SUPPLEMENT] Generating for: ${category.name} (${category.recent_count} recent articles)`);
+      const article = await generateArticleForCategory(category.slug);
+      results.generated.push({
+        id: article.id,
+        title: article.title,
+        category: category.slug
+      });
+
+      // Rate limit between articles
+      if (i < toGenerate - 1) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    } catch (err) {
+      console.error(`Error generating article for ${category.slug}:`, err.message);
+      results.errors.push({
+        category: category.slug,
+        error: err.message
+      });
+    }
+  }
+
+  console.log('\n========================================');
+  console.log('[AI SUPPLEMENT] Complete');
+  console.log(`Generated: ${results.generated.length}, Errors: ${results.errors.length}`);
+  console.log('========================================\n');
+
+  return results;
+}
+
 module.exports = {
   generateArticleForCategory,
   generateArticlesForAllCategories,
   getArticlesPendingReview,
   autoPublishOldReviewArticles,
+  supplementDailyContent,
+  getTodaysArticleCounts,
+  getCategoriesNeedingContent,
   CATEGORY_RESEARCH_FOCUS,
   ARTICLE_TYPES
 };

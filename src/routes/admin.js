@@ -8,7 +8,8 @@ const Analytics = require('../models/Analytics');
 const { requireAuth, validatePassword, setAuthCookie, clearAuthCookie } = require('../middleware/auth');
 const { generateWeeklyEditorial, createWelcomeEditorial } = require('../services/editorial');
 const { sendWeeklyNewsletter, sendExtraordinaryNewsletter } = require('../services/newsletter');
-const { generateArticleForCategory, generateArticlesForAllCategories, getArticlesPendingReview, CATEGORY_RESEARCH_FOCUS } = require('../services/articleGenerator');
+const { generateArticleForCategory, generateArticlesForAllCategories, getArticlesPendingReview, getTodaysArticleCounts, getCategoriesNeedingContent, CATEGORY_RESEARCH_FOCUS } = require('../services/articleGenerator');
+const Settings = require('../models/Settings');
 
 // GET /admin - Redirect to analytics dashboard
 router.get('/', requireAuth, (req, res) => {
@@ -316,6 +317,76 @@ router.post('/article/:id/delete', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Error deleting article:', err);
     res.redirect('/admin/articles?message=Error deleting article');
+  }
+});
+
+// ============================================
+// Content Settings
+// ============================================
+
+// GET /admin/settings - Content settings page
+router.get('/settings', requireAuth, async (req, res) => {
+  try {
+    const settings = await Settings.getAll();
+    const stats = await getTodaysArticleCounts();
+    const pendingReview = await getArticlesPendingReview();
+    stats.pendingReview = pendingReview.length;
+
+    // Get category stats for the balance display
+    const categoryStats = await getCategoriesNeedingContent();
+
+    res.render('admin/settings', {
+      settings,
+      stats,
+      categoryStats,
+      message: req.query.message || null
+    });
+  } catch (err) {
+    console.error('Error loading settings:', err);
+    res.status(500).send('Error loading settings');
+  }
+});
+
+// POST /admin/settings - Save settings
+router.post('/settings', requireAuth, async (req, res) => {
+  try {
+    const {
+      daily_min_articles,
+      daily_max_articles,
+      daily_max_ai_articles,
+      weekly_min_per_category,
+      scrape_max_age_hours,
+      articles_per_scrape,
+      auto_publish_hours
+    } = req.body;
+
+    // Validate
+    const minArticles = parseInt(daily_min_articles);
+    const maxArticles = parseInt(daily_max_articles);
+    const maxAi = parseInt(daily_max_ai_articles);
+
+    if (minArticles > maxArticles) {
+      return res.redirect('/admin/settings?message=Error: Minimum cannot exceed maximum');
+    }
+
+    if (maxAi > maxArticles) {
+      return res.redirect('/admin/settings?message=Error: AI max cannot exceed daily max');
+    }
+
+    await Settings.updateMultiple({
+      daily_min_articles: minArticles,
+      daily_max_articles: maxArticles,
+      daily_max_ai_articles: maxAi,
+      weekly_min_per_category: parseInt(weekly_min_per_category),
+      scrape_max_age_hours: parseInt(scrape_max_age_hours),
+      articles_per_scrape: parseInt(articles_per_scrape),
+      auto_publish_hours: parseInt(auto_publish_hours)
+    });
+
+    res.redirect('/admin/settings?message=Settings saved successfully');
+  } catch (err) {
+    console.error('Error saving settings:', err);
+    res.redirect('/admin/settings?message=Error saving settings');
   }
 });
 
