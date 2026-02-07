@@ -532,8 +532,8 @@ router.post('/operation/cancel', requireAuth, (req, res) => {
 router.post('/scrape', requireAuth, async (req, res) => {
   // Check if operation already running
   const current = OperationProgress.get();
-  if (current && current.status === 'running') {
-    return res.redirect('/admin/settings?message=An operation is already running');
+  if (current && (current.status === 'running' || current.status === 'paused')) {
+    return res.redirect('/admin/settings?message=An operation is already running&operation=active');
   }
 
   // Start operation in background and redirect immediately
@@ -561,8 +561,8 @@ router.post('/scrape', requireAuth, async (req, res) => {
 router.post('/supplement', requireAuth, async (req, res) => {
   // Check if operation already running
   const current = OperationProgress.get();
-  if (current && current.status === 'running') {
-    return res.redirect('/admin/settings?message=An operation is already running');
+  if (current && (current.status === 'running' || current.status === 'paused')) {
+    return res.redirect('/admin/settings?message=An operation is already running&operation=active');
   }
 
   // Start operation and redirect immediately
@@ -585,8 +585,8 @@ router.post('/supplement', requireAuth, async (req, res) => {
 // POST /admin/process-all - Process ALL pending articles into queue
 router.post('/process-all', requireAuth, async (req, res) => {
   const current = OperationProgress.get();
-  if (current && current.status === 'running') {
-    return res.redirect('/admin/settings?message=An operation is already running');
+  if (current && (current.status === 'running' || current.status === 'paused')) {
+    return res.redirect('/admin/settings?message=An operation is already running&operation=active');
   }
 
   OperationProgress.start('process-all');
@@ -608,8 +608,8 @@ router.post('/process-all', requireAuth, async (req, res) => {
 router.post('/full-refresh', requireAuth, async (req, res) => {
   // Check if operation already running
   const current = OperationProgress.get();
-  if (current && current.status === 'running') {
-    return res.redirect('/admin/settings?message=An operation is already running');
+  if (current && (current.status === 'running' || current.status === 'paused')) {
+    return res.redirect('/admin/settings?message=An operation is already running&operation=active');
   }
 
   // Start operation and redirect immediately
