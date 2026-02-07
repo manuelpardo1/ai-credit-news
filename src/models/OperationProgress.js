@@ -1,17 +1,23 @@
 /**
  * In-memory operation progress tracking
  * Tracks the status of manual operations (scrape, process, AI supplement)
+ * Supports pause, resume, and cancel controls
  */
 
 // Store operation state in memory (resets on restart, which is fine for operations)
 let currentOperation = null;
+let cancelRequested = false;
+let pauseRequested = false;
 
 const OperationProgress = {
   /**
    * Start a new operation
-   * @param {string} type - 'scrape', 'supplement', 'full-refresh'
+   * @param {string} type - 'scrape', 'supplement', 'full-refresh', 'process-all'
    */
   start(type) {
+    cancelRequested = false;
+    pauseRequested = false;
+
     currentOperation = {
       type,
       status: 'running',
@@ -34,6 +40,9 @@ const OperationProgress = {
       articlesRejected: 0,
       currentArticle: null,
 
+      // Queue stats
+      articlesQueued: 0,
+
       // AI generation stats
       aiArticlesToGenerate: 0,
       aiArticlesGenerated: 0,
@@ -47,7 +56,7 @@ const OperationProgress = {
                 type === 'process-all' ? 'Processing All Pending Articles' :
                 'Step 1: Scraping RSS Feeds',
 
-      // Messages log (last 20)
+      // Messages log (last 50)
       messages: [],
 
       // Error if any
@@ -63,6 +72,60 @@ const OperationProgress = {
    */
   get() {
     return currentOperation;
+  },
+
+  /**
+   * Check if cancel was requested
+   * @returns {boolean}
+   */
+  isCancelRequested() {
+    return cancelRequested;
+  },
+
+  /**
+   * Check if pause was requested. If paused, returns a promise that resolves when resumed.
+   * Use: await OperationProgress.checkPause()
+   * @returns {Promise<void>}
+   */
+  async checkPause() {
+    while (pauseRequested && !cancelRequested) {
+      if (currentOperation && currentOperation.status !== 'paused') {
+        currentOperation.status = 'paused';
+        this.log('Operation paused');
+      }
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    if (currentOperation && currentOperation.status === 'paused') {
+      currentOperation.status = 'running';
+      this.log('Operation resumed');
+    }
+  },
+
+  /**
+   * Request pause
+   */
+  pause() {
+    if (!currentOperation || currentOperation.status !== 'running') return;
+    pauseRequested = true;
+    this.log('Pause requested...');
+  },
+
+  /**
+   * Resume from pause
+   */
+  resume() {
+    pauseRequested = false;
+  },
+
+  /**
+   * Request cancel
+   */
+  cancel() {
+    cancelRequested = true;
+    pauseRequested = false; // Unpause if paused so cancel can take effect
+    if (currentOperation) {
+      this.log('Cancel requested...');
+    }
   },
 
   /**
@@ -122,13 +185,14 @@ const OperationProgress = {
   /**
    * Update processing progress
    */
-  updateProcessing({ articlesToProcess, articlesProcessed, articlesApproved, articlesRejected, currentArticle }) {
+  updateProcessing({ articlesToProcess, articlesProcessed, articlesApproved, articlesRejected, articlesQueued, currentArticle }) {
     if (!currentOperation) return;
 
     if (articlesToProcess !== undefined) currentOperation.articlesToProcess = articlesToProcess;
     if (articlesProcessed !== undefined) currentOperation.articlesProcessed = articlesProcessed;
     if (articlesApproved !== undefined) currentOperation.articlesApproved = articlesApproved;
     if (articlesRejected !== undefined) currentOperation.articlesRejected = articlesRejected;
+    if (articlesQueued !== undefined) currentOperation.articlesQueued = articlesQueued;
     if (currentArticle !== undefined) currentOperation.currentArticle = currentArticle;
   },
 
@@ -149,13 +213,21 @@ const OperationProgress = {
   complete(error = null) {
     if (!currentOperation) return null;
 
-    currentOperation.status = error ? 'error' : 'completed';
+    if (cancelRequested && !error) {
+      currentOperation.status = 'cancelled';
+      this.log('Operation cancelled by user');
+    } else {
+      currentOperation.status = error ? 'error' : 'completed';
+    }
+
     currentOperation.completedAt = new Date().toISOString();
     currentOperation.error = error;
+    cancelRequested = false;
+    pauseRequested = false;
 
     if (error) {
       this.log(`Operation failed: ${error}`);
-    } else {
+    } else if (currentOperation.status !== 'cancelled') {
       this.log('Operation completed successfully');
     }
 
@@ -218,6 +290,8 @@ const OperationProgress = {
    */
   clear() {
     currentOperation = null;
+    cancelRequested = false;
+    pauseRequested = false;
   }
 };
 

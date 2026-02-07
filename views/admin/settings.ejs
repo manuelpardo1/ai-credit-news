@@ -169,7 +169,12 @@
     <div class="dashboard-content">
       <div class="progress-header">
         <span id="operation-name" class="operation-name">Full Content Refresh</span>
-        <span id="operation-status" class="status-badge running">Running</span>
+        <div class="progress-controls">
+          <button id="btn-pause" class="ctrl-btn ctrl-pause" onclick="controlOperation('pause')" title="Pause">⏸</button>
+          <button id="btn-resume" class="ctrl-btn ctrl-resume" onclick="controlOperation('resume')" title="Resume" style="display:none">▶</button>
+          <button id="btn-cancel" class="ctrl-btn ctrl-cancel" onclick="controlOperation('cancel')" title="Cancel">✕</button>
+          <span id="operation-status" class="status-badge running">Running</span>
+        </div>
       </div>
 
       <div class="progress-bar-container">
@@ -196,6 +201,7 @@
           <div class="stat-row"><span>Articles:</span> <span id="stat-processed">0 / 0</span></div>
           <div class="stat-row"><span>Current:</span> <span id="stat-current-article">-</span></div>
           <div class="stat-row"><span>Approved:</span> <span id="stat-approved" class="text-success">0</span></div>
+          <div class="stat-row"><span>Queued:</span> <span id="stat-queued" class="text-queued">0</span></div>
           <div class="stat-row"><span>Rejected:</span> <span id="stat-rejected" class="text-error">0</span></div>
         </div>
 
@@ -687,6 +693,53 @@
   color: #6b7280;
   margin-right: 0.5rem;
 }
+
+.text-queued {
+  color: #d97706 !important;
+}
+
+.progress-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ctrl-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.ctrl-btn:hover {
+  background: #f3f4f6;
+}
+
+.ctrl-pause:hover { border-color: #d97706; color: #d97706; }
+.ctrl-resume:hover { border-color: #059669; color: #059669; }
+.ctrl-cancel:hover { border-color: #dc2626; color: #dc2626; background: #fef2f2; }
+
+.status-badge.paused {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.dashboard-section.paused {
+  border-color: #d97706;
+  background: #fffbeb;
+}
 </style>
 
 <script>
@@ -747,7 +800,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       updateDashboard(data);
 
-      if (data.status === 'completed' || data.status === 'error') {
+      if (data.status === 'completed' || data.status === 'error' || data.status === 'cancelled') {
         stopPolling();
         // Reload page after 3 seconds to show updated stats
         setTimeout(() => {
@@ -804,6 +857,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('stat-current-article').textContent =
       stats.currentArticle || '-';
     document.getElementById('stat-approved').textContent = stats.articlesApproved || 0;
+    document.getElementById('stat-queued').textContent = stats.articlesQueued || 0;
     document.getElementById('stat-rejected').textContent = stats.articlesRejected || 0;
 
     // AI stats
@@ -826,13 +880,47 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Dashboard section styling based on status
-    dashboard.classList.remove('error', 'completed');
-    if (data.status === 'error') {
+    dashboard.classList.remove('error', 'completed', 'paused');
+    if (data.status === 'error' || data.status === 'cancelled') {
       dashboard.classList.add('error');
     } else if (data.status === 'completed') {
       dashboard.classList.add('completed');
+    } else if (data.status === 'paused') {
+      dashboard.classList.add('paused');
+    }
+
+    // Update control button visibility
+    const btnPause = document.getElementById('btn-pause');
+    const btnResume = document.getElementById('btn-resume');
+    const btnCancel = document.getElementById('btn-cancel');
+
+    if (data.status === 'running') {
+      btnPause.style.display = '';
+      btnResume.style.display = 'none';
+      btnCancel.style.display = '';
+    } else if (data.status === 'paused') {
+      btnPause.style.display = 'none';
+      btnResume.style.display = '';
+      btnCancel.style.display = '';
+    } else {
+      btnPause.style.display = 'none';
+      btnResume.style.display = 'none';
+      btnCancel.style.display = 'none';
     }
   }
+
+  // Operation control (pause, resume, cancel)
+  window.controlOperation = async function(action) {
+    try {
+      const res = await fetch(`/admin/operation/${action}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.ok) {
+        fetchProgress(); // Refresh immediately
+      }
+    } catch (err) {
+      console.error(`Failed to ${action} operation:`, err);
+    }
+  };
 });
 </script>
 

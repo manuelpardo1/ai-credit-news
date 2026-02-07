@@ -496,6 +496,7 @@ router.get('/operation-progress', requireAuth, (req, res) => {
       articlesProcessed: progress.articlesProcessed,
       articlesApproved: progress.articlesApproved,
       articlesRejected: progress.articlesRejected,
+      articlesQueued: progress.articlesQueued || 0,
       currentArticle: progress.currentArticle,
       // AI
       aiArticlesToGenerate: progress.aiArticlesToGenerate,
@@ -507,6 +508,24 @@ router.get('/operation-progress', requireAuth, (req, res) => {
     completedAt: progress.completedAt,
     error: progress.error
   });
+});
+
+// POST /admin/operation/pause - Pause current operation
+router.post('/operation/pause', requireAuth, (req, res) => {
+  OperationProgress.pause();
+  res.json({ ok: true, action: 'paused' });
+});
+
+// POST /admin/operation/resume - Resume paused operation
+router.post('/operation/resume', requireAuth, (req, res) => {
+  OperationProgress.resume();
+  res.json({ ok: true, action: 'resumed' });
+});
+
+// POST /admin/operation/cancel - Cancel current operation
+router.post('/operation/cancel', requireAuth, (req, res) => {
+  OperationProgress.cancel();
+  res.json({ ok: true, action: 'cancelled' });
 });
 
 // POST /admin/scrape - Manually trigger scraping

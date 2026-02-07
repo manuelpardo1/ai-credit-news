@@ -436,7 +436,9 @@
     </div>
     <div class="section-body">
       <div class="quick-actions">
-        <a href="/api/scrape" class="action-btn primary">Run Scraper</a>
+        <form action="/admin/scrape" method="POST" style="display:inline">
+          <button type="submit" class="action-btn primary">Run Scraper</button>
+        </form>
         <a href="/admin/queue" class="action-btn primary">Approve Articles</a>
         <a href="/admin/editorials" class="action-btn secondary">Manage Editorials</a>
         <a href="/admin/subscribers" class="action-btn secondary">View Subscribers</a>

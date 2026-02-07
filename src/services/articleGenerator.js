@@ -652,38 +652,23 @@ async function supplementDailyContent(options = {}) {
 
   let totalToday = counts.scraped + counts.aiGenerated;
 
-  // Check for queued articles and promote them first (priority over AI generation)
+  // Count queued articles toward daily total (they'll be promoted in next cron cycle)
+  // This prevents AI generation when there's already enough queued content
   const queuedCount = await getQueuedCount();
   if (queuedCount > 0) {
-    console.log(`[AI SUPPLEMENT] Found ${queuedCount} queued articles, promoting before AI generation...`);
+    console.log(`[AI SUPPLEMENT] ${queuedCount} articles queued for review (counting toward daily total)`);
     if (progress) {
-      progress.log(`Found ${queuedCount} queued articles, promoting them first`);
+      progress.log(`${queuedCount} articles in queue (counting toward daily total)`);
     }
+    totalToday += queuedCount;
 
-    // Calculate how many we can promote without exceeding daily max
-    const roomForMore = dailyMax - totalToday;
-    const toPromote = roomForMore > 0 ? Math.min(queuedCount, roomForMore) : 0;
-
-    if (toPromote > 0) {
-      const promoResult = await promoteQueuedArticles(toPromote);
-      console.log(`[AI SUPPLEMENT] Promoted ${promoResult.promoted} queued articles`);
+    if (totalToday >= dailyMax) {
+      console.log(`[AI SUPPLEMENT] Daily max (${dailyMax}) reached including queued articles. Skipping AI generation.`);
       if (progress) {
-        progress.log(`Promoted ${promoResult.promoted} queued articles to approved`);
+        progress.log(`Daily max (${dailyMax}) reached (including ${queuedCount} queued)`);
+        progress.updateAI({ aiArticlesToGenerate: 0, aiArticlesGenerated: 0 });
       }
-
-      // Update counts after promotion
-      counts.scraped += promoResult.promoted;
-      totalToday = counts.scraped + counts.aiGenerated;
-
-      // If we've now reached the daily max, skip AI generation
-      if (totalToday >= dailyMax) {
-        console.log(`[AI SUPPLEMENT] Daily max reached after promoting queued articles. Skipping AI generation.`);
-        if (progress) {
-          progress.log(`Daily max (${dailyMax}) reached after promoting queued articles`);
-          progress.updateAI({ aiArticlesToGenerate: 0, aiArticlesGenerated: 0 });
-        }
-        return { generated: [], reason: 'daily_max_reached_after_queue', promoted: promoResult.promoted };
-      }
+      return { generated: [], reason: 'daily_max_reached_with_queue', queued: queuedCount };
     }
   }
 

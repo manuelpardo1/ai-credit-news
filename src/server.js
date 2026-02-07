@@ -334,23 +334,24 @@ async function runContentCycle(label) {
   console.log(`[CRON] Starting scheduled scrape (${label})...`);
   console.log(`[CRON] Settings: maxAge=${settings.scrapeMaxAgeHours}h, perScrape=${settings.articlesPerScrape}`);
 
-  // Step 1: Scrape new articles
+  // Step 1: Auto-promote any PREVIOUSLY queued articles that weren't manually reviewed
+  // This runs BEFORE scraping so new articles stay in queue for admin review until next cycle
+  const promoResult = await promoteQueuedArticles();
+  if (promoResult.promoted > 0) {
+    console.log(`[CRON] Auto-promoted ${promoResult.promoted} previously queued articles`);
+  }
+
+  // Step 2: Scrape new articles
   await runScrape({ maxAgeHours: settings.scrapeMaxAgeHours });
   console.log('[CRON] Scrape complete, processing articles...');
 
-  // Step 2: Process scraped articles (into 'queued' status for admin review)
+  // Step 3: Process scraped articles (into 'queued' status for admin review)
+  // These will stay in queue until the next cron cycle or manual admin approval
   await processPendingArticles({
     limit: settings.articlesPerScrape,
     targetStatus: 'queued'
   });
   console.log('[CRON] Article processing complete (queued for review)');
-
-  // Step 3: Auto-promote any queued articles that weren't manually reviewed
-  // This gives scraped content priority over AI-generated articles
-  const promoResult = await promoteQueuedArticles();
-  if (promoResult.promoted > 0) {
-    console.log(`[CRON] Auto-promoted ${promoResult.promoted} queued articles`);
-  }
 
   // Step 4: Supplement with AI articles if still needed
   // supplementDailyContent() also checks for queued articles as a safety net
