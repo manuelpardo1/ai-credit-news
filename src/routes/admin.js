@@ -545,9 +545,11 @@ router.post('/scrape', requireAuth, async (req, res) => {
     console.log('[ADMIN] Manual scrape triggered...');
     await runScrape({ maxAgeMonths: 3, progressCallback: OperationProgress });
 
+    if (OperationProgress.isCancelRequested()) { OperationProgress.complete(); return; }
+
     OperationProgress.setStep(1, 'Processing Articles');
     console.log('[ADMIN] Scrape complete, processing articles...');
-    await processPendingArticles({ limit: 30, progressCallback: OperationProgress });
+    await processPendingArticles({ limit: 30, targetStatus: 'queued', progressCallback: OperationProgress });
 
     console.log('[ADMIN] Processing complete');
     OperationProgress.complete();
@@ -625,10 +627,15 @@ router.post('/full-refresh', requireAuth, async (req, res) => {
     console.log('[ADMIN] Step 1: Scraping...');
     await runScrape({ maxAgeMonths: 3, progressCallback: OperationProgress });
 
-    // Step 2: Process articles
+    if (OperationProgress.isCancelRequested()) { OperationProgress.complete(); return; }
+
+    // Step 2: Process ALL pending articles into queue
     OperationProgress.setStep(2, 'Processing Articles');
-    console.log('[ADMIN] Step 2: Processing...');
-    await processPendingArticles({ limit: 50, progressCallback: OperationProgress });
+    console.log('[ADMIN] Step 2: Processing all pending...');
+    const pendingCount = await Article.countByStatus('pending');
+    await processPendingArticles({ limit: pendingCount || 50, targetStatus: 'queued', progressCallback: OperationProgress });
+
+    if (OperationProgress.isCancelRequested()) { OperationProgress.complete(); return; }
 
     // Step 3: AI supplementation
     OperationProgress.setStep(3, 'AI Supplementation');

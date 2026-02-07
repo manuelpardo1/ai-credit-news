@@ -54,6 +54,15 @@ async function processPendingArticles({ limit = 10, dryRun = false, progressCall
   let processed = 0;
 
   for (const article of articles) {
+    // Check for cancel/pause
+    if (progress) {
+      if (progress.isCancelRequested()) {
+        progress.log('Processing cancelled by user');
+        break;
+      }
+      await progress.checkPause();
+    }
+
     // Update progress with current article
     if (progress) {
       progress.updateProcessing({ currentArticle: article.title?.substring(0, 50) });

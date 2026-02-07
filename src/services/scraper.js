@@ -246,6 +246,15 @@ async function runScrape(options = {}) {
   let sourcesProcessed = 0;
 
   for (const source of sources) {
+    // Check for cancel/pause
+    if (progress) {
+      if (progress.isCancelRequested()) {
+        progress.log('Scraping cancelled by user');
+        break;
+      }
+      await progress.checkPause();
+    }
+
     if (!source.rss_feed) {
       console.log(`Skipping ${source.name} - no RSS feed configured`);
       continue;

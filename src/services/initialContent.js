@@ -116,8 +116,9 @@ async function ensureMinimumContent() {
   await runScrape({ maxAgeMonths: INITIAL_MAX_AGE_MONTHS });
 
   // Process articles (will be categorized by AI)
+  // Use 3x buffer since many articles get rejected by AI relevance filter
   console.log('\n[INIT] Processing articles through AI...');
-  const processed = await processForCategories(deficits, totalNeeded + 10); // +10 buffer for rejections
+  const processed = await processForCategories(deficits, Math.max(totalNeeded * 3, 50));
 
   console.log(`\n[INIT] Processed ${processed} articles`);
 
