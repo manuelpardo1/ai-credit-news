@@ -1,499 +1,345 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analytics Dashboard | AI Credit News Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --black: #000;
-      --white: #fff;
-      --accent: #5b21b6;
-      --accent-light: #7c3aed;
-      --gray-50: #f9fafb;
-      --gray-100: #f3f4f6;
-      --gray-200: #e5e7eb;
-      --gray-300: #d1d5db;
-      --gray-400: #9ca3af;
-      --gray-500: #6b7280;
-      --gray-600: #4b5563;
-      --gray-800: #1f2937;
-      --text: #111827;
-      --text-light: #374151;
-      --text-muted: #6b7280;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-    }
+<%- include('./partials/header', { title: 'Analytics Dashboard' }) %>
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<style>
+  body {
+    background: var(--gray-50, #f9fafb);
+  }
 
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--gray-50);
-      color: var(--text);
-      line-height: 1.5;
-    }
+  .analytics-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
 
-    .admin-header {
-      background: var(--black);
-      color: var(--white);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+  .page-header {
+    margin-bottom: 2rem;
+  }
 
-    .admin-header h1 {
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
+  .page-header h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
 
-    .admin-nav {
-      display: flex;
-      gap: 1.5rem;
-    }
+  .page-header p {
+    color: var(--text-muted);
+  }
 
-    .admin-nav a {
-      color: var(--gray-400);
-      text-decoration: none;
-      font-size: 0.85rem;
-    }
+  /* Stats Cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
 
-    .admin-nav a:hover, .admin-nav a.active {
-      color: var(--white);
-    }
+  .stat-card {
+    background: var(--white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+  .stat-card.highlight {
+    background: var(--accent);
+    color: var(--white);
+  }
 
-    .page-header {
-      margin-bottom: 2rem;
-    }
+  .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
 
-    .page-header h2 {
-      font-size: 1.75rem;
-      margin-bottom: 0.5rem;
-    }
+  .stat-card.highlight .stat-label {
+    color: rgba(255,255,255,0.7);
+  }
 
-    .page-header p {
-      color: var(--text-muted);
-    }
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
 
-    /* Stats Cards */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
+  .stat-change {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+  }
 
-    .stat-card {
-      background: var(--white);
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
+  .stat-change.positive { color: #10b981; }
+  .stat-change.negative { color: #ef4444; }
+  .stat-card.highlight .stat-change { color: rgba(255,255,255,0.8); }
 
-    .stat-card.highlight {
-      background: var(--accent);
-      color: var(--white);
-    }
+  /* Sections */
+  .section {
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+  }
 
-    .stat-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-    }
+  .section-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--gray-200, #e5e7eb);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-    .stat-card.highlight .stat-label {
-      color: rgba(255,255,255,0.7);
-    }
+  .section-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+  }
 
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      line-height: 1;
-    }
+  .section-body {
+    padding: 1.5rem;
+  }
 
-    .stat-change {
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
-    }
+  /* Tables */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
 
-    .stat-change.positive { color: var(--success); }
-    .stat-change.negative { color: var(--danger); }
-    .stat-card.highlight .stat-change { color: rgba(255,255,255,0.8); }
+  .data-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--gray-200, #e5e7eb);
+    font-weight: 500;
+  }
 
-    /* Sections */
-    .section {
-      background: var(--white);
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
-    }
+  .data-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--gray-100, #f3f4f6);
+  }
 
-    .section-header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--gray-200);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
 
-    .section-header h3 {
-      font-size: 1rem;
-      font-weight: 600;
-    }
+  .data-table tr:hover {
+    background: var(--gray-50, #f9fafb);
+  }
 
-    .section-body {
-      padding: 1.5rem;
-    }
+  .article-title {
+    font-weight: 500;
+    color: var(--text);
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-    /* Tables */
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+  /* Progress Bar */
+  .progress-bar {
+    height: 6px;
+    background: var(--gray-200, #e5e7eb);
+    border-radius: 3px;
+    overflow: hidden;
+  }
 
-    .data-table th {
-      text-align: left;
-      padding: 0.75rem 1rem;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--gray-200);
-      font-weight: 500;
-    }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+  }
 
-    .data-table td {
-      padding: 0.75rem 1rem;
-      font-size: 0.9rem;
-      border-bottom: 1px solid var(--gray-100);
-    }
+  /* Two Column Layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
 
-    .data-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .data-table tr:hover {
-      background: var(--gray-50);
-    }
-
-    .article-title {
-      font-weight: 500;
-      color: var(--text);
-      max-width: 400px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* Progress Bar */
-    .progress-bar {
-      height: 6px;
-      background: var(--gray-200);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 3px;
-    }
-
-    /* Two Column Layout */
+  @media (max-width: 900px) {
     .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
+      grid-template-columns: 1fr;
     }
+  }
 
-    @media (max-width: 900px) {
-      .two-col {
-        grid-template-columns: 1fr;
-      }
-    }
+  /* Badge */
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
 
-    /* Badge */
-    .badge {
-      display: inline-block;
-      padding: 0.2rem 0.5rem;
-      font-size: 0.7rem;
-      font-weight: 500;
-      border-radius: 3px;
-      text-transform: uppercase;
-    }
+  .badge.success { background: #d1fae5; color: #065f46; }
+  .badge.warning { background: #fef3c7; color: #92400e; }
+  .badge.danger { background: #fee2e2; color: #991b1b; }
 
-    .badge.success { background: #d1fae5; color: #065f46; }
-    .badge.warning { background: #fef3c7; color: #92400e; }
-    .badge.danger { background: #fee2e2; color: #991b1b; }
+  /* Freshness Indicator */
+  .freshness {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
 
-    /* Freshness Indicator */
-    .freshness {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+  .freshness-item {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+    padding: 1rem;
+    background: var(--gray-50, #f9fafb);
+    border-radius: 6px;
+  }
 
-    .freshness-item {
-      flex: 1;
-      min-width: 120px;
-      text-align: center;
-      padding: 1rem;
-      background: var(--gray-50);
-      border-radius: 6px;
-    }
+  .freshness-item .count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
 
-    .freshness-item .count {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
+  .freshness-item .label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
 
-    .freshness-item .label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
-    }
+  /* Quick Actions */
+  .quick-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
 
-    /* Quick Actions */
-    .quick-actions {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+  .action-btn {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
-    .action-btn {
-      padding: 0.6rem 1.25rem;
-      font-size: 0.85rem;
-      font-weight: 500;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+  .action-btn.primary {
+    background: var(--accent);
+    color: var(--white);
+  }
 
-    .action-btn.primary {
-      background: var(--accent);
-      color: var(--white);
-    }
+  .action-btn.secondary {
+    background: var(--gray-200, #e5e7eb);
+    color: var(--text);
+  }
 
-    .action-btn.secondary {
-      background: var(--gray-200);
-      color: var(--text);
-    }
+  .action-btn:hover {
+    opacity: 0.9;
+  }
 
-    .action-btn:hover {
-      opacity: 0.9;
-    }
+  /* Last updated */
+  .last-updated {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+</style>
 
-    /* Last updated */
-    .last-updated {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-  </style>
-</head>
-<body>
-  <header class="admin-header">
-    <h1>AI Credit News Admin</h1>
-    <nav class="admin-nav">
-      <a href="/admin/analytics" class="active">Analytics</a>
-      <a href="/admin/articles">AI Articles</a>
-      <a href="/admin/editorials">Editorials</a>
-      <a href="/admin/subscribers">Subscribers</a>
-      <a href="/admin/settings">Settings</a>
-      <a href="/admin/brand-guide">Brand Guide</a>
-      <a href="/">View Site</a>
-    </nav>
-  </header>
+<div class="analytics-container">
+  <div class="page-header">
+    <h2>Analytics Dashboard</h2>
+    <p>Monitor your site's performance and content metrics</p>
+  </div>
 
-  <div class="container">
-    <div class="page-header">
-      <h2>Analytics Dashboard</h2>
-      <p>Monitor your site's performance and content metrics</p>
+  <!-- Key Metrics -->
+  <div class="stats-grid">
+    <div class="stat-card highlight">
+      <div class="stat-label">Total Views</div>
+      <div class="stat-value"><%= stats.totals.total_views.toLocaleString() %></div>
+      <div class="stat-change">+<%= stats.week.views_week %> this week</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-label">Today's Views</div>
+      <div class="stat-value"><%= stats.today.views_today %></div>
+      <div class="stat-change"><%= stats.today.unique_visitors_today %> unique visitors</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Published Articles</div>
+      <div class="stat-value"><%= stats.totals.total_articles %></div>
+      <div class="stat-change positive">+<%= stats.week.approved_week %> this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Subscribers</div>
+      <div class="stat-value"><%= stats.totals.active_subscribers %></div>
+      <div class="stat-change positive">+<%= stats.week.new_subscribers_week %> this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pending Review</div>
+      <div class="stat-value"><%= stats.totals.pending_articles %></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Sources</div>
+      <div class="stat-value"><%= stats.totals.active_sources %></div>
+    </div>
+  </div>
 
-    <!-- Key Metrics -->
-    <div class="stats-grid">
-      <div class="stat-card highlight">
-        <div class="stat-label">Total Views</div>
-        <div class="stat-value"><%= stats.totals.total_views.toLocaleString() %></div>
-        <div class="stat-change">+<%= stats.week.views_week %> this week</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Today's Views</div>
-        <div class="stat-value"><%= stats.today.views_today %></div>
-        <div class="stat-change"><%= stats.today.unique_visitors_today %> unique visitors</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Published Articles</div>
-        <div class="stat-value"><%= stats.totals.total_articles %></div>
-        <div class="stat-change positive">+<%= stats.week.approved_week %> this week</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Active Subscribers</div>
-        <div class="stat-value"><%= stats.totals.active_subscribers %></div>
-        <div class="stat-change positive">+<%= stats.week.new_subscribers_week %> this week</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Pending Review</div>
-        <div class="stat-value"><%= stats.totals.pending_articles %></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Active Sources</div>
-        <div class="stat-value"><%= stats.totals.active_sources %></div>
+  <!-- Content Freshness -->
+  <div class="section">
+    <div class="section-header">
+      <h3>Content Freshness</h3>
+      <span class="last-updated">Last scrape: <%= freshness.last_scrape ? new Date(freshness.last_scrape).toLocaleString() : 'Never' %></span>
+    </div>
+    <div class="section-body">
+      <div class="freshness">
+        <div class="freshness-item">
+          <div class="count"><%= freshness.today || 0 %></div>
+          <div class="label">Today</div>
+        </div>
+        <div class="freshness-item">
+          <div class="count"><%= freshness.this_week || 0 %></div>
+          <div class="label">This Week</div>
+        </div>
+        <div class="freshness-item">
+          <div class="count"><%= freshness.this_month || 0 %></div>
+          <div class="label">This Month</div>
+        </div>
+        <div class="freshness-item">
+          <div class="count"><%= freshness.older || 0 %></div>
+          <div class="label">Older</div>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- Content Freshness -->
+  <div class="two-col">
+    <!-- Top Articles -->
     <div class="section">
       <div class="section-header">
-        <h3>Content Freshness</h3>
-        <span class="last-updated">Last scrape: <%= freshness.last_scrape ? new Date(freshness.last_scrape).toLocaleString() : 'Never' %></span>
-      </div>
-      <div class="section-body">
-        <div class="freshness">
-          <div class="freshness-item">
-            <div class="count"><%= freshness.today || 0 %></div>
-            <div class="label">Today</div>
-          </div>
-          <div class="freshness-item">
-            <div class="count"><%= freshness.this_week || 0 %></div>
-            <div class="label">This Week</div>
-          </div>
-          <div class="freshness-item">
-            <div class="count"><%= freshness.this_month || 0 %></div>
-            <div class="label">This Month</div>
-          </div>
-          <div class="freshness-item">
-            <div class="count"><%= freshness.older || 0 %></div>
-            <div class="label">Older</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="two-col">
-      <!-- Top Articles -->
-      <div class="section">
-        <div class="section-header">
-          <h3>Top Articles (All Time)</h3>
-        </div>
-        <div class="section-body" style="padding: 0;">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Article</th>
-                <th>Views</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (topArticles && topArticles.length > 0) { %>
-                <% topArticles.forEach(article => { %>
-                <tr>
-                  <td>
-                    <div class="article-title"><%= article.title %></div>
-                    <small style="color: var(--text-muted);"><%= article.category_name || 'Uncategorized' %></small>
-                  </td>
-                  <td><strong><%= article.views %></strong></td>
-                </tr>
-                <% }) %>
-              <% } else { %>
-                <tr>
-                  <td colspan="2" style="text-align: center; color: var(--text-muted);">No data yet</td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Category Performance -->
-      <div class="section">
-        <div class="section-header">
-          <h3>Category Performance</h3>
-        </div>
-        <div class="section-body" style="padding: 0;">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Articles</th>
-                <th>Views</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (categoryStats && categoryStats.length > 0) { %>
-                <% categoryStats.forEach(cat => { %>
-                <tr>
-                  <td><%= cat.name %></td>
-                  <td><%= cat.article_count %></td>
-                  <td><%= cat.total_views %></td>
-                </tr>
-                <% }) %>
-              <% } else { %>
-                <tr>
-                  <td colspan="3" style="text-align: center; color: var(--text-muted);">No data yet</td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Source Performance -->
-    <div class="section">
-      <div class="section-header">
-        <h3>Source Performance</h3>
+        <h3>Top Articles (All Time)</h3>
       </div>
       <div class="section-body" style="padding: 0;">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Source</th>
-              <th>Scraped</th>
-              <th>Approved</th>
-              <th>Approval Rate</th>
-              <th>Total Views</th>
+              <th>Article</th>
+              <th>Views</th>
             </tr>
           </thead>
           <tbody>
-            <% if (sourceStats && sourceStats.length > 0) { %>
-              <% sourceStats.slice(0, 15).forEach(source => { %>
+            <% if (topArticles && topArticles.length > 0) { %>
+              <% topArticles.forEach(article => { %>
               <tr>
-                <td><%= source.source %></td>
-                <td><%= source.total_scraped %></td>
-                <td><%= source.approved %></td>
                 <td>
-                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <div class="progress-bar" style="width: 60px;">
-                      <div class="progress-bar-fill" style="width: <%= source.approval_rate %>%;"></div>
-                    </div>
-                    <span><%= source.approval_rate %>%</span>
-                  </div>
+                  <div class="article-title"><%= article.title %></div>
+                  <small style="color: var(--text-muted);"><%= article.category_name || 'Uncategorized' %></small>
                 </td>
-                <td><%= source.total_views %></td>
+                <td><strong><%= article.views %></strong></td>
               </tr>
               <% }) %>
             <% } else { %>
               <tr>
-                <td colspan="5" style="text-align: center; color: var(--text-muted);">No data yet</td>
+                <td colspan="2" style="text-align: center; color: var(--text-muted);">No data yet</td>
               </tr>
             <% } %>
           </tbody>
@@ -501,21 +347,98 @@
       </div>
     </div>
 
-    <!-- Quick Actions -->
+    <!-- Category Performance -->
     <div class="section">
       <div class="section-header">
-        <h3>Quick Actions</h3>
+        <h3>Category Performance</h3>
       </div>
-      <div class="section-body">
-        <div class="quick-actions">
-          <a href="/api/scrape" class="action-btn primary">Run Scraper</a>
-          <a href="/admin/editorials" class="action-btn secondary">Manage Editorials</a>
-          <a href="/admin/subscribers" class="action-btn secondary">View Subscribers</a>
-          <a href="/" class="action-btn secondary">View Site</a>
-        </div>
+      <div class="section-body" style="padding: 0;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Articles</th>
+              <th>Views</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (categoryStats && categoryStats.length > 0) { %>
+              <% categoryStats.forEach(cat => { %>
+              <tr>
+                <td><%= cat.name %></td>
+                <td><%= cat.article_count %></td>
+                <td><%= cat.total_views %></td>
+              </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="3" style="text-align: center; color: var(--text-muted);">No data yet</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
       </div>
     </div>
-
   </div>
-</body>
-</html>
+
+  <!-- Source Performance -->
+  <div class="section">
+    <div class="section-header">
+      <h3>Source Performance</h3>
+    </div>
+    <div class="section-body" style="padding: 0;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Scraped</th>
+            <th>Approved</th>
+            <th>Approval Rate</th>
+            <th>Total Views</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (sourceStats && sourceStats.length > 0) { %>
+            <% sourceStats.slice(0, 15).forEach(source => { %>
+            <tr>
+              <td><%= source.source %></td>
+              <td><%= source.total_scraped %></td>
+              <td><%= source.approved %></td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <div class="progress-bar" style="width: 60px;">
+                    <div class="progress-bar-fill" style="width: <%= source.approval_rate %>%;"></div>
+                  </div>
+                  <span><%= source.approval_rate %>%</span>
+                </div>
+              </td>
+              <td><%= source.total_views %></td>
+            </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-muted);">No data yet</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="section">
+    <div class="section-header">
+      <h3>Quick Actions</h3>
+    </div>
+    <div class="section-body">
+      <div class="quick-actions">
+        <a href="/api/scrape" class="action-btn primary">Run Scraper</a>
+        <a href="/admin/editorials" class="action-btn secondary">Manage Editorials</a>
+        <a href="/admin/subscribers" class="action-btn secondary">View Subscribers</a>
+        <a href="/" class="action-btn secondary">View Site</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer') %>

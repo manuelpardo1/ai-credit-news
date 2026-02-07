@@ -1,479 +1,416 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brand Guide | AI Credit News Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --black: #000000;
-      --white: #ffffff;
-      --accent: #5b21b6;
-      --accent-dark: #4c1d95;
-      --gray-50: #f9fafb;
-      --gray-100: #f3f4f6;
-      --gray-200: #e5e7eb;
-      --gray-300: #d1d5db;
-      --gray-400: #9ca3af;
-      --gray-500: #6b7280;
-      --gray-600: #4b5563;
-      --gray-800: #1f2937;
-      --text: #111827;
-      --text-light: #374151;
-      --text-muted: #6b7280;
-    }
+<%- include('./partials/header', { title: 'Brand Guide' }) %>
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<style>
+  .brand-guide-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--white);
-      color: var(--text);
-      line-height: 1.6;
-    }
+  .brand-guide-content .page-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--gray-200, #e5e7eb);
+  }
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 3rem 2rem;
-    }
+  .brand-guide-content .page-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
 
-    .header {
-      margin-bottom: 3rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid var(--gray-200);
-    }
+  .brand-guide-content .page-header p {
+    color: var(--text-light);
+  }
 
-    .header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
+  .brand-section {
+    margin-bottom: 3rem;
+  }
 
-    .header p {
-      color: var(--text-light);
-    }
+  .brand-section h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent);
+    display: inline-block;
+  }
 
-    .section {
-      margin-bottom: 3rem;
-    }
+  /* Logo Section */
+  .logo-display {
+    display: flex;
+    gap: 3rem;
+    margin-bottom: 2rem;
+  }
 
-    .section h2 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--accent);
-      display: inline-block;
-    }
+  .logo-box {
+    padding: 2rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    /* Logo Section */
-    .logo-display {
-      display: flex;
-      gap: 3rem;
-      margin-bottom: 2rem;
-    }
+  .logo-box.dark {
+    background: var(--black);
+  }
 
-    .logo-box {
-      padding: 2rem;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  .logo-box.light {
+    background: var(--gray-100, #f3f4f6);
+    border: 1px solid var(--gray-200, #e5e7eb);
+  }
 
-    .logo-box.dark {
-      background: var(--black);
-    }
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
 
-    .logo-box.light {
-      background: var(--gray-100);
-      border: 1px solid var(--gray-200);
-    }
+  .logo-text.on-dark {
+    color: var(--white);
+  }
 
-    .logo-text {
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
+  .logo-text.on-light {
+    color: var(--black);
+  }
 
-    .logo-text.on-dark {
-      color: var(--white);
-    }
+  /* Favicon */
+  .favicon-display {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+  }
 
-    .logo-text.on-light {
-      color: var(--black);
-    }
+  .favicon-preview {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-200, #e5e7eb);
+  }
 
-    /* Favicon */
-    .favicon-display {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      margin-bottom: 1.5rem;
-    }
+  /* Colors */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+  }
 
-    .favicon-preview {
-      width: 64px;
-      height: 64px;
-      border-radius: 8px;
-      border: 1px solid var(--gray-200);
-    }
+  .color-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200, #e5e7eb);
+    border-radius: 8px;
+    overflow: hidden;
+  }
 
-    .favicon-sizes {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
+  .color-swatch {
+    height: 100px;
+  }
 
-    .favicon-sizes img {
-      border-radius: 4px;
-    }
+  .color-info {
+    padding: 1rem;
+  }
 
-    /* Colors */
-    .color-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 1.5rem;
-    }
+  .color-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
 
-    .color-card {
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: 8px;
-      overflow: hidden;
-    }
+  .color-hex {
+    font-family: monospace;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
 
-    .color-swatch {
-      height: 100px;
-    }
+  /* Typography */
+  .type-sample {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: var(--gray-50, #f9fafb);
+    border-radius: 8px;
+  }
 
-    .color-info {
-      padding: 1rem;
-    }
+  .type-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
 
-    .color-name {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
+  .type-h1 { font-size: 2rem; font-weight: 700; }
+  .type-h2 { font-size: 1.5rem; font-weight: 600; }
+  .type-h3 { font-size: 1.25rem; font-weight: 600; }
+  .type-body { font-size: 1rem; }
+  .type-small { font-size: 0.875rem; color: var(--text-light); }
+  .type-caption { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
-    .color-hex {
-      font-family: monospace;
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
+  /* Usage Guidelines */
+  .guidelines {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
 
-    /* Typography */
-    .type-sample {
-      margin-bottom: 1.5rem;
-      padding: 1.5rem;
-      background: var(--gray-50);
-      border-radius: 8px;
-    }
+  .guideline-card {
+    padding: 1.5rem;
+    background: var(--gray-50, #f9fafb);
+    border-radius: 8px;
+  }
 
-    .type-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-    }
+  .guideline-card h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
-    .type-h1 { font-size: 2rem; font-weight: 700; }
-    .type-h2 { font-size: 1.5rem; font-weight: 600; }
-    .type-h3 { font-size: 1.25rem; font-weight: 600; }
-    .type-body { font-size: 1rem; }
-    .type-small { font-size: 0.875rem; color: var(--text-light); }
-    .type-caption { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+  .guideline-card.do h4 { color: #059669; }
+  .guideline-card.dont h4 { color: #dc2626; }
 
-    /* Usage Guidelines */
-    .guidelines {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-    }
+  .guideline-card ul {
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--text-light);
+  }
 
-    .guideline-card {
-      padding: 1.5rem;
-      background: var(--gray-50);
-      border-radius: 8px;
-    }
+  .guideline-card li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.25rem;
+    position: relative;
+  }
 
-    .guideline-card h4 {
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+  .guideline-card li::before {
+    content: '\2022';
+    position: absolute;
+    left: 0;
+  }
 
-    .guideline-card.do h4 { color: #059669; }
-    .guideline-card.dont h4 { color: #dc2626; }
+  /* Download section */
+  .download-section {
+    background: var(--gray-50, #f9fafb);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+  }
 
-    .guideline-card ul {
-      list-style: none;
-      font-size: 0.875rem;
-      color: var(--text-light);
-    }
+  .download-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
 
-    .guideline-card li {
-      margin-bottom: 0.5rem;
-      padding-left: 1.25rem;
-      position: relative;
-    }
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--black);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+  }
 
-    .guideline-card li::before {
-      content: '•';
-      position: absolute;
-      left: 0;
-    }
+  .download-btn:hover {
+    background: var(--gray-800, #1f2937);
+    color: var(--white);
+  }
+</style>
 
-    /* Back link */
-    .back-link {
-      display: inline-block;
-      margin-bottom: 2rem;
-      color: var(--accent);
-      text-decoration: none;
-      font-size: 0.875rem;
-    }
+<div class="brand-guide-content">
+  <header class="page-header">
+    <h1>Brand Guide</h1>
+    <p>Visual identity guidelines for AI Credit News</p>
+  </header>
 
-    .back-link:hover {
-      text-decoration: underline;
-    }
+  <!-- Logo Section -->
+  <section class="brand-section">
+    <h2>Logo</h2>
+    <div class="logo-display">
+      <div class="logo-box dark">
+        <span class="logo-text on-dark">AI Credit News</span>
+      </div>
+      <div class="logo-box light">
+        <span class="logo-text on-light">AI Credit News</span>
+      </div>
+    </div>
+    <p style="color: var(--text-light); font-size: 0.875rem;">
+      The wordmark uses Inter Bold. Always maintain clear space around the logo equal to the height of the "A".
+    </p>
+  </section>
 
-    /* Download section */
-    .download-section {
-      background: var(--gray-50);
-      padding: 1.5rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-    }
+  <!-- Favicon Section -->
+  <section class="brand-section">
+    <h2>Favicon</h2>
+    <div class="favicon-display">
+      <img src="/favicon.svg" alt="Favicon" class="favicon-preview">
+      <div>
+        <p style="font-weight: 500; margin-bottom: 0.5rem;">Favicon Design</p>
+        <p style="color: var(--text-light); font-size: 0.875rem;">
+          Black square with white "AI" text and purple accent dot.
+        </p>
+      </div>
+    </div>
+    <div class="download-section">
+      <p style="font-weight: 500; margin-bottom: 0.75rem;">Download Assets</p>
+      <div class="download-links">
+        <a href="/favicon.svg" download class="download-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          SVG
+        </a>
+      </div>
+    </div>
+  </section>
 
-    .download-links {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .download-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: var(--black);
-      color: var(--white);
-      text-decoration: none;
-      border-radius: 4px;
-      font-size: 0.875rem;
-    }
-
-    .download-btn:hover {
-      background: var(--gray-800);
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <a href="/admin/editorials" class="back-link">← Back to Admin</a>
-
-    <header class="header">
-      <h1>Brand Guide</h1>
-      <p>Visual identity guidelines for AI Credit News</p>
-    </header>
-
-    <!-- Logo Section -->
-    <section class="section">
-      <h2>Logo</h2>
-      <div class="logo-display">
-        <div class="logo-box dark">
-          <span class="logo-text on-dark">AI Credit News</span>
-        </div>
-        <div class="logo-box light">
-          <span class="logo-text on-light">AI Credit News</span>
+  <!-- Colors Section -->
+  <section class="brand-section">
+    <h2>Colors</h2>
+    <div class="color-grid">
+      <div class="color-card">
+        <div class="color-swatch" style="background: #000000;"></div>
+        <div class="color-info">
+          <div class="color-name">Black (Primary)</div>
+          <div class="color-hex">#000000</div>
         </div>
       </div>
-      <p style="color: var(--text-light); font-size: 0.875rem;">
-        The wordmark uses Inter Bold. Always maintain clear space around the logo equal to the height of the "A".
-      </p>
-    </section>
-
-    <!-- Favicon Section -->
-    <section class="section">
-      <h2>Favicon</h2>
-      <div class="favicon-display">
-        <img src="/favicon.svg" alt="Favicon" class="favicon-preview">
-        <div>
-          <p style="font-weight: 500; margin-bottom: 0.5rem;">Favicon Design</p>
-          <p style="color: var(--text-light); font-size: 0.875rem;">
-            Black square with white "AI" text and purple accent dot.
-          </p>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #ffffff; border-bottom: 1px solid #e5e7eb;"></div>
+        <div class="color-info">
+          <div class="color-name">White</div>
+          <div class="color-hex">#FFFFFF</div>
         </div>
       </div>
-      <div class="download-section">
-        <p style="font-weight: 500; margin-bottom: 0.75rem;">Download Assets</p>
-        <div class="download-links">
-          <a href="/favicon.svg" download class="download-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-            </svg>
-            SVG
-          </a>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #5b21b6;"></div>
+        <div class="color-info">
+          <div class="color-name">Purple (Accent)</div>
+          <div class="color-hex">#5B21B6</div>
         </div>
       </div>
-    </section>
-
-    <!-- Colors Section -->
-    <section class="section">
-      <h2>Colors</h2>
-      <div class="color-grid">
-        <div class="color-card">
-          <div class="color-swatch" style="background: #000000;"></div>
-          <div class="color-info">
-            <div class="color-name">Black (Primary)</div>
-            <div class="color-hex">#000000</div>
-          </div>
-        </div>
-        <div class="color-card">
-          <div class="color-swatch" style="background: #ffffff; border-bottom: 1px solid #e5e7eb;"></div>
-          <div class="color-info">
-            <div class="color-name">White</div>
-            <div class="color-hex">#FFFFFF</div>
-          </div>
-        </div>
-        <div class="color-card">
-          <div class="color-swatch" style="background: #5b21b6;"></div>
-          <div class="color-info">
-            <div class="color-name">Purple (Accent)</div>
-            <div class="color-hex">#5B21B6</div>
-          </div>
-        </div>
-        <div class="color-card">
-          <div class="color-swatch" style="background: #4c1d95;"></div>
-          <div class="color-info">
-            <div class="color-name">Purple Dark</div>
-            <div class="color-hex">#4C1D95</div>
-          </div>
-        </div>
-        <div class="color-card">
-          <div class="color-swatch" style="background: #f9fafb;"></div>
-          <div class="color-info">
-            <div class="color-name">Gray 50</div>
-            <div class="color-hex">#F9FAFB</div>
-          </div>
-        </div>
-        <div class="color-card">
-          <div class="color-swatch" style="background: #6b7280;"></div>
-          <div class="color-info">
-            <div class="color-name">Gray 500</div>
-            <div class="color-hex">#6B7280</div>
-          </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #4c1d95;"></div>
+        <div class="color-info">
+          <div class="color-name">Purple Dark</div>
+          <div class="color-hex">#4C1D95</div>
         </div>
       </div>
-    </section>
-
-    <!-- Typography Section -->
-    <section class="section">
-      <h2>Typography</h2>
-      <p style="color: var(--text-light); margin-bottom: 1.5rem;">
-        We use <strong>Inter</strong> as our primary typeface. It's clean, modern, and highly legible at all sizes.
-      </p>
-
-      <div class="type-sample">
-        <div class="type-label">Heading 1</div>
-        <div class="type-h1">AI in Credit: The Week That Was</div>
-      </div>
-
-      <div class="type-sample">
-        <div class="type-label">Heading 2</div>
-        <div class="type-h2">How Machine Learning is Revolutionizing Credit</div>
-      </div>
-
-      <div class="type-sample">
-        <div class="type-label">Heading 3</div>
-        <div class="type-h3">Fair Lending and AI</div>
-      </div>
-
-      <div class="type-sample">
-        <div class="type-label">Body</div>
-        <div class="type-body">Machine learning models are transforming how lenders assess creditworthiness. Traditional FICO scores relied on limited data points, but modern ML algorithms can analyze thousands of variables.</div>
-      </div>
-
-      <div class="type-sample">
-        <div class="type-label">Small / Meta</div>
-        <div class="type-small">Published February 5, 2026 • 5 min read</div>
-      </div>
-
-      <div class="type-sample">
-        <div class="type-label">Caption / Label</div>
-        <div class="type-caption">Credit Scoring • Intermediate</div>
-      </div>
-    </section>
-
-    <!-- Design Principles -->
-    <section class="section">
-      <h2>Design Principles</h2>
-      <p style="color: var(--text-light); margin-bottom: 1.5rem;">
-        Our design follows the Swiss International Style: clean, functional, and typography-focused.
-      </p>
-
-      <div class="guidelines">
-        <div class="guideline-card do">
-          <h4>Do</h4>
-          <ul>
-            <li>Use generous white space</li>
-            <li>Maintain a clear visual hierarchy</li>
-            <li>Let typography do the heavy lifting</li>
-            <li>Use the accent color sparingly</li>
-            <li>Keep interfaces clean and minimal</li>
-          </ul>
-        </div>
-        <div class="guideline-card dont">
-          <h4>Don't</h4>
-          <ul>
-            <li>Overuse the purple accent</li>
-            <li>Add decorative elements</li>
-            <li>Use multiple typefaces</li>
-            <li>Clutter layouts with too much info</li>
-            <li>Use gradients or shadows heavily</li>
-          </ul>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #f9fafb;"></div>
+        <div class="color-info">
+          <div class="color-name">Gray 50</div>
+          <div class="color-hex">#F9FAFB</div>
         </div>
       </div>
-    </section>
-
-    <!-- Voice & Tone -->
-    <section class="section">
-      <h2>Voice & Tone</h2>
-      <div class="guidelines">
-        <div class="guideline-card do">
-          <h4>Our Voice Is</h4>
-          <ul>
-            <li>Professional but accessible</li>
-            <li>Authoritative but not dry</li>
-            <li>Insightful and analytical</li>
-            <li>Forward-looking</li>
-            <li>Respectful of reader's time</li>
-          </ul>
-        </div>
-        <div class="guideline-card dont">
-          <h4>We Avoid</h4>
-          <ul>
-            <li>Jargon without explanation</li>
-            <li>Hype or sensationalism</li>
-            <li>Overly technical language</li>
-            <li>Lengthy, unfocused writing</li>
-            <li>Clickbait headlines</li>
-          </ul>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #6b7280;"></div>
+        <div class="color-info">
+          <div class="color-name">Gray 500</div>
+          <div class="color-hex">#6B7280</div>
         </div>
       </div>
-    </section>
-  </div>
-</body>
-</html>
+    </div>
+  </section>
+
+  <!-- Typography Section -->
+  <section class="brand-section">
+    <h2>Typography</h2>
+    <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+      We use <strong>Inter</strong> as our primary typeface. It's clean, modern, and highly legible at all sizes.
+    </p>
+
+    <div class="type-sample">
+      <div class="type-label">Heading 1</div>
+      <div class="type-h1">AI in Credit: The Week That Was</div>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-label">Heading 2</div>
+      <div class="type-h2">How Machine Learning is Revolutionizing Credit</div>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-label">Heading 3</div>
+      <div class="type-h3">Fair Lending and AI</div>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-label">Body</div>
+      <div class="type-body">Machine learning models are transforming how lenders assess creditworthiness. Traditional FICO scores relied on limited data points, but modern ML algorithms can analyze thousands of variables.</div>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-label">Small / Meta</div>
+      <div class="type-small">Published February 5, 2026 &bull; 5 min read</div>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-label">Caption / Label</div>
+      <div class="type-caption">Credit Scoring &bull; Intermediate</div>
+    </div>
+  </section>
+
+  <!-- Design Principles -->
+  <section class="brand-section">
+    <h2>Design Principles</h2>
+    <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+      Our design follows the Swiss International Style: clean, functional, and typography-focused.
+    </p>
+
+    <div class="guidelines">
+      <div class="guideline-card do">
+        <h4>Do</h4>
+        <ul>
+          <li>Use generous white space</li>
+          <li>Maintain a clear visual hierarchy</li>
+          <li>Let typography do the heavy lifting</li>
+          <li>Use the accent color sparingly</li>
+          <li>Keep interfaces clean and minimal</li>
+        </ul>
+      </div>
+      <div class="guideline-card dont">
+        <h4>Don't</h4>
+        <ul>
+          <li>Overuse the purple accent</li>
+          <li>Add decorative elements</li>
+          <li>Use multiple typefaces</li>
+          <li>Clutter layouts with too much info</li>
+          <li>Use gradients or shadows heavily</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Voice & Tone -->
+  <section class="brand-section">
+    <h2>Voice & Tone</h2>
+    <div class="guidelines">
+      <div class="guideline-card do">
+        <h4>Our Voice Is</h4>
+        <ul>
+          <li>Professional but accessible</li>
+          <li>Authoritative but not dry</li>
+          <li>Insightful and analytical</li>
+          <li>Forward-looking</li>
+          <li>Respectful of reader's time</li>
+        </ul>
+      </div>
+      <div class="guideline-card dont">
+        <h4>We Avoid</h4>
+        <ul>
+          <li>Jargon without explanation</li>
+          <li>Hype or sensationalism</li>
+          <li>Overly technical language</li>
+          <li>Lengthy, unfocused writing</li>
+          <li>Clickbait headlines</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<%- include('./partials/footer') %>
