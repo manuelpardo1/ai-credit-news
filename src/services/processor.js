@@ -15,15 +15,17 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
  * @param {number} options.limit - Max articles to process
  * @param {boolean} options.dryRun - If true, don't save changes
  * @param {Object} options.progressCallback - Progress tracker object
+ * @param {string} options.targetStatus - Status for AI-approved articles ('approved' or 'queued')
  */
-async function processPendingArticles({ limit = 10, dryRun = false, progressCallback } = {}) {
+async function processPendingArticles({ limit = 10, dryRun = false, progressCallback, targetStatus = 'approved' } = {}) {
   const progress = progressCallback;
 
   console.log('\n========================================');
   console.log('AI Article Processing Pipeline');
   console.log('========================================');
   console.log(`Mode: ${dryRun ? 'DRY RUN (no changes)' : 'LIVE'}`);
-  console.log(`Limit: ${limit} articles\n`);
+  console.log(`Limit: ${limit} articles`);
+  console.log(`Target status: ${targetStatus}\n`);
 
   // Get pending articles
   const articles = await Article.findAll({
@@ -61,6 +63,11 @@ async function processPendingArticles({ limit = 10, dryRun = false, progressCall
       // Process through AI
       const result = await processArticle(article);
 
+      // Determine final status: use targetStatus for approved articles, keep rejected as-is
+      const finalStatus = (result.status === 'approved' && targetStatus === 'queued')
+        ? 'queued'
+        : result.status;
+
       if (!dryRun) {
         // Update article in database
         await Article.update(article.id, {
@@ -68,10 +75,10 @@ async function processPendingArticles({ limit = 10, dryRun = false, progressCall
           category_id: result.category_id,
           summary: result.summary,
           difficulty_level: result.difficulty_level,
-          status: result.status
+          status: finalStatus
         });
 
-        // Add tags if relevant
+        // Add tags if relevant (approved or queued)
         if (result.status === 'approved' && result.tags.length > 0) {
           const tagIds = [];
           for (const tagName of result.tags) {
@@ -81,14 +88,15 @@ async function processPendingArticles({ limit = 10, dryRun = false, progressCall
           await Article.addTags(article.id, tagIds);
         }
 
-        console.log(`  ✓ Updated article #${article.id} → ${result.status}`);
+        console.log(`  ✓ Updated article #${article.id} → ${finalStatus}`);
       } else {
-        console.log(`  [DRY RUN] Would update article #${article.id} → ${result.status}`);
+        console.log(`  [DRY RUN] Would update article #${article.id} → ${finalStatus}`);
       }
 
       if (result.status === 'approved') {
         approved++;
-        if (progress) progress.log(`Approved: ${article.title?.substring(0, 40)}...`);
+        const statusLabel = targetStatus === 'queued' ? 'Queued' : 'Approved';
+        if (progress) progress.log(`${statusLabel}: ${article.title?.substring(0, 40)}...`);
       } else {
         rejected++;
         if (progress) progress.log(`Rejected: ${article.title?.substring(0, 40)}...`);
@@ -138,6 +146,38 @@ async function processPendingArticles({ limit = 10, dryRun = false, progressCall
 }
 
 /**
+ * Process ALL pending articles through AI, sending approved ones to 'queued' status
+ * Used for bulk processing / clearing the backlog
+ * @param {Object} options
+ * @param {Object} options.progressCallback - Progress tracker object
+ */
+async function processAllPending({ progressCallback } = {}) {
+  // Count total pending first
+  const pendingCount = await Article.countByStatus('pending');
+
+  console.log(`[BULK PROCESS] Found ${pendingCount} pending articles to process`);
+
+  if (pendingCount === 0) {
+    if (progressCallback) progressCallback.log('No pending articles to process');
+    return { processed: 0, queued: 0, rejected: 0, errors: 0 };
+  }
+
+  // Process all with no limit, targeting 'queued' status
+  const result = await processPendingArticles({
+    limit: pendingCount,
+    targetStatus: 'queued',
+    progressCallback
+  });
+
+  return {
+    processed: result.processed,
+    queued: result.approved,   // 'approved' count maps to 'queued' count
+    rejected: result.rejected,
+    errors: result.errors
+  };
+}
+
+/**
  * Reprocess a specific article
  */
 async function reprocessArticle(articleId) {
@@ -161,6 +201,7 @@ async function reprocessArticle(articleId) {
 
 module.exports = {
   processPendingArticles,
+  processAllPending,
   reprocessArticle
 };
 

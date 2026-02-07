@@ -31,6 +31,7 @@ class Analytics {
       SELECT
         (SELECT COUNT(*) FROM articles WHERE status = 'approved') as total_articles,
         (SELECT COUNT(*) FROM articles WHERE status = 'pending') as pending_articles,
+        (SELECT COUNT(*) FROM articles WHERE status = 'queued') as queued_articles,
         (SELECT COUNT(*) FROM articles WHERE status = 'rejected') as rejected_articles,
         (SELECT COUNT(*) FROM sources WHERE active = 1) as active_sources,
         (SELECT COUNT(*) FROM subscribers WHERE active = 1) as active_subscribers,

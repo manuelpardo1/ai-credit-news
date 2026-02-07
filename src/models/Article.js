@@ -157,6 +157,50 @@ class Article {
     // Delete the article
     return run('DELETE FROM articles WHERE id = ?', [id]);
   }
+
+  /**
+   * Count articles by a specific status
+   * @param {string} status - Article status to count
+   * @returns {Promise<number>}
+   */
+  static async countByStatus(status) {
+    const result = await get(
+      'SELECT COUNT(*) as count FROM articles WHERE status = ?',
+      [status]
+    );
+    return result.count;
+  }
+
+  /**
+   * Update status for multiple articles at once
+   * @param {number[]} ids - Array of article IDs
+   * @param {string} newStatus - Target status
+   * @returns {Promise<number>} Number of updated articles
+   */
+  static async bulkUpdateStatus(ids, newStatus) {
+    if (!ids || ids.length === 0) return 0;
+
+    const placeholders = ids.map(() => '?').join(',');
+    const result = await run(
+      `UPDATE articles SET status = ? WHERE id IN (${placeholders})`,
+      [newStatus, ...ids]
+    );
+    return result.changes;
+  }
+
+  /**
+   * Get all queued articles with category info, sorted by relevance
+   * @returns {Promise<Array>}
+   */
+  static async findAllQueued() {
+    return all(`
+      SELECT a.*, c.name as category_name, c.slug as category_slug
+      FROM articles a
+      LEFT JOIN categories c ON a.category_id = c.id
+      WHERE a.status = 'queued'
+      ORDER BY a.relevance_score DESC, a.scraped_date DESC
+    `);
+  }
 }
 
 module.exports = Article;

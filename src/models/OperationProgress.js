@@ -44,6 +44,7 @@ const OperationProgress = {
       totalSteps: type === 'full-refresh' ? 3 : 1,
       stepName: type === 'scrape' ? 'Scraping RSS Feeds' :
                 type === 'supplement' ? 'Generating AI Articles' :
+                type === 'process-all' ? 'Processing All Pending Articles' :
                 'Step 1: Scraping RSS Feeds',
 
       // Messages log (last 20)
@@ -202,6 +203,11 @@ const OperationProgress = {
     if (type === 'supplement') {
       const { aiArticlesToGenerate, aiArticlesGenerated } = currentOperation;
       return aiArticlesToGenerate > 0 ? (aiArticlesGenerated / aiArticlesToGenerate) * 100 : 0;
+    }
+
+    if (type === 'process-all') {
+      const { articlesToProcess, articlesProcessed } = currentOperation;
+      return articlesToProcess > 0 ? (articlesProcessed / articlesToProcess) * 100 : 0;
     }
 
     return 0;

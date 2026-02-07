@@ -5,7 +5,7 @@
     <h1>Edit Article</h1>
     <div class="header-actions">
       <a href="/admin/articles" class="btn btn-secondary">Back to Articles</a>
-      <% if (article.status === 'review') { %>
+      <% if (article.status === 'review' || article.status === 'queued') { %>
       <form action="/admin/article/<%= article.id %>/approve" method="POST" style="display:inline">
         <button type="submit" class="btn btn-success">Approve & Publish</button>
       </form>
@@ -129,6 +129,7 @@
 }
 
 .status-review { background: #fef3c7; color: #92400e; }
+.status-queued { background: #fef3c7; color: #92400e; }
 .status-approved { background: #d1fae5; color: #065f46; }
 .status-rejected { background: #fee2e2; color: #991b1b; }
 .status-pending { background: #e0e7ff; color: #3730a3; }

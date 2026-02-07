@@ -1,0 +1,224 @@
+<%- include('./partials/header', { title: 'Article Queue' }) %>
+
+<style>
+  .queue-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .stat-item {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    text-align: center;
+  }
+  .stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+  }
+  .stat-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+  .bulk-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .score-badge {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .score-badge.low {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .actions {
+    white-space: nowrap;
+  }
+  .btn-small {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+  }
+  .btn-success {
+    background: #059669;
+    color: white;
+  }
+  .btn-danger {
+    background: #dc2626;
+    color: white;
+  }
+  .no-items {
+    padding: 2rem;
+    text-align: center;
+    color: #666;
+    background: #f9fafb;
+    border-radius: 8px;
+  }
+  .admin-table td a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .admin-table td a:hover {
+    color: #5b21b6;
+  }
+  .source-name {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+</style>
+
+<div class="admin-content">
+  <div class="admin-header">
+    <h1>Article Queue</h1>
+    <p>Review AI-scored scraped articles before publication</p>
+  </div>
+
+  <% if (message) { %>
+  <div class="admin-message"><%= message %></div>
+  <% } %>
+
+  <!-- Stats bar -->
+  <div class="queue-stats">
+    <div class="stat-item">
+      <span class="stat-number"><%= queuedArticles.length %></span>
+      <span class="stat-label">Queued for Review</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number"><%= pendingCount %></span>
+      <span class="stat-label">Pending Processing</span>
+    </div>
+  </div>
+
+  <% if (queuedArticles.length > 0) { %>
+  <div class="admin-section">
+    <!-- Bulk Actions -->
+    <div class="bulk-actions">
+      <form action="/admin/queue/bulk-approve" method="POST" style="display:inline">
+        <input type="hidden" name="articleIds" value="all">
+        <button type="submit" class="btn btn-success"
+                onclick="return confirm('Approve all <%= queuedArticles.length %> queued articles?')">
+          Approve All (<%= queuedArticles.length %>)
+        </button>
+      </form>
+
+      <form id="bulk-form-approve" action="/admin/queue/bulk-approve" method="POST" style="display:inline">
+        <button type="submit" class="btn btn-small btn-success" disabled id="btn-approve-selected">
+          Approve Selected (<span id="selected-count">0</span>)
+        </button>
+      </form>
+
+      <form id="bulk-form-reject" action="/admin/queue/bulk-reject" method="POST" style="display:inline">
+        <button type="submit" class="btn btn-small btn-danger" disabled id="btn-reject-selected">
+          Reject Selected
+        </button>
+      </form>
+    </div>
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="select-all"></th>
+          <th>Title</th>
+          <th>Category</th>
+          <th>Score</th>
+          <th>Source</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% queuedArticles.forEach(article => { %>
+        <tr>
+          <td><input type="checkbox" class="article-checkbox" value="<%= article.id %>"></td>
+          <td>
+            <a href="/admin/article/<%= article.id %>"><%= article.title %></a>
+          </td>
+          <td><%= article.category_name || 'Uncategorized' %></td>
+          <td>
+            <span class="score-badge <%= article.relevance_score < 7 ? 'low' : '' %>">
+              <%= article.relevance_score %>/10
+            </span>
+          </td>
+          <td><span class="source-name"><%= article.source %></span></td>
+          <td><%= new Date(article.scraped_date).toLocaleDateString() %></td>
+          <td class="actions">
+            <a href="/admin/article/<%= article.id %>" class="btn btn-small btn-secondary">View</a>
+            <form action="/admin/article/<%= article.id %>/approve" method="POST" style="display:inline">
+              <button type="submit" class="btn btn-small btn-success">Approve</button>
+            </form>
+            <form action="/admin/article/<%= article.id %>/reject" method="POST" style="display:inline">
+              <button type="submit" class="btn btn-small btn-danger">Reject</button>
+            </form>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% } else { %>
+  <div class="admin-section">
+    <p class="no-items">No articles in the queue. Process pending articles from <a href="/admin/settings">Settings</a> to populate the queue.</p>
+  </div>
+  <% } %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const selectAll = document.getElementById('select-all');
+  const checkboxes = document.querySelectorAll('.article-checkbox');
+  const approveForm = document.getElementById('bulk-form-approve');
+  const rejectForm = document.getElementById('bulk-form-reject');
+  const btnApprove = document.getElementById('btn-approve-selected');
+  const btnReject = document.getElementById('btn-reject-selected');
+  const countSpan = document.getElementById('selected-count');
+
+  if (!selectAll || !checkboxes.length) return;
+
+  function updateSelection() {
+    // Remove existing hidden inputs
+    approveForm.querySelectorAll('input[name="articleIds"]').forEach(el => el.remove());
+    rejectForm.querySelectorAll('input[name="articleIds"]').forEach(el => el.remove());
+
+    const selected = Array.from(checkboxes).filter(cb => cb.checked);
+    countSpan.textContent = selected.length;
+    btnApprove.disabled = selected.length === 0;
+    btnReject.disabled = selected.length === 0;
+
+    selected.forEach(cb => {
+      const inputA = document.createElement('input');
+      inputA.type = 'hidden';
+      inputA.name = 'articleIds';
+      inputA.value = cb.value;
+      approveForm.appendChild(inputA);
+
+      const inputR = document.createElement('input');
+      inputR.type = 'hidden';
+      inputR.name = 'articleIds';
+      inputR.value = cb.value;
+      rejectForm.appendChild(inputR);
+    });
+  }
+
+  selectAll.addEventListener('change', () => {
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    updateSelection();
+  });
+
+  checkboxes.forEach(cb => cb.addEventListener('change', updateSelection));
+});
+</script>
+
+<%- include('./partials/footer') %>

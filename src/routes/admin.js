@@ -8,10 +8,10 @@ const Analytics = require('../models/Analytics');
 const { requireAuth, validatePassword, setAuthCookie, clearAuthCookie } = require('../middleware/auth');
 const { generateWeeklyEditorial, createWelcomeEditorial } = require('../services/editorial');
 const { sendWeeklyNewsletter, sendExtraordinaryNewsletter } = require('../services/newsletter');
-const { generateArticleForCategory, generateArticlesForAllCategories, getArticlesPendingReview, getTodaysArticleCounts, getCategoriesNeedingContent, supplementDailyContent, CATEGORY_RESEARCH_FOCUS } = require('../services/articleGenerator');
+const { generateArticleForCategory, generateArticlesForAllCategories, getArticlesPendingReview, getTodaysArticleCounts, getCategoriesNeedingContent, supplementDailyContent, promoteQueuedArticles, getQueuedCount, CATEGORY_RESEARCH_FOCUS } = require('../services/articleGenerator');
 const Settings = require('../models/Settings');
 const { runScrape } = require('../services/scraper');
-const { processPendingArticles } = require('../services/processor');
+const { processPendingArticles, processAllPending } = require('../services/processor');
 const OperationProgress = require('../models/OperationProgress');
 
 // GET /admin - Redirect to analytics dashboard
@@ -324,6 +324,74 @@ router.post('/article/:id/delete', requireAuth, async (req, res) => {
 });
 
 // ============================================
+// Article Queue (Extraordinary Approval)
+// ============================================
+
+// GET /admin/queue - Queue page for bulk review of AI-scored scraped articles
+router.get('/queue', requireAuth, async (req, res) => {
+  try {
+    const queuedArticles = await Article.findAllQueued();
+    const pendingCount = await Article.countByStatus('pending');
+
+    res.render('admin/queue', {
+      queuedArticles,
+      pendingCount,
+      message: req.query.message || null
+    });
+  } catch (err) {
+    console.error('Error loading queue:', err);
+    res.status(500).send('Error loading article queue');
+  }
+});
+
+// POST /admin/queue/bulk-approve - Bulk approve queued articles
+router.post('/queue/bulk-approve', requireAuth, async (req, res) => {
+  try {
+    let { articleIds } = req.body;
+    let ids;
+
+    if (articleIds === 'all') {
+      const queued = await Article.findAllQueued();
+      ids = queued.map(a => a.id);
+    } else if (Array.isArray(articleIds)) {
+      ids = articleIds.map(id => parseInt(id));
+    } else if (articleIds) {
+      ids = [parseInt(articleIds)];
+    } else {
+      return res.redirect('/admin/queue?message=No articles selected');
+    }
+
+    const count = await Article.bulkUpdateStatus(ids, 'approved');
+    res.redirect(`/admin/queue?message=${count} articles approved`);
+  } catch (err) {
+    console.error('Error bulk approving:', err);
+    res.redirect('/admin/queue?message=Error approving articles');
+  }
+});
+
+// POST /admin/queue/bulk-reject - Bulk reject queued articles
+router.post('/queue/bulk-reject', requireAuth, async (req, res) => {
+  try {
+    let { articleIds } = req.body;
+    let ids;
+
+    if (Array.isArray(articleIds)) {
+      ids = articleIds.map(id => parseInt(id));
+    } else if (articleIds) {
+      ids = [parseInt(articleIds)];
+    } else {
+      return res.redirect('/admin/queue?message=No articles selected');
+    }
+
+    const count = await Article.bulkUpdateStatus(ids, 'rejected');
+    res.redirect(`/admin/queue?message=${count} articles rejected`);
+  } catch (err) {
+    console.error('Error bulk rejecting:', err);
+    res.redirect('/admin/queue?message=Error rejecting articles');
+  }
+});
+
+// ============================================
 // Content Settings
 // ============================================
 
@@ -334,6 +402,9 @@ router.get('/settings', requireAuth, async (req, res) => {
     const stats = await getTodaysArticleCounts();
     const pendingReview = await getArticlesPendingReview();
     stats.pendingReview = pendingReview.length;
+
+    // Add pending processing and queued counts
+    stats.pendingProcessing = await Article.countByStatus('pending');
 
     // Get category stats for the balance display
     const categoryStats = await getCategoriesNeedingContent();
@@ -488,6 +559,28 @@ router.post('/supplement', requireAuth, async (req, res) => {
     OperationProgress.complete();
   } catch (err) {
     console.error('Error during AI supplement:', err);
+    OperationProgress.complete(err.message);
+  }
+});
+
+// POST /admin/process-all - Process ALL pending articles into queue
+router.post('/process-all', requireAuth, async (req, res) => {
+  const current = OperationProgress.get();
+  if (current && current.status === 'running') {
+    return res.redirect('/admin/settings?message=An operation is already running');
+  }
+
+  OperationProgress.start('process-all');
+  res.redirect('/admin/settings?operation=process-all');
+
+  try {
+    console.log('[ADMIN] Processing all pending articles into queue...');
+    const result = await processAllPending({ progressCallback: OperationProgress });
+
+    OperationProgress.log(`Done: ${result.queued} queued, ${result.rejected} rejected`);
+    OperationProgress.complete();
+  } catch (err) {
+    console.error('Error during bulk processing:', err);
     OperationProgress.complete(err.message);
   }
 });

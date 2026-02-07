@@ -338,12 +338,22 @@ async function runContentCycle(label) {
   await runScrape({ maxAgeHours: settings.scrapeMaxAgeHours });
   console.log('[CRON] Scrape complete, processing articles...');
 
-  // Step 2: Process scraped articles
-  await processPendingArticles({ limit: settings.articlesPerScrape });
-  console.log('[CRON] Article processing complete');
+  // Step 2: Process scraped articles (into 'queued' status for admin review)
+  await processPendingArticles({
+    limit: settings.articlesPerScrape,
+    targetStatus: 'queued'
+  });
+  console.log('[CRON] Article processing complete (queued for review)');
 
-  // Step 3: Supplement with AI articles if needed
-  // Uses settings from database (respects AI ≤ scraped rule)
+  // Step 3: Auto-promote any queued articles that weren't manually reviewed
+  // This gives scraped content priority over AI-generated articles
+  const promoResult = await promoteQueuedArticles();
+  if (promoResult.promoted > 0) {
+    console.log(`[CRON] Auto-promoted ${promoResult.promoted} queued articles`);
+  }
+
+  // Step 4: Supplement with AI articles if still needed
+  // supplementDailyContent() also checks for queued articles as a safety net
   console.log('[CRON] Checking if AI supplementation needed...');
   await supplementDailyContent();
 }
@@ -388,7 +398,7 @@ cron.schedule('0 13 * * 1', async () => {
 
 // Auto-publish AI articles after configured hours if not reviewed
 // Runs every 6 hours
-const { autoPublishOldReviewArticles, supplementDailyContent } = require('./services/articleGenerator');
+const { autoPublishOldReviewArticles, supplementDailyContent, promoteQueuedArticles } = require('./services/articleGenerator');
 cron.schedule('0 */6 * * *', async () => {
   console.log('[CRON] Checking for AI articles to auto-publish...');
   try {

@@ -133,6 +133,14 @@
           <span class="status-label">Pending Review</span>
           <span class="status-value"><%= stats.pendingReview %></span>
         </div>
+        <div class="status-item">
+          <span class="status-label">Pending Processing</span>
+          <span class="status-value"><%= stats.pendingProcessing || 0 %></span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Queued for Review</span>
+          <span class="status-value"><%= stats.queued || 0 %></span>
+        </div>
       </div>
 
       <h3>Category Balance (Last 7 Days)</h3>
@@ -225,6 +233,14 @@
           <h3>AI Supplement</h3>
           <p>Generate AI articles to fill content gaps</p>
           <button type="submit" class="btn btn-secondary" id="btn-supplement">Run AI Supplement</button>
+        </div>
+      </form>
+
+      <form action="/admin/process-all" method="POST" class="operation-form">
+        <div class="operation-card">
+          <h3>Process All Pending</h3>
+          <p>Run all <%= stats.pendingProcessing || 0 %> pending articles through AI into the queue</p>
+          <button type="submit" class="btn btn-secondary" id="btn-process-all">Process All to Queue</button>
         </div>
       </form>
 
@@ -748,7 +764,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const opNames = {
       'scrape': 'Scrape RSS Feeds',
       'supplement': 'AI Supplement',
-      'full-refresh': 'Full Content Refresh'
+      'full-refresh': 'Full Content Refresh',
+      'process-all': 'Process All Pending Articles'
     };
     document.getElementById('operation-name').textContent = opNames[data.operation] || data.operation;
 

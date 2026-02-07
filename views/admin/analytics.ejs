@@ -275,8 +275,12 @@
       <div class="stat-change positive">+<%= stats.week.new_subscribers_week %> this week</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Pending Review</div>
+      <div class="stat-label">Pending Processing</div>
       <div class="stat-value"><%= stats.totals.pending_articles %></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Queued for Review</div>
+      <div class="stat-value"><%= stats.totals.queued_articles || 0 %></div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Active Sources</div>
@@ -433,6 +437,7 @@
     <div class="section-body">
       <div class="quick-actions">
         <a href="/api/scrape" class="action-btn primary">Run Scraper</a>
+        <a href="/admin/queue" class="action-btn primary">Approve Articles</a>
         <a href="/admin/editorials" class="action-btn secondary">Manage Editorials</a>
         <a href="/admin/subscribers" class="action-btn secondary">View Subscribers</a>
         <a href="/" class="action-btn secondary">View Site</a>

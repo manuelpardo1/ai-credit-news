@@ -524,9 +524,17 @@ async function getTodaysArticleCounts() {
       AND DATE(scraped_date) = ?
   `, [today]);
 
+  // Count queued articles (all time, not just today)
+  const queuedResult = await get(`
+    SELECT COUNT(*) as count
+    FROM articles
+    WHERE status = 'queued'
+  `);
+
   return {
     scraped: scrapedResult?.count || 0,
-    aiGenerated: aiResult?.count || 0
+    aiGenerated: aiResult?.count || 0,
+    queued: queuedResult?.count || 0
   };
 }
 
@@ -550,6 +558,52 @@ async function getCategoriesNeedingContent() {
   `);
 
   return categories;
+}
+
+/**
+ * Get count of queued articles
+ * @returns {Promise<number>}
+ */
+async function getQueuedCount() {
+  const result = await get(
+    'SELECT COUNT(*) as count FROM articles WHERE status = ?',
+    ['queued']
+  );
+  return result?.count || 0;
+}
+
+/**
+ * Promote queued scraped articles to approved status
+ * Called before AI article generation to give priority to real scraped content
+ * @param {number} maxToPromote - Maximum articles to promote (0 = all)
+ * @returns {Object} { promoted: number, articles: Array }
+ */
+async function promoteQueuedArticles(maxToPromote = 0) {
+  let query = `
+    SELECT id, title, category_id
+    FROM articles
+    WHERE status = 'queued'
+    ORDER BY relevance_score DESC, scraped_date DESC
+  `;
+
+  if (maxToPromote > 0) {
+    query += ` LIMIT ${maxToPromote}`;
+  }
+
+  const queuedArticles = await all(query);
+
+  if (queuedArticles.length === 0) {
+    return { promoted: 0, articles: [] };
+  }
+
+  const promoted = [];
+  for (const article of queuedArticles) {
+    await run('UPDATE articles SET status = ? WHERE id = ?', ['approved', article.id]);
+    promoted.push({ id: article.id, title: article.title });
+    console.log(`[QUEUE] Auto-approved: ${article.title}`);
+  }
+
+  return { promoted: promoted.length, articles: promoted };
 }
 
 /**
@@ -594,9 +648,44 @@ async function supplementDailyContent(options = {}) {
 
   // Get today's counts
   const counts = await getTodaysArticleCounts();
-  console.log(`Today's articles: ${counts.scraped} scraped, ${counts.aiGenerated} AI-generated`);
+  console.log(`Today's articles: ${counts.scraped} scraped, ${counts.aiGenerated} AI-generated, ${counts.queued} queued`);
 
-  const totalToday = counts.scraped + counts.aiGenerated;
+  let totalToday = counts.scraped + counts.aiGenerated;
+
+  // Check for queued articles and promote them first (priority over AI generation)
+  const queuedCount = await getQueuedCount();
+  if (queuedCount > 0) {
+    console.log(`[AI SUPPLEMENT] Found ${queuedCount} queued articles, promoting before AI generation...`);
+    if (progress) {
+      progress.log(`Found ${queuedCount} queued articles, promoting them first`);
+    }
+
+    // Calculate how many we can promote without exceeding daily max
+    const roomForMore = dailyMax - totalToday;
+    const toPromote = roomForMore > 0 ? Math.min(queuedCount, roomForMore) : 0;
+
+    if (toPromote > 0) {
+      const promoResult = await promoteQueuedArticles(toPromote);
+      console.log(`[AI SUPPLEMENT] Promoted ${promoResult.promoted} queued articles`);
+      if (progress) {
+        progress.log(`Promoted ${promoResult.promoted} queued articles to approved`);
+      }
+
+      // Update counts after promotion
+      counts.scraped += promoResult.promoted;
+      totalToday = counts.scraped + counts.aiGenerated;
+
+      // If we've now reached the daily max, skip AI generation
+      if (totalToday >= dailyMax) {
+        console.log(`[AI SUPPLEMENT] Daily max reached after promoting queued articles. Skipping AI generation.`);
+        if (progress) {
+          progress.log(`Daily max (${dailyMax}) reached after promoting queued articles`);
+          progress.updateAI({ aiArticlesToGenerate: 0, aiArticlesGenerated: 0 });
+        }
+        return { generated: [], reason: 'daily_max_reached_after_queue', promoted: promoResult.promoted };
+      }
+    }
+  }
 
   // Check if max already reached
   if (totalToday >= dailyMax) {
@@ -738,6 +827,8 @@ module.exports = {
   supplementDailyContent,
   getTodaysArticleCounts,
   getCategoriesNeedingContent,
+  promoteQueuedArticles,
+  getQueuedCount,
   CATEGORY_RESEARCH_FOCUS,
   ARTICLE_TYPES
 };
