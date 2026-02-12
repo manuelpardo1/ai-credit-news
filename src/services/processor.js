@@ -9,6 +9,11 @@ const { close } = require('../database/db');
 // Rate limiting helper
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Minimum content length to publish an article (in characters).
+// Articles below this threshold are auto-rejected — the product curates
+// full articles, not snippets.
+const MIN_CONTENT_LENGTH = 500;
+
 /**
  * Process all pending articles through AI pipeline
  * @param {Object} options
@@ -69,6 +74,26 @@ async function processPendingArticles({ limit = 10, dryRun = false, progressCall
     }
 
     try {
+      // Reject articles with insufficient content — no point sending to AI
+      const contentLength = (article.content || '').length;
+      if (contentLength < MIN_CONTENT_LENGTH) {
+        console.log(`  ✗ Content too short (${contentLength}/${MIN_CONTENT_LENGTH} chars), rejecting: ${article.title?.substring(0, 50)}`);
+        if (!dryRun) {
+          await Article.update(article.id, { status: 'rejected' });
+        }
+        rejected++;
+        processed++;
+        if (progress) {
+          progress.log(`Rejected (too short): ${article.title?.substring(0, 40)}...`);
+          progress.updateProcessing({
+            articlesProcessed: processed,
+            articlesApproved: approved,
+            articlesRejected: rejected
+          });
+        }
+        continue;
+      }
+
       // Process through AI
       const result = await processArticle(article);
 
