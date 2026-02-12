@@ -347,13 +347,16 @@ async function runContentCycle(label) {
   await runScrape({ maxAgeHours: settings.scrapeMaxAgeHours });
   console.log('[CRON] Scrape complete, processing articles...');
 
-  // Step 3: Process scraped articles (into 'queued' status for admin review)
-  // These will stay in queue until the next cron cycle or manual admin approval
+  // Step 3: Process ALL scraped articles (into 'queued' status for admin review)
+  // The two-stage AI filter (Haiku title check → Sonnet full analysis) is cost-efficient.
+  // Throttling to a small limit starves the pipeline — process everything.
+  const Article = require('./models/Article');
+  const pendingCount = await Article.countByStatus('pending');
   await processPendingArticles({
-    limit: settings.articlesPerScrape,
+    limit: Math.max(pendingCount, 100),
     targetStatus: 'queued'
   });
-  console.log('[CRON] Article processing complete (queued for review)');
+  console.log(`[CRON] Article processing complete: ${pendingCount} pending processed (queued for review)`);
 
   // Step 4: Supplement with AI articles if still needed
   // supplementDailyContent() also checks for queued articles as a safety net
@@ -361,20 +364,19 @@ async function runContentCycle(label) {
   await supplementDailyContent();
 }
 
+// Content cycles: 4x daily to keep articles fresh
+// 6 AM, 12 PM, 6 PM, 12 AM Colombia (UTC-5)
 cron.schedule('0 5 * * *', async () => {
-  try {
-    await runContentCycle('12 AM Colombia');
-  } catch (err) {
-    console.error('[CRON] Scrape/process failed:', err.message);
-  }
+  try { await runContentCycle('12 AM Colombia'); } catch (err) { console.error('[CRON] Scrape/process failed:', err.message); }
 });
-
+cron.schedule('0 11 * * *', async () => {
+  try { await runContentCycle('6 AM Colombia'); } catch (err) { console.error('[CRON] Scrape/process failed:', err.message); }
+});
 cron.schedule('0 17 * * *', async () => {
-  try {
-    await runContentCycle('12 PM Colombia');
-  } catch (err) {
-    console.error('[CRON] Scrape/process failed:', err.message);
-  }
+  try { await runContentCycle('12 PM Colombia'); } catch (err) { console.error('[CRON] Scrape/process failed:', err.message); }
+});
+cron.schedule('0 23 * * *', async () => {
+  try { await runContentCycle('6 PM Colombia'); } catch (err) { console.error('[CRON] Scrape/process failed:', err.message); }
 });
 
 // Generate editorial every Sunday at 6 PM UTC (1 PM Colombia)
