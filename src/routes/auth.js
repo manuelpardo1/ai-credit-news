@@ -152,7 +152,15 @@ router.post('/register', async (req, res) => {
     const user = await User.create({ email, password, name });
     setUserSession(res, user);
 
-    // TODO: Send verification email
+    // Send verification email (non-blocking — don't delay the redirect)
+    try {
+      const { sendVerificationEmail } = require('../services/email');
+      sendVerificationEmail(user).catch(err => {
+        console.error('Failed to send verification email:', err.message);
+      });
+    } catch (err) {
+      console.error('Email service error:', err.message);
+    }
 
     res.redirect('/');
   } catch (err) {
@@ -163,6 +171,30 @@ router.post('/register', async (req, res) => {
       appleClientId: process.env.APPLE_CLIENT_ID,
       categories
     });
+  }
+});
+
+// GET /auth/verify/:token - Email verification
+router.get('/verify/:token', async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const verified = await User.verifyEmail(token);
+    if (verified) {
+      return res.redirect('/auth/profile?verified=1');
+    }
+    // Invalid or expired token
+    const categories = await Category.getWithArticleCount();
+    res.render('auth/login', {
+      error: 'Invalid or expired verification link. Please log in and request a new one.',
+      redirect: '/',
+      googleClientId: process.env.GOOGLE_CLIENT_ID,
+      appleClientId: process.env.APPLE_CLIENT_ID,
+      categories
+    });
+  } catch (err) {
+    console.error('Email verification error:', err);
+    res.redirect('/auth/login');
   }
 });
 

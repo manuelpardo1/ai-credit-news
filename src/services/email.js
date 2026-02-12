@@ -378,10 +378,75 @@ async function sendNewsletterToSubscriber(subscriber, editorial, articles) {
   });
 }
 
+/**
+ * Send email verification to a new user
+ */
+async function sendVerificationEmail(user) {
+  const verifyUrl = `${SITE_URL}/auth/verify/${user.verificationToken}`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f7fafc;">
+      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #1a365d 0%, #2c7a7b 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px;">Verify Your Email</h1>
+          <p style="margin: 10px 0 0 0; opacity: 0.9;">AI Credit News</p>
+        </div>
+        <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px;">
+          <p style="font-size: 16px; margin: 0 0 15px 0;">Hi ${user.name || 'there'},</p>
+          <p style="margin: 0 0 20px 0;">
+            Thank you for creating an account. Please verify your email address by clicking the button below.
+          </p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verifyUrl}" style="display: inline-block; background: #2c7a7b; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">
+              Verify Email Address
+            </a>
+          </div>
+          <p style="margin: 0; color: #718096; font-size: 13px;">
+            If you didn't create this account, you can safely ignore this email.
+          </p>
+        </div>
+        <div style="text-align: center; padding: 20px; color: #718096; font-size: 12px;">
+          <p>AI Credit News - AI in Credit &amp; Banking</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const text = `
+Verify Your Email - AI Credit News
+====================================
+
+Hi ${user.name || 'there'},
+
+Thank you for creating an account. Please verify your email by visiting:
+${verifyUrl}
+
+If you didn't create this account, you can safely ignore this email.
+
+---
+AI Credit News
+  `.trim();
+
+  return sendEmail({
+    to: user.email,
+    subject: 'Verify your email - AI Credit News',
+    html,
+    text
+  });
+}
+
 module.exports = {
   sendEmail,
   sendAdminNotification,
   sendWelcomeEmail,
+  sendVerificationEmail,
   sendNewsletterToSubscriber,
   generateNewsletterHtml,
   generateNewsletterText

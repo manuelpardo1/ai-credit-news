@@ -448,6 +448,59 @@ function resetModelCache() {
   MODELS.editorial = null;
 }
 
+/**
+ * Expand short article content into a full article using AI
+ * Called when scraped content is too short to be useful (<500 chars)
+ */
+async function expandShortContent(article) {
+  await initializeModels();
+
+  const existingContent = (article.content || article.summary || '').substring(0, 1000);
+
+  const prompt = `You are a senior financial technology journalist writing for AI Credit News.
+
+You have a scraped article that only contains a short snippet. Write a complete, informative article based on the available information.
+
+ORIGINAL ARTICLE:
+Title: ${article.title}
+Source: ${article.source}
+Available content: ${existingContent}
+
+REQUIREMENTS:
+- Write 400-600 words of original content
+- Use the title and snippet as your starting point
+- Provide context, analysis, and implications
+- Focus on the AI/fintech/credit angle
+- Use professional journalism style
+- Include relevant industry context
+- Do NOT fabricate specific quotes or statistics
+- Use phrases like "industry analysts note" or "according to reports" for context
+
+Return ONLY the article text (no JSON, no title, no metadata). Use \\n\\n to separate paragraphs.`;
+
+  try {
+    const response = await anthropic.messages.create({
+      model: MODELS.full,
+      max_tokens: 1500,
+      messages: [{ role: 'user', content: prompt }]
+    });
+
+    const expandedContent = response.content[0].text.trim();
+
+    // Only use expanded content if it's substantially longer
+    if (expandedContent.length > existingContent.length * 1.5 && expandedContent.length > 500) {
+      console.log(`    ✓ Expanded content: ${existingContent.length} → ${expandedContent.length} chars`);
+      return expandedContent;
+    }
+
+    console.log(`    ⚠ Expansion didn't produce enough content, keeping original`);
+    return null;
+  } catch (err) {
+    console.error('Error expanding content:', err.message);
+    return null;
+  }
+}
+
 // Legacy functions for backwards compatibility
 async function analyzeRelevance(article) {
   const result = await processArticleFull(article);
@@ -475,6 +528,7 @@ module.exports = {
   filterByTitle,
   processArticleFull,
   processArticle,
+  expandShortContent,
   generateEditorial,
   analyzeRelevance,
   summarizeArticle,

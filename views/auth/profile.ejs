@@ -16,6 +16,9 @@
     <% if (req && req.query && req.query.success) { %>
     <div class="auth-success">Profile updated successfully</div>
     <% } %>
+    <% if (req && req.query && req.query.verified) { %>
+    <div class="auth-success">Your email has been verified successfully!</div>
+    <% } %>
     <% if (req && req.query && req.query.error) { %>
     <div class="auth-error">Failed to update profile. Please try again.</div>
     <% } %>

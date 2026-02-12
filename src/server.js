@@ -63,6 +63,7 @@ const scrapeRouter = require('./routes/scrape');
 const adminRouter = require('./routes/admin');
 const subscribeRouter = require('./routes/subscribe');
 const { router: authRouter } = require('./routes/auth');
+const qaRouter = require('./routes/qa');
 
 app.use('/api/articles', articlesRouter);
 app.use('/api/categories', categoriesRouter);
@@ -73,6 +74,7 @@ app.use('/admin', adminRouter);
 app.use('/subscribe', subscribeRouter);
 app.use('/', subscribeRouter); // For /unsubscribe/:token
 app.use('/auth', authRouter);
+app.use('/api/qa', qaRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
