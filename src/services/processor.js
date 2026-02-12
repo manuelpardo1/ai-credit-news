@@ -3,7 +3,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 const Article = require('../models/Article');
 const Tag = require('../models/Tag');
-const { processArticle, expandShortContent } = require('./ai');
+const { processArticle } = require('./ai');
 const { close } = require('../database/db');
 
 // Rate limiting helper
@@ -78,30 +78,14 @@ async function processPendingArticles({ limit = 10, dryRun = false, progressCall
         : result.status;
 
       if (!dryRun) {
-        // Expand short content for approved/queued articles
-        let expandedContent = null;
-        const contentLength = (article.content || '').length;
-        if (result.status === 'approved' && contentLength < 500) {
-          console.log(`  → Content too short (${contentLength} chars), expanding with AI...`);
-          if (progress) progress.log(`Expanding short content: ${article.title?.substring(0, 40)}...`);
-          expandedContent = await expandShortContent(article);
-        }
-
         // Update article in database
-        const updateData = {
+        await Article.update(article.id, {
           relevance_score: result.relevance_score,
           category_id: result.category_id,
           summary: result.summary,
           difficulty_level: result.difficulty_level,
           status: finalStatus
-        };
-
-        // Include expanded content if available
-        if (expandedContent) {
-          updateData.content = expandedContent;
-        }
-
-        await Article.update(article.id, updateData);
+        });
 
         // Add tags if relevant (approved or queued)
         if (result.status === 'approved' && result.tags.length > 0) {
