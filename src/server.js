@@ -336,27 +336,20 @@ async function runContentCycle(label) {
   console.log(`[CRON] Starting scheduled scrape (${label})...`);
   console.log(`[CRON] Settings: maxAge=${settings.scrapeMaxAgeHours}h, perScrape=${settings.articlesPerScrape}`);
 
-  // Step 1: Auto-promote any PREVIOUSLY queued articles that weren't manually reviewed
-  // This runs BEFORE scraping so new articles stay in queue for admin review until next cycle
-  const promoResult = await promoteQueuedArticles();
-  if (promoResult.promoted > 0) {
-    console.log(`[CRON] Auto-promoted ${promoResult.promoted} previously queued articles`);
-  }
-
-  // Step 2: Scrape new articles
+  // Step 1: Scrape new articles
   await runScrape({ maxAgeHours: settings.scrapeMaxAgeHours });
   console.log('[CRON] Scrape complete, processing articles...');
 
-  // Step 3: Process ALL scraped articles (into 'queued' status for admin review)
-  // The two-stage AI filter (Haiku title check → Sonnet full analysis) is cost-efficient.
-  // Throttling to a small limit starves the pipeline — process everything.
+  // Step 2: Process ALL scraped articles directly to approved
+  // The two-stage AI filter (Haiku title check → Sonnet full analysis) is the quality gate.
+  // No admin review needed for scraped articles — AI curation is the product.
   const Article = require('./models/Article');
   const pendingCount = await Article.countByStatus('pending');
   await processPendingArticles({
     limit: Math.max(pendingCount, 100),
-    targetStatus: 'queued'
+    targetStatus: 'approved'
   });
-  console.log(`[CRON] Article processing complete: ${pendingCount} pending processed (queued for review)`);
+  console.log(`[CRON] Article processing complete: ${pendingCount} pending processed`);
 
   // Step 4: Supplement with AI articles if still needed
   // supplementDailyContent() also checks for queued articles as a safety net
@@ -403,7 +396,7 @@ cron.schedule('0 13 * * 1', async () => {
 
 // Auto-publish AI articles after configured hours if not reviewed
 // Runs every 6 hours
-const { autoPublishOldReviewArticles, supplementDailyContent, promoteQueuedArticles } = require('./services/articleGenerator');
+const { autoPublishOldReviewArticles, supplementDailyContent } = require('./services/articleGenerator');
 cron.schedule('0 */6 * * *', async () => {
   console.log('[CRON] Checking for AI articles to auto-publish...');
   try {
