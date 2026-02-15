@@ -23,7 +23,7 @@ const activeSources = [
   { name: 'ABA Banking Journal', rss_feed: 'https://bankingjournal.aba.com/feed/', language: 'en' },
   { name: 'PaymentsJournal', rss_feed: 'https://paymentsjournal.com/feed/', language: 'en' },
   { name: 'Fintech Futures', rss_feed: 'https://www.fintechfutures.com/feed/', language: 'en' },
-  { name: 'FinAi News', rss_feed: 'https://finainews.com/feed/', language: 'en' },
+  { name: 'FinAi News (via Google News)', rss_feed: 'https://news.google.com/rss/search?q=site:finainews.com&hl=en-US&gl=US&ceid=US:en', language: 'en' },
 
   // Tier 2 — Broader fintech/AI with moderate hit rate
   { name: 'The Financial Brand', rss_feed: 'https://thefinancialbrand.com/feed/', language: 'en' },
