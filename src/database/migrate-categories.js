@@ -17,12 +17,6 @@ const newCategories = [
     icon: 'shield'
   },
   {
-    name: 'Credit Risk',
-    slug: 'credit-risk',
-    description: 'AI for credit risk assessment, modeling, and management',
-    icon: 'chart-line'
-  },
-  {
     name: 'Income & Employment',
     slug: 'income-employment',
     description: 'AI for income verification, employment data, and affordability analysis',
@@ -46,7 +40,7 @@ const newCategories = [
 const categoryMapping = {
   'ai-credit-scoring': 'credit-scoring',
   'fraud-detection': 'fraud-detection',
-  'risk-management': 'credit-risk',
+  'risk-management': 'credit-scoring',
   'banking-automation': 'lending-automation',
   // These will be deleted (articles reassigned or removed)
   'customer-experience': null,
@@ -80,36 +74,33 @@ async function migrateCategories() {
     const oldCategories = await all('SELECT * FROM categories');
     console.log('Current categories:', oldCategories.map(c => c.slug));
 
-    // Disable foreign key checks temporarily
-    await run('PRAGMA foreign_keys = OFF');
-
-    // Delete all articles (we'll re-scrape them with correct categories)
-    console.log('\nDeleting all articles to allow category cleanup...');
-    await run('DELETE FROM articles');
-
-    // Delete all old categories
-    console.log('Deleting old categories...');
-    await run('DELETE FROM categories');
-
-    // Insert new categories
-    console.log('Inserting new categories...');
+    // Insert any missing new categories (safe — never deletes articles)
+    console.log('Ensuring all required categories exist...');
     for (const cat of newCategories) {
       await run(
-        'INSERT INTO categories (name, slug, description, icon) VALUES (?, ?, ?, ?)',
+        'INSERT OR IGNORE INTO categories (name, slug, description, icon) VALUES (?, ?, ?, ?)',
         [cat.name, cat.slug, cat.description, cat.icon]
       );
-      console.log(`  Added: ${cat.name}`);
     }
 
-    // Get new category IDs
+    // Remove obsolete old categories (reassign their articles to credit-scoring first)
+    const creditScoring = await all("SELECT id FROM categories WHERE slug = 'credit-scoring'");
+    if (creditScoring.length > 0) {
+      const defaultCategoryId = creditScoring[0].id;
+      const obsoleteSlugs = ['customer-experience', 'research-innovation', 'case-studies', 'industry-news', 'ethics-bias', 'ai-credit-scoring', 'banking-automation'];
+      for (const slug of obsoleteSlugs) {
+        const old = await all('SELECT id FROM categories WHERE slug = ?', [slug]);
+        if (old.length > 0) {
+          await run('UPDATE articles SET category_id = ? WHERE category_id = ?', [defaultCategoryId, old[0].id]);
+          await run('DELETE FROM categories WHERE id = ?', [old[0].id]);
+          console.log(`  Removed obsolete category: ${slug}`);
+        }
+      }
+    }
+
     const updatedCategories = await all('SELECT * FROM categories');
-    console.log('\nNew categories:', updatedCategories.map(c => `${c.name} (${c.id})`));
-
-    // Re-enable foreign key checks
-    await run('PRAGMA foreign_keys = ON');
-
-    console.log('\nCategory migration complete!');
-    console.log('Note: All articles were deleted. Run scraper to re-populate.');
+    console.log('Categories:', updatedCategories.map(c => `${c.name} (${c.id})`));
+    console.log('Category migration complete (articles preserved).');
 
   } catch (err) {
     console.error('Migration error:', err);
