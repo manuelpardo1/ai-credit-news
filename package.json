@@ -7,7 +7,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "start": "node src/database/init.js && node src/database/seed.js && node src/database/migrate-categories.js && node src/database/migrate-analytics.js && node src/database/migrate-community.js && node src/database/migrate-categories-consolidate.js && node src/database/migrate-ai-articles.js && node src/database/migrate-settings.js && node src/server.js",
+    "start": "node src/database/init.js && node src/database/seed.js && node src/database/migrate-categories.js && node src/database/migrate-analytics.js && node src/database/migrate-community.js && node src/database/migrate-categories-consolidate.js && node src/database/migrate-ai-articles.js && node src/database/migrate-settings.js && node src/database/migrate-sources-cleanup.js && node src/server.js",
     "dev": "nodemon src/server.js",
     "build": "npm run db:init && npm run db:seed && npm run db:migrate",
     "db:init": "node src/database/init.js",
